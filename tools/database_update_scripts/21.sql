@@ -1,0 +1,2 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventEnrollmentId_invalid', 'The event enrollment id is invalid.', 'Die Id der Veranstaltungsteilnahme ist ungültig.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventEnrollmentDate_malformed', 'The event enrollment date\'s format is malformed.', 'Das Format des Anmeldedatums ist nicht korrekt.');

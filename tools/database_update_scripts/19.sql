@@ -1,0 +1,2 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventLocationTitle_invalid', 'The selected event location title is either empty or too long.', 'Der ausgewählte Titel des Veranstaltungsorteintrags ist entweder leer oder zu lang.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventLocationTitle_taken', 'There is already an event location with this title.', 'Es existiert bereits ein Veranstaltungsorteintrag mit diesem Titel.');

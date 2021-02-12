@@ -1,0 +1,8 @@
+{
+    "jdbc_url": "jdbc:mysql://jma-database/junges_muensterschwarzach_app",
+    "server": "jma-database",
+    "username": "root",
+    "password": "<YOUR MYSQL ROOT PASSWORD>",
+    "database": "junges_muensterschwarzach_app",
+    "encoding": "utf8mb4"
+}

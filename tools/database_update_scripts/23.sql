@@ -1,0 +1,1 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('account_transfer_exists_already', 'There is already an account transfer in progress for that account.', 'Für diesen Account ist bereits ein Account-Transfer im Gange.');

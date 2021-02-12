@@ -1,0 +1,6 @@
+UPDATE `strings` SET `de` = 'Abt Michael Reepen - Abtei Münsterschwarzach\r\nSchweinfurter Straße 40\r\n97359 Münsterschwarzach\r\nTelefon: Tel. 09324 200\r\nE-Mail: prokura@abtei-muensterschwarzach.de' WHERE `strings`.`identifier` = 'legal_notice_authorized_representative_paragraph';
+UPDATE `strings` SET `de` = 'Pater Maximilian Grund - Abtei Münsterschwarzach\r\nSchweinfurter Straße 40\r\n97359 Münsterschwarzach\r\nTelefon: Tel. 09324 20204\r\nE-Mail: p.maximilian@abtei-muensterschwarzach.de' WHERE `strings`.`identifier` = 'legal_notice_responsible_content_paragraph';
+UPDATE `strings` SET `de` = 'Lucas Kinne\r\nOttostraße 1\r\n97070 Würzburg\r\nE-Mail: lucas.kinne@live.de' WHERE `strings`.`identifier` = 'legal_notice_responsible_technics_paragraph';
+DELETE FROM `strings` WHERE `identifier` = 'privacy_policy_technical_transfer_npm_packages_heading';
+DELETE FROM `strings` WHERE `identifier` = 'privacy_policy_technical_transfer_npm_packages_paragraph';
+UPDATE `strings` SET `de` = 'Stand vom 30.06.2019' WHERE `strings`.`identifier` = 'legal_notice_effective';

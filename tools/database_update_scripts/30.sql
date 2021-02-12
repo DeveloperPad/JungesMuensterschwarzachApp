@@ -1,0 +1,2 @@
+UPDATE `strings` SET `de` = 'Für die vorliegende App „Junges Münsterschwarzach“ und dem zugehörigen Web-Service, erreichbar unter https://app.junges-muensterschwarzach.de, nachfolgend „Plattform“ genannt, sind folgende Einrichtung bzw. Personen verantwortlich im Sinne der einschlägigen gesetzlichen Bestimmungen:' WHERE `strings`.`identifier` = 'legal_notice_paragraph';
+UPDATE `strings` SET `de` = 'Stand vom 09.01.2020' WHERE `strings`.`identifier` = 'legal_notice_effective';

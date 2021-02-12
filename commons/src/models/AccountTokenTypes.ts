@@ -1,0 +1,6 @@
+export enum AccountTokenTypes {
+    ACTIVATION = "ACTIVATION",
+    PASSWORD_RESET = "PASSWORD_RESET",
+    E_MAIL_UPDATE = "E_MAIL_UPDATE",
+    DELETION = "DELETION"
+}

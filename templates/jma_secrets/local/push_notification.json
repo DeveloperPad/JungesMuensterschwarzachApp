@@ -1,0 +1,5 @@
+{
+    "key_private": "<YOUR PRIVATE WEB PUSH KEY>",
+    "key_public": "<YOUR PUBLIC WEB PUSH KEY>",
+    "encoding": "aes128gcm"
+}

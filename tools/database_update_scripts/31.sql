@@ -1,0 +1,1 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventEnrollmentDate', 'Enrollment date', 'Anmeldedatum');

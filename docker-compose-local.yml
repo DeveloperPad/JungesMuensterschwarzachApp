@@ -1,0 +1,23 @@
+version: '3'
+services:
+  jma-app:
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+  jma-webservice:
+    volumes:
+      - ./webservice:/var/www/html
+  jma-phpmyadmin:
+    container_name: jma-phpmyadmin
+    depends_on:
+      - jma-database
+    image: phpmyadmin:latest
+    environment:
+      PMA_HOST: jma-database
+      PMA_ABSOLUTE_URI: ${JMA_BASE_URL}/phpmyadmin
+      MYSQL_ROOT_PASSWORD_FILE: /var/data/mysql/secrets/root_pass
+    restart: always
+    volumes:
+      - ${MYSQL_SECRETS}:/var/data/mysql/secrets

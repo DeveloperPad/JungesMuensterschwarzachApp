@@ -1,0 +1,1 @@
+remove "jsx" and "noFallthroughCasesInSwitch" from tsconfig.json

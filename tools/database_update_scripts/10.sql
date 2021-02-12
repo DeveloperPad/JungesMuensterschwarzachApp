@@ -1,0 +1,3 @@
+UPDATE `strings` SET `de` = '{vmtl. Abt}' WHERE `strings`.`identifier` = 'legal_notice_authorized_representative_paragraph';
+UPDATE `strings` SET `de` = '{Hauptverantwortlicher Redakteur}' WHERE `strings`.`identifier` = 'legal_notice_responsible_content_paragraph';
+UPDATE `strings` SET `de` = 'Lucas Kinne\r\n(Entwickler)\r\nE-Mail: lucas.kinne@live.de' WHERE `strings`.`identifier` = 'legal_notice_responsible_technics_paragraph';

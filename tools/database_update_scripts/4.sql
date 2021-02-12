@@ -1,0 +1,2 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`, `mode`) VALUES ('label_legend', 'Legend', 'Legende', 'ANDROID+IOS+WEB');
+INSERT INTO `strings` (`identifier`, `en`, `de`, `mode`) VALUES ('event_participants_list_empty', 'No event participant found.', 'Keinen Veranstaltungsteilnehmer gefunden.', 'ANDROID+IOS+WEB');

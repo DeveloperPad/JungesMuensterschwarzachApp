@@ -1,0 +1,4 @@
+ALTER TABLE `news` CHANGE `content` `content` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+UPDATE `strings` SET `en` = 'The content\'s length must be between 1 and 4294967295 characters.', `de` = 'Die Länge des Gesamtinhalts muss zwischen 1 und 4294967295 Zeichen liegen.' WHERE `strings`.`identifier` = 'news_content_invalid';
+ALTER TABLE `events` CHANGE `eventDetails` `eventDetails` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+UPDATE `strings` SET `en` = 'The detail\'s length must be between 1 and 4294967295 characters.', `de` = 'Die Länge der Details muss zwischen 1 und 4294967295 Zeichen liegen.' WHERE `strings`.`identifier` = 'event_eventDetails_invalid';

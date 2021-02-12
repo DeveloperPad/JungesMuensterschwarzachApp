@@ -1,0 +1,4 @@
+ALTER TABLE `strings` DROP `mode`;
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventArrivalTitle_invalid', 'The selected event arrival title is either empty or too long.', 'Der ausgewählte Anreisetitel ist entweder leer oder zu lang.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventArrivalTitle_taken', 'There is already an event arrival with this title.', 'Es existiert bereits eine Anreisemöglichkeit mit diesem Titel.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventArrivalContent_invalid', 'The selected event arrival content is either empty or too long.', 'Der ausgewählte Anreisetext ist entweder leer oder zu lang.');

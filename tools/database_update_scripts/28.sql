@@ -1,0 +1,1 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('account_allowPost_missing_address', 'tbd', 'Um Post von uns empfangen zu können, musst du deine Adressdaten (Vorname, Nachname, Straße, Hausnummer, Postleitzahl, Wohnort und Land) angeben.');

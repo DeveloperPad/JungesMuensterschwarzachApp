@@ -1,0 +1,1 @@
+UPDATE image_library SET path = REPLACE(path, '\\', '/');

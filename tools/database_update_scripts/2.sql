@@ -1,0 +1,11 @@
+UPDATE `strings` SET `mode` = 'ANDROID+IOS+WEB' WHERE `strings`.`identifier` = 'account_accessLevel';
+UPDATE `strings` SET `mode` = 'ANDROID+IOS+WEB' WHERE `strings`.`identifier` = 'account_accessLevel_developer';
+UPDATE `strings` SET `mode` = 'ANDROID+IOS+WEB' WHERE `strings`.`identifier` = 'account_accessLevel_editor';
+UPDATE `strings` SET `mode` = 'ANDROID+IOS+WEB' WHERE `strings`.`identifier` = 'account_accessLevel_guest';
+UPDATE `strings` SET `mode` = 'ANDROID+IOS+WEB' WHERE `strings`.`identifier` = 'account_accessLevel_moderator';
+UPDATE `strings` SET `mode` = 'ANDROID+IOS+WEB' WHERE `strings`.`identifier` = 'account_accessLevel_user';
+UPDATE `strings` SET `mode` = 'ANDROID+IOS+WEB' WHERE `strings`.`identifier` = 'label_failure';
+UPDATE `strings` SET `mode` = 'ANDROID+IOS+WEB' WHERE `strings`.`identifier` = 'account_id';
+INSERT INTO `strings` (`identifier`, `en`, `de`, `mode`) VALUES ('account_data_event', 'Event Data', 'Veranstaltungsdaten', 'ANDROID+IOS');
+INSERT INTO `strings` (`identifier`, `en`, `de`, `mode`) VALUES ('account_data_account', 'Account Data', 'Accountdaten', 'ANDROID+IOS');
+INSERT INTO `strings` (`identifier`, `en`, `de`, `mode`) VALUES ('account_data_contact', 'Contact Data', 'Kontaktdaten', 'ANDROID+IOS');

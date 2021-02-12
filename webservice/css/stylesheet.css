@@ -1,0 +1,87 @@
+.jma-background-color {
+	background-color: #e0e0e0;
+}
+
+.disable-resizing {
+	resize: none;
+}
+
+.font-underline {
+	text-decoration: underline;
+}
+
+.jma-navigation-dropdown-menu {
+	text-align: center;
+	background-color: #343a40 !important;
+}
+
+.jma-navigation-dropdown-item {
+	color: #f8f9fa !important;
+	text-decoration: none !important;
+	display: block;
+	padding-left: 0.3em;
+	padding-right: 0.3em;
+	padding-top: 0.75em;
+	padding-bottom: 0.75em;
+	border-top: 1px solid #202020;
+}
+
+.jma-navigation-dropdown-item:first-child {
+	padding-top: 0.375em;
+	border-top: none;
+}
+
+.jma-navigation-dropdown-item:last-child {
+	padding-bottom: 0.375em;
+}
+
+.jma-required-signUp {
+	color: #ff0000;
+}
+
+.jma-required-event {
+	color: #148614;
+}
+
+.jma-table {
+	table-layout: fixed;
+	word-wrap: break-word;
+}
+
+.modal-dialog-maximize {
+	width: 95%;
+	height: auto;
+	max-height: 85%;
+	max-width: 100%;  
+	margin-left: 2.5%;
+	margin-right: 2.5%;
+	margin-top: 2.5%;
+	margin-bottom: 2.5%;
+	padding: 0;
+}
+
+.modal-content-maximize {
+	height: auto;
+	min-height: 100%;
+}
+
+#imageCarousel a i {
+	color: #0088ff;
+	font-size: 2em;
+}
+
+#imageCarousel .carousel-indicators {
+	position: absolute;
+	bottom: 6em;
+}
+
+#imageCarousel .carousel-caption {
+	position: relative;
+	left: auto;
+	right: auto;
+	margin-top: 1em;
+}
+
+#jma-maps-container-modal {
+	height: 650px;
+}

@@ -1,0 +1,17 @@
+/app/debug.*
+/app/package.json
+/tools/AutomationTools/build/*
+/tools/AutomationTools/AutomationTools.jar
+*/build
+*/captures
+*/dist
+*/nbproject/private
+*.iml
+*.gradle
+*.eslintcache
+.DS_Store
+.externalNativeBuild
+local.properties
+webservice/storedImages/
+node_modules
+data

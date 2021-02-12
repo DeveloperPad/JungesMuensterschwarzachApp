@@ -1,0 +1,11 @@
+FROM node:lts-alpine
+RUN apk add git
+WORKDIR /app
+ENV PATH /app/node_modules/.bin:$PATH
+COPY package*.json ./
+RUN npm install
+RUN npm install react-scripts -g
+COPY ./app ./
+RUN cp -r /app/public/ /app/node_modules/static-content/
+EXPOSE 3000
+ENTRYPOINT ["npm", "run", "start-app-local"]

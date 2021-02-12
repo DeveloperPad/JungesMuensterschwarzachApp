@@ -1,0 +1,1 @@
+UPDATE `strings` SET `en` = 'Event-Related Data', `de` = 'Veranstaltungsrelevante Daten' WHERE `strings`.`identifier` = 'account_data_event';

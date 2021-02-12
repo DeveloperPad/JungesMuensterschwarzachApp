@@ -1,0 +1,1 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('error_type_email', 'E-Mail Error', 'E-Mail-Fehler');

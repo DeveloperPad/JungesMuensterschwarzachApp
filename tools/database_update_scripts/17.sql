@@ -1,0 +1,3 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventPackingListTitle_invalid', 'The selected event packing list title is either empty or too long.', 'Der ausgewählte Titel des Packlisteneintrags ist entweder leer oder zu lang.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventPackingListTitle_taken', 'There is already an event packing list with this title.', 'Es existiert bereits ein Packlisteneintrag mit diesem Titel.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventPackingListContent_invalid', 'The selected event packing list content is either empty or too long.', 'Der ausgewählte Text des Packlisteneintrags ist entweder leer oder zu lang.');

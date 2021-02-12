@@ -1,0 +1,3 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventPriceTitle_invalid', 'The selected event price title is either empty or too long.', 'Der ausgewählte Titel des Teilnahmegebühreneintrags ist entweder leer oder zu lang.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventPriceTitle_taken', 'There is already an event price with this title.', 'Es existiert bereits ein Teilnahmegebühreneintrag mit diesem Titel.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventPriceContent_invalid', 'The selected event price content is either empty or too long.', 'Der ausgewählte Text des Teilnahmegebühreneintrags ist entweder leer oder zu lang.');

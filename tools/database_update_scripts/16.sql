@@ -1,0 +1,3 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventScheduleTitle_invalid', 'The selected event schedule title is either empty or too long.', 'Der ausgewählte Titel des Ablaufplaneintrags ist entweder leer oder zu lang.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventScheduleTitle_taken', 'There is already an event schedule with this title.', 'Es existiert bereits ein Ablaufplaneintrag mit diesem Titel.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventScheduleContent_invalid', 'The selected event schedule content is either empty or too long.', 'Der ausgewählte Text des Ablaufplaneintrags ist entweder leer oder zu lang.');

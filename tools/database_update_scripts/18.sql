@@ -1,0 +1,3 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventTargetGroupTitle_invalid', 'The selected event target group title is either empty or too long.', 'Der ausgewählte Titel des Zielgruppeneintrags ist entweder leer oder zu lang.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventTargetGroupTitle_taken', 'There is already an event target group with this title.', 'Es existiert bereits ein Zielgruppeneintrag mit diesem Titel.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventTargetGroupContent_invalid', 'The selected event target group content is either empty or too long.', 'Der ausgewählte Text des Zielgruppeneintrags ist entweder leer oder zu lang.');

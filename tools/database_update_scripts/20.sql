@@ -1,0 +1,8 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventArrival_in_usage', 'The selected event arrival is still in usage.', 'Der ausgewählte Veranstaltungsanreiseeintrag ist noch in Benutzung.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventLocation_in_usage', 'The selected event location is still in usage.', 'Der ausgewählte Veranstaltungsortseintrag ist noch in Benutzung.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventOffer_in_usage', 'The selected event offer is still in usage.', 'Der ausgewählte Veranstaltungsangebotseintrag ist noch in Benutzung.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventPackingList_in_usage', 'The selected event packing list is still in usage.', 'Der ausgewählte Veranstaltungspacklisteneintrag ist noch in Benutzung.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventPrice_in_usage', 'The selected event price is still in usage.', 'Der ausgewählte Teilnahmegebühreneintrag ist noch in Benutzung.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventSchedule_in_usage', 'The selected event schedule is still in usage.', 'Der ausgewählte Ablaufplaneintrag ist noch in Benutzung.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_eventTargetGroup_in_usage', 'The selected event target group is still in usage.', 'Der ausgewählte Zielgruppeneintrag ist noch in Benutzung.');
+UPDATE `strings` SET `de` = 'Der Ablaufplan wurde erfolgreich aktualisiert.' WHERE `strings`.`identifier` = 'event_eventScheduleId_updated';
