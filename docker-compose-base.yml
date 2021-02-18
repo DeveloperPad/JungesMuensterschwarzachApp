@@ -22,6 +22,21 @@ services:
     volumes:
       - ${JMA_DATABASE}:/var/lib/mysql
       - ${MYSQL_SECRETS}:/var/data/mysql/secrets
+  jma-database-backup-updater:
+    container_name: jma-database-backup-updater
+    depends_on:
+      - jma-database
+    image: jungesmuensterschwarzach/jma-database-backup-updater:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.database_backup_updater
+    environment:
+      JMA_BUILD_TYPE: ${JMA_BUILD_TYPE}
+    restart: on-failure
+    volumes:
+      - ${JMA_IMAGES}:/workspace/storedImages
+      - ./tools/database_update_scripts:/workspace/database_update_scripts
+      - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
   jma-app:
     container_name: jma-app
     depends_on:

@@ -12,6 +12,7 @@ import org.json.simple.parser.JSONParser;
 public class DatabaseCredentials {
 
     private String url;
+    private String server;
     private String user;
     private String password;
     private String serverTimeZone;
@@ -19,14 +20,13 @@ public class DatabaseCredentials {
     public DatabaseCredentials() {
         JSONParser parser = new JSONParser();
         String secretsDir = System.getenv("JMA_SECRETS");
+        if (secretsDir == null) {
+            secretsDir = "/var/data/secrets/jma";
+        }
         String databaseConfigPath = secretsDir + File.separator
                 + "database.json";
         String serverConfigPath = secretsDir + File.separator
                 + "server.json";
-        
-        if (secretsDir == null) {
-            System.err.println("Environment variable 'JMA_SECRETS' is not set!");
-        }
         
         try (
                 FileReader databaseConfigReader = new FileReader(databaseConfigPath);
@@ -36,6 +36,7 @@ public class DatabaseCredentials {
             JSONObject serverConfig = (JSONObject) parser.parse(serverConfigReader);
             
             this.url = (String) databaseConfig.get("jdbc_url");
+            this.server = (String) databaseConfig.get("server");
             this.user = (String) databaseConfig.get("username");
             this.password = (String) databaseConfig.get("password");
             this.serverTimeZone = (String) serverConfig.get("timezone");
@@ -48,6 +49,10 @@ public class DatabaseCredentials {
     
     public String getUrl() {
         return url;
+    }
+
+    public String getServer() {
+        return server;
     }
     
     public String getUser() {

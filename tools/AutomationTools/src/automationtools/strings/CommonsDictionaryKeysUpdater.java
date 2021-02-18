@@ -9,12 +9,7 @@ public class CommonsDictionaryKeysUpdater {
 
     public static void main(String[] args) {
         new StringUpdater(
-                ".." + File.separator 
-                        + ".." + File.separator 
-                        + "commons" + File.separator 
-                        + "src" + File.separator 
-                        + "models" + File.separator 
-                        + "DictionaryKeys.ts",
+                "/workspace/project/commons/src/models/DictionaryKeys.ts",
                 "commons_dictionary_keys",
                 "de"
         ).run();

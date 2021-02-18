@@ -10,8 +10,7 @@ import java.io.FilenameFilter;
 public class DatabaseUpdater {
     
     public static final String UPDATE_SCRIPT_DIR = 
-            ".." + File.separator 
-            + "database_update_scripts";
+            "database_update_scripts";
     public static final String LOG_TAG = "[DB-Update] ";
 
     public static void main(String[] args) throws Exception {

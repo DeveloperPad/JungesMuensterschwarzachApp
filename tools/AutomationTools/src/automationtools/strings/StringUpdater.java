@@ -19,7 +19,7 @@ import org.apache.commons.text.StringEscapeUtils;
 public class StringUpdater {
 
     private static final String ENDPOINT_STRINGS
-            = "http://localhost/app-backend/endpoints/strings.php";
+            = "http://jma-webservice/endpoints/strings.php";
     private static final String ENCODING = StandardCharsets.UTF_8.displayName();
 
     private final String destination;
@@ -62,6 +62,7 @@ public class StringUpdater {
             outW.flush();
         } catch (IOException ioExc) {
             ioExc.printStackTrace();
+            System.exit(1);
         } finally {
             try {
                 if (in != null) {

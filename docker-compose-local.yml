@@ -9,6 +9,17 @@ services:
   jma-webservice:
     volumes:
       - ./webservice:/var/www/html
+  jma-dictionary-updater:
+    container_name: jma-dictionary-updater
+    depends_on:
+      - jma-webservice
+    image: jungesmuensterschwarzach/jma-dictionary-updater:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.dictionary_updater
+    restart: on-failure
+    volumes:
+      - .:/workspace/project
   jma-phpmyadmin:
     container_name: jma-phpmyadmin
     depends_on:

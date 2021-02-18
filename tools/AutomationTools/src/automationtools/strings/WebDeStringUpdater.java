@@ -9,20 +9,12 @@ public class WebDeStringUpdater {
 
     public static void main(String[] args) {
         new StringUpdater(
-                ".." + File.separator 
-                        + ".." + File.separator 
-                        + "webservice" + File.separator 
-                        + "assets" + File.separator 
-                        + "dict.php",
+                "/workspace/project/webservice/assets/dict.php",
                 "php",
                 "de"
         ).run();
         new StringUpdater(
-                ".." + File.separator 
-                        + ".." + File.separator 
-                        + "webservice" + File.separator 
-                        + "js" + File.separator 
-                        + "dict.js",
+                "/workspace/project/webservice/js/dict.js",
                 "js",
                 "de"
         ).run();

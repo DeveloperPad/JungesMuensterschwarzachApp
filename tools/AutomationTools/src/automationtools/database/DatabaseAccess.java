@@ -45,6 +45,7 @@ public class DatabaseAccess {
     private Properties getCredentialProperties() {
         Properties connectionProperties = new Properties();
         connectionProperties.put("user", credentials.getUser());
+        connectionProperties.put("server", credentials.getServer());
         connectionProperties.put("password", credentials.getPassword());
         connectionProperties.put("serverTimezone", credentials.getServerTimeZone());
         connectionProperties.put("useSSL", "false");
@@ -209,6 +210,7 @@ public class DatabaseAccess {
         try {
             Process runtimeProcess = Runtime.getRuntime().exec(
                 "mysqldump"
+                + " -h " + credentials.getServer()
                 + " -u " + credentials.getUser()
                 + " -p" + credentials.getPassword()
                 + " " + credentials.getDatabase()

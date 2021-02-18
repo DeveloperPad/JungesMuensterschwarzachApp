@@ -135,9 +135,7 @@ Die Löschung eines einzelnen Datums ist jedoch nicht möglich, sobald es einmal
 "account_push_subscription_keyAuth_invalid": "Der übermittelte Authorisierungsschlüssel ist ungültig.", 
 "account_push_subscription_pubKey_invalid": "Der übermittelte öffentliche Schlüssel ist ungültig.", 
 "account_push_subscription_subscribed": "Dein Abonnement wurde erfolgreich hinterlegt.", 
-"account_push_subscription_subscribed_updated": "Dein Abonnement wurde erfolgreich aktualisiert.", 
 "account_push_subscription_unsubscribed": "Dein Abonnement wurde erfolgreich entfernt.", 
-"account_push_subscriptions_unsupported": "Push-Benachrichtigungen werden von deinem Browser nicht unterstützt.", 
 "account_session_expired": "Deine Sitzung ist abgelaufen. Melde dich bitte erneut an.", 
 "account_sign_in": "Anmelden", 
 "account_sign_in_admin": "Anmelden (Administration)", 
@@ -168,7 +166,6 @@ Dann registriere dich jetzt!",
 "app_serviceWorker_cache_loaded": "Die App wurde aus dem Cache geladen.", 
 "app_serviceWorker_cache_saved": "Die App wurde zur Offline-Nutzung im Cache gespeichert.", 
 "app_serviceWorker_offline": "Keine Internetverbindung gefunden. Die App läuft im Offline-Modus.", 
-"app_serviceWorker_registration_not_found": "Keine Service-Worker-Registrierung gefunden.", 
 "app_serviceWorker_update_available": "Die App wurde aktualisiert.", 
 "changelog": "Änderungsprotokoll", 
 "changelog_1_0_0": "+ umfassendes Account-System hinzugefügt\
@@ -787,26 +784,6 @@ Rochusstraße 5\
 80333 München\
 Telefon: 089 2137 1796\
 E-Mail: jjoachimski@eomuc.de", 
-"privacy_policy_officials_caritas_contact_diocese_wuerzburg_heading": "Ansprechpartner Datenschutz des Caritasverbands der Diözese Würzburg:", 
-"privacy_policy_officials_caritas_contact_diocese_wuerzburg_paragraph": "Franz Wiehl\
-Caritasverband für die Diözese Würzburg e. V.\
-Franziskanergasse 3\
-97070 Würzburg\
-Telefon: 0931 386 66 745\
-E-Mail: franz.wiehl@caritas-wuerzburg.de", 
-"privacy_policy_officials_caritas_local_operator_diocese_wuerzburg_heading": "Betrieblicher Datenschutzbeauftragter für Orts- und Kreiscaritasverbände der Diözese Würzburg:", 
-"privacy_policy_officials_caritas_local_operator_diocese_wuerzburg_paragraph": "Andreas Riegel\
-Franziskanergasse 3\
-97070 Würzburg\
-Telefon: 0931 386 66 717\
-E-Mail: datenschutz-extern@caritas-wuerzburg.de", 
-"privacy_policy_officials_caritas_operator_diocese_wuerzburg_heading": "Betrieblicher Datenschutzbeauftragter für den Caritasverband der Diözese Würzburg:", 
-"privacy_policy_officials_caritas_operator_diocese_wuerzburg_paragraph": "Markus Schönmann\
-datenschutz süd GmbH\
-Wörthstraße 15\
-97082 Würzburg\
-Telefon: 0931 304 976 24\
-E-Mail: mschoenmann@datenschutz-sued.de", 
 "privacy_policy_officials_congregation_heading": "Ordensdatenschutzbeauftragte", 
 "privacy_policy_officials_congregation_paragraph": "Christine Haumer\
 Wittelsbacherring 9\

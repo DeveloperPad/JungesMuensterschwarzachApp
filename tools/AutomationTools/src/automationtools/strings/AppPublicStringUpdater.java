@@ -9,12 +9,7 @@ public class AppPublicStringUpdater {
 
     public static void main(String[] args) {
         new StringUpdater(
-                ".." + File.separator 
-                        + ".." + File.separator 
-                        + "app" + File.separator 
-                        + "public" + File.separator 
-                        + "js" + File.separator
-                        + "dict.js",
+                "/workspace/project/app/public/js/dict.js",
                 "app_public",
                 "de"
         ).run();

@@ -81,6 +81,7 @@ Once docker is installed, you must follow these steps:
     ```sh
     docker-compose -f docker-compose-base.yml -f docker-compose-local.yml up -d
     ```
+7. Login to phpmyadmin, create database `junges_muensterschwarzach_app` and import sql file `./tools/database_update_scripts/0.sql`.
 
 
 <!-- USAGE EXAMPLES -->
