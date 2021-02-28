@@ -1,31 +1,7 @@
 version: '3'
 services:
-  jma-proxy:
-    container_name: jma-proxy
-    image: jungesmuensterschwarzach/jma-proxy:${JMA_BUILD_TYPE}
-    build:
-      context: .
-      dockerfile: Dockerfile.proxy
-      args:
-        JMA_BUILD_TYPE: ${JMA_BUILD_TYPE}
-    ports:
-      - 80:80
-      - 443:443
-    restart: always
-  jma-database:
-    container_name: jma-database
-    image: mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD_FILE: /var/data/mysql/secrets/root_pass
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
-    volumes:
-      - ${JMA_DATABASE}:/var/lib/mysql
-      - ${MYSQL_SECRETS}:/var/data/mysql/secrets
   jma-database-backup-updater:
     container_name: jma-database-backup-updater
-    depends_on:
-      - jma-database
     image: jungesmuensterschwarzach/jma-database-backup-updater:latest
     build:
       context: .
@@ -39,8 +15,6 @@ services:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
   jma-app:
     container_name: jma-app
-    depends_on:
-      - jma-database
     image: jungesmuensterschwarzach/jma-app:${JMA_BUILD_TYPE}
     build:
       context: .
@@ -48,8 +22,6 @@ services:
     restart: always
   jma-webservice:
     container_name: jma-webservice
-    depends_on:
-      - jma-database
     image: jungesmuensterschwarzach/jma-webservice:${JMA_BUILD_TYPE}
     build:
       context: .

@@ -1,5 +1,27 @@
 version: '3'
 services:
+  jma-proxy:
+    container_name: jma-proxy
+    image: jungesmuensterschwarzach/jma-proxy:${JMA_BUILD_TYPE}
+    build:
+      context: .
+      dockerfile: Dockerfile.proxy
+      args:
+        JMA_BUILD_TYPE: ${JMA_BUILD_TYPE}
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+  jma-database:
+    container_name: jma-database
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /var/data/mysql/secrets/root_pass
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - ${JMA_DATABASE}:/var/lib/mysql
+      - ${MYSQL_SECRETS}:/var/data/mysql/secrets
   jma-app:
     environment:
       CHOKIDAR_USEPOLLING: "true"
@@ -27,8 +49,12 @@ services:
     image: phpmyadmin:latest
     environment:
       PMA_HOST: jma-database
-      PMA_ABSOLUTE_URI: ${JMA_BASE_URL}/phpmyadmin
+      PMA_ABSOLUTE_URI: ${JMA_BASE_URL}:81
       MYSQL_ROOT_PASSWORD_FILE: /var/data/mysql/secrets/root_pass
+      MEMORY_LIMIT: 1024M
+      UPLOAD_LIMIT: 1024M
     restart: always
+    ports:
+      - 81:80
     volumes:
       - ${MYSQL_SECRETS}:/var/data/mysql/secrets
