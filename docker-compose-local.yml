@@ -58,3 +58,12 @@ services:
       - 81:80
     volumes:
       - ${MYSQL_SECRETS}:/var/data/mysql/secrets
+    networks:
+      jenkins:
+        ipv4_address: 172.16.1.30
+networks:
+  default:
+    external:
+      name: jenkins
+  jenkins:
+    external: true

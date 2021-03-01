@@ -20,6 +20,9 @@ services:
       context: .
       dockerfile: Dockerfile.app.${JMA_BUILD_TYPE}
     restart: always
+    networks:
+      jenkins:
+        ipv4_address: 172.16.1.240
   jma-webservice:
     container_name: jma-webservice
     image: jungesmuensterschwarzach/jma-webservice:${JMA_BUILD_TYPE}
@@ -30,3 +33,12 @@ services:
     volumes:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
       - ${JMA_IMAGES}:/var/www/html/storedImages
+    networks:
+      jenkins:
+        ipv4_address: 172.16.1.241
+networks:
+  default:
+    external:
+      name: jenkins
+  jenkins:
+    external: true
