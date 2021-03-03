@@ -1,4 +1,4 @@
-<!-- PROJECT LOGO -->
+[![Build Status](https://luckev.info/jenkins/buildStatus/icon?job=Junges+M%C3%BCnsterschwarzach%2FApp%2F%28Development%29+Deploy)](https://luckev.info/jenkins/job/Junges%20M%C3%BCnsterschwarzach/job/App/job/(Development)%20Deploy/)
 <br />
 <p align="center">
   <a href="https://github.com/JungesMuensterschwarzach/App">
