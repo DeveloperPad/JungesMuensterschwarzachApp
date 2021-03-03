@@ -90,7 +90,7 @@ Once docker is installed, you must follow these steps:
 Once docker is running, you can access:
 * the app via http://localhost/app
 * the app backend via http://localhost/app-backend
-* phpmyadmin via http://phpmyadmin
+* phpmyadmin via http://localhost/phpmyadmin
 
 
 
