@@ -1,3 +1,2 @@
 FROM nginx:stable-alpine
-ARG JMA_BUILD_TYPE
-COPY ./proxy/nginx.${JMA_BUILD_TYPE}.conf /etc/nginx/nginx.conf
+COPY ./nginx/proxy.conf /etc/nginx/nginx.conf
