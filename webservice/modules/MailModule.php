@@ -189,14 +189,14 @@
 
 		public static function getRedeemTokenUrl($code) {
 			return 
-				"http" . (empty($_SERVER["HTTPS"]) === false ? "s" : ""). "://" 
+				GlobalFunctions::getRequestProtocol() . "://" 
 				. $_SERVER["HTTP_HOST"] . MAIL_REDEEM_TOKEN_URL 
 				. rawurlencode($code);
 		}
 
 		public static function getEventParticipantsUrl($eventId) {
 			return 
-				"http" . (empty($_SERVER["HTTPS"]) === false ? "s" : ""). "://" 
+				GlobalFunctions::getRequestProtocol() . "://" 
 				. $_SERVER["HTTP_HOST"] . "/app-backend/acp/events_participants.php?eventId="
 				. $eventId;
 		}

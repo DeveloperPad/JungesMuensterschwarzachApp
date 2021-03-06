@@ -18,7 +18,7 @@
                     "expires" => $expire,
                     "path" => "/",
                     "domain" => $_SERVER["HTTP_HOST"],
-                    "secure" => !empty($_SERVER["HTTPS"]),
+                    "secure" => GlobalFunctions::isSSLRequest(),
                     "httponly" => $httpOnly,
                     "samesite"=> "Lax"
                 )
@@ -44,7 +44,8 @@
         }
 
         public static function getFullName($nameWOPrefix): string {
-            return empty($_SERVER["HTTPS"]) ? $nameWOPrefix : "__Secure-" . $nameWOPrefix;
+            return GlobalFunctions::isSSLRequest() ? 
+                "__Secure-" . $nameWOPrefix : $nameWOPrefix;
         }
         
     }

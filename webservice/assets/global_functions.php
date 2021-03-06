@@ -6,6 +6,18 @@
 
     class GlobalFunctions {
 
+        public static function getRequestProtocol() {
+            if (!empty($_SERVER["HTTP_X_FORWARDED_PROTO"])) {
+                return $_SERVER["HTTP_X_FORWARDED_PROTO"];
+            } else {
+                return !empty($_SERVER["HTTPS"]) ? "https" : "http";
+            }
+        }
+
+        public static function isSSLRequest() {
+            return strcasecmp(self::getRequestProtocol(), "https") === 0;
+        }
+
         public static function getAccessBadge($accessLevel) {
             if ($accessLevel >= ACCESS_LEVEL_DEVELOPER) {
                 return "badge-primary";
