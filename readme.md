@@ -1,5 +1,3 @@
-[![Build Status](https://luckev.info/jenkins/buildStatus/icon?job=Junges+M%C3%BCnsterschwarzach%2FApp%2F%28Development%29+Deploy)](https://luckev.info/jenkins/job/Junges%20M%C3%BCnsterschwarzach/job/App/job/(Development)%20Deploy/)
-<br />
 <p align="center">
   <a href="https://github.com/JungesMuensterschwarzach/App">
     <img src="./app/public/icons/512x512.png" alt="Logo" width="200" height="200">
@@ -43,6 +41,10 @@ This respository contains the components related to the community app of Junges 
 ## Getting Started
 
 To get a local copy up and running follow these simple steps.
+
+### Current build status:
+Development Version:&nbsp;&nbsp;&nbsp;[![Build Status](https://luckev.info/jenkins/buildStatus/icon?job=Projects%2FJunges+M%C3%BCnsterschwarzach%2FApp%2F%28Development%29+Build%2BPush)](https://luckev.info/jenkins/job/Projects/job/Junges%20M%C3%BCnsterschwarzach/job/App/job/(Development)%20Build+Push/)<br/>
+Production Version:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Build Status](https://luckev.info/jenkins/buildStatus/icon?job=Projects%2FJunges+M%C3%BCnsterschwarzach%2FApp%2F%28Production%29+Build%2BPush)](https://luckev.info/jenkins/job/Projects/job/Junges%20M%C3%BCnsterschwarzach/job/App/job/(Production)%20Build+Push/)
 
 ### Prerequisites
 
