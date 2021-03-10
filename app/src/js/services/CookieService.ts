@@ -30,7 +30,13 @@ export class CookieService {
     public static remove(key: string): Promise<void> {
         log.debug(LogTags.COOKIE_SERVICE + "removed cookie information: \"" + key + "\" (KEY).");
         new Cookies().remove(
-            CookieService.getFullName(key)
+            CookieService.getFullName(key),
+            {
+                path: "/",
+                secure: CookieService.isSecureConnection(),
+                httpOnly: false,
+                sameSite: false
+            }
         );
         return Promise.resolve();
     }
