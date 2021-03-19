@@ -206,6 +206,14 @@
 							<span class="ml-3"><?php echo($GLOBALS["dict"]["account_allowPost"]);?></span> 
 						</div>
 					</div>
+					<div class="form-group">
+						<label class="control-label col-12" for="allowNewsletter"><?php echo($GLOBALS["dict"]["account_allowNewsletter_label"]);?></label>
+						<div class="col-12 input-group">
+							<input name="allowNewsletter" type="checkbox" class="ml-3" 
+								<?php if (isset($_POST["allowNewsletter"]) === true && $_POST["allowNewsletter"] === 1) echo("checked");?>>
+							<span class="ml-3"><?php echo($GLOBALS["dict"]["account_allowNewsletter"]);?></span> 
+						</div>
+					</div>
 					<hr>
 					<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#activateUserModal" 
 						data-userid="<?php echo($_GET["userId"]);?>" data-displayname="<?php echo(htmlspecialchars($_POST["displayName"]));?>"

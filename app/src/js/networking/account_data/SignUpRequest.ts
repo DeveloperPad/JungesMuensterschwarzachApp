@@ -7,6 +7,7 @@ export class SignUpRequest extends AccountDataRequest {
     constructor(displayName: string,
         eMailAddress: string,
         password: string,
+        allowNewsletter: number,
         successCallback: (response: IResponse) => void,
         errorCallback: (error: string) => void) {
         super(
@@ -14,7 +15,8 @@ export class SignUpRequest extends AccountDataRequest {
                 action: AccountDataRequestActions.SIGN_UP,
                 [IUserKeys.displayName]: displayName,
                 [IUserKeys.eMailAddress]: eMailAddress,
-                password
+                password,
+                [IUserKeys.allowNewsletter]: allowNewsletter
             },
             successCallback,
             errorCallback

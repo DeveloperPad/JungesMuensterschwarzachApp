@@ -27,6 +27,7 @@ import INotice from '../../networking/INotice';
 import { IResponse } from '../../networking/Request';
 import { CookieService } from '../../services/CookieService';
 import AccessIdentifierInput from '../form_elements/AccessIdentifierInput';
+import AllowNewsletterCheckbox from '../form_elements/AllowNewsletterCheckbox';
 import AllowPostCheckbox from '../form_elements/AllowPostCheckbox';
 import BirthdateInput from '../form_elements/BirthdateInput';
 import CityInput from '../form_elements/CityInput';
@@ -60,6 +61,7 @@ interface IProfileFormState {
 
 type IFormKeys =
     IUserKeys.accessIdentifier |
+    IUserKeys.allowNewsletter |
     IUserKeys.allowPost |
     IUserKeys.birthdate |
     IUserKeys.city |
@@ -77,6 +79,7 @@ type IFormValues = string | number | Date;
 
 interface IForm {
     [IUserKeys.accessIdentifier]: string,
+    [IUserKeys.allowNewsletter]: number;
     [IUserKeys.allowPost]: number;
     [IUserKeys.birthdate]: Date;
     [IUserKeys.city]: string;
@@ -94,6 +97,7 @@ interface IForm {
 
 interface IFormError {
     [IUserKeys.accessIdentifier]: string | null;
+    [IUserKeys.allowNewsletter]: string | null;
     [IUserKeys.allowPost]: string | null;
     [IUserKeys.birthdate]: string | null;
     [IUserKeys.city]: string | null;
@@ -448,6 +452,13 @@ class ProfileForm extends React.PureComponent<IProfileFormProps, IProfileFormSta
                                 onBlur={this.updateAccountData}
                             />
                             {this.separator()}
+                            <AllowNewsletterCheckbox
+                                checked={this.state.form[IUserKeys.allowNewsletter] === 1}
+                                errorMessage={this.state.formError[IUserKeys.allowNewsletter]}
+                                onUpdateValue={this.updateForm}
+                                onBlur={this.updateAccountData}
+                            />
+                            {this.separator()}
                             <Grid
                                 style={gridHorizontalStyle}
                             >
@@ -560,7 +571,8 @@ class ProfileForm extends React.PureComponent<IProfileFormProps, IProfileFormSta
     private emptyForm = (): IForm => {
         return {
             [IUserKeys.accessIdentifier]: Dict.account_accessLevel_guest,
-            [IUserKeys.allowPost]: 1,
+            [IUserKeys.allowNewsletter]: 0,
+            [IUserKeys.allowPost]: 0,
             [IUserKeys.birthdate]: new Date(),
             [IUserKeys.city]: "",
             [IUserKeys.country]: "",
@@ -579,6 +591,7 @@ class ProfileForm extends React.PureComponent<IProfileFormProps, IProfileFormSta
     private emptyFormError = (): IFormError => {
         return {
             [IUserKeys.accessIdentifier]: null,
+            [IUserKeys.allowNewsletter]: null,
             [IUserKeys.allowPost]: null,
             [IUserKeys.birthdate]: null,
             [IUserKeys.city]: null,
@@ -621,6 +634,7 @@ class ProfileForm extends React.PureComponent<IProfileFormProps, IProfileFormSta
                         } else if (user) {
                             const fetchedForm: IForm = {
                                 [IUserKeys.accessIdentifier]: user.accessIdentifier || "",
+                                [IUserKeys.allowNewsletter]: user.allowNewsletter || 0,
                                 [IUserKeys.allowPost]: user.allowPost || 0,
                                 [IUserKeys.birthdate]: user.birthdate ? getDate(user.birthdate, Formats.DATE.DATETIME_DATABASE) : null,
                                 [IUserKeys.city]: user.city || "",

@@ -11,12 +11,13 @@
 	//TODO: implement access check with own access level
 	class UserModule {
 		
-		public static function signUp($displayName, $eMailAddress, $password, $passwordRepetition) {
+		public static function signUp($displayName, $eMailAddress, $password, $passwordRepetition, $allowNewsletter) {
 			self::validateDisplayName($displayName);
 			self::validateEMailAddress($eMailAddress, false, true);
 			self::validatePassword($password, $passwordRepetition);
+			self::validateAllowNewsletter($allowNewsletter);
 
-			if (self::storeUser($displayName, $eMailAddress, $password) === false) {
+			if (self::storeUser($displayName, $eMailAddress, $password, $allowNewsletter) === false) {
 				throw new Exception("account_creation_failed");
 			}
 
@@ -27,15 +28,15 @@
 			MailModule::sendSignUpConfirmationMail($eMailAddress, $displayName, $code);
 		}
 		
-		private static function storeUser($displayName, $eMailAddress, $password) {
+		private static function storeUser($displayName, $eMailAddress, $password, $allowNewsletter) {
 			$passwordHash = password_hash($password, PASSWORD_DEFAULT);
 			
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"INSERT INTO
-				 account_data(displayName, eMailAddress, passwordHash, registrationDate)
-				 VALUES(?, ?, ?, NOW())"
+				 account_data(displayName, eMailAddress, passwordHash, allowNewsletter, registrationDate)
+				 VALUES(?, ?, ?, ?, NOW())"
 			);
-			$stmt->bind_param("sss", $displayName, $eMailAddress, $passwordHash);
+			$stmt->bind_param("sssi", $displayName, $eMailAddress, $passwordHash, $allowNewsletter);
 			$result = $stmt->execute();
 			$stmt->close();
 			return $result;
@@ -112,7 +113,7 @@
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"SELECT ad.userId, ad.displayName, ad.firstName, ad.lastName, ad.eMailAddress, 
 				ad.streetName, ad.houseNumber, ad.zipCode, ad.city, ad.country, ad.phoneNumber, ad.birthdate, 
-				ad.eatingHabits, ad.allowPost, ad.isActivated, 
+				ad.eatingHabits, ad.allowPost, ad.allowNewsletter, ad.isActivated, 
 				ad.registrationDate, ad.modificationDate, 
 				al.accessLevel, al.accessIdentifier 
 				FROM access_levels al, account_data ad 
@@ -143,7 +144,7 @@
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"SELECT ad.userId, ad.displayName, ad.firstName, ad.lastName, ad.eMailAddress, 
 				ad.streetName, ad.houseNumber, ad.zipCode, ad.city, ad.country, ad.phoneNumber, ad.birthdate, 
-				ad.eatingHabits, ad.allowPost, ad.isActivated, 
+				ad.eatingHabits, ad.allowPost, ad.allowNewsletter, ad.isActivated, 
 				ad.registrationDate, ad.modificationDate, 
 				al.accessLevel, al.accessIdentifier 
 				FROM access_levels al, account_data ad, account_session_hashs ash, account_session_otps aso 
@@ -457,6 +458,21 @@
 			$stmt->close();
 		}
 
+		public static function updateAllowNewsletter($userId, $allowNewsletter) {
+			self::validateAllowNewsletter($allowNewsletter);
+
+			$stmt = DatabaseModule::getInstance()->prepare(
+				"UPDATE account_data SET allowNewsletter=?, modificationDate=NOW() WHERE userId=?"
+			);
+			$stmt->bind_param("ii", $allowNewsletter, $userId);
+			
+			if ($stmt->execute() === false) {
+				$stmt->close();
+				throw new Exception("error_message_try_later");
+			}
+			$stmt->close();
+		}
+
 		public static function requestPasswordReset($eMailAddress) {
 			$userId = self::getUserIdByEMailAddress($_POST["eMailAddress"]);
 			$user = self::loadUser($userId, ACCESS_LEVEL_DEVELOPER);
@@ -671,6 +687,16 @@
 				}
 			} catch (Exception $exc) {
 				throw new Exception("account_allowPost_invalid");
+			}
+		}
+
+		private static function validateAllowNewsletter($allowNewsletter) {
+			try {
+				if (intval($allowNewsletter) !== 1 && intval($allowNewsletter) !== 0) {
+					throw new Exception("stub");
+				}
+			} catch (Exception $exc) {
+				throw new Exception("account_allowNewsletter_invalid");
 			}
 		}
 		

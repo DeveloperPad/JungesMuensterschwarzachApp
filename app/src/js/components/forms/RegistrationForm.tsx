@@ -9,6 +9,7 @@ import { grid7Style, successMsgTypographyStyle, ThemeTypes } from '../../constan
 import { IUserKeys } from '../../networking/account_data/IUser';
 import { SignUpRequest } from '../../networking/account_data/SignUpRequest';
 import { IResponse } from '../../networking/Request';
+import AllowNewsletterCheckbox from '../form_elements/AllowNewsletterCheckbox';
 import DisplayNameInput from '../form_elements/DisplayNameInput';
 import EMailAddressInput from '../form_elements/EMailAddressInput';
 import LegalInformationConsentCheckbox, { ILegalInformationConsentCheckBoxKeys } from '../form_elements/LegalInformationConsentCheckbox';
@@ -30,6 +31,7 @@ interface IRegistrationFormState {
 type IFormKeys = 
     IUserKeys.displayName |
     IUserKeys.eMailAddress |
+    IUserKeys.allowNewsletter | 
     ILegalInformationConsentCheckBoxKeys.LegalInformationConsent |
     IUserKeys.password |
     IUserKeys.passwordRepetition;
@@ -37,6 +39,7 @@ type IFormKeys =
 interface IForm {
     [IUserKeys.displayName]: string;
     [IUserKeys.eMailAddress]: string;
+    [IUserKeys.allowNewsletter]: number;
     [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: boolean;
     [IUserKeys.password]: string;
     [IUserKeys.passwordRepetition]: string;
@@ -45,6 +48,7 @@ interface IForm {
 interface IFormError {
     [IUserKeys.displayName]: string | null;
     [IUserKeys.eMailAddress]: string | null;
+    [IUserKeys.allowNewsletter]: string | null;
     [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: string | null;
     [IUserKeys.password]: string | null;
     [IUserKeys.passwordRepetition]: string | null;
@@ -63,6 +67,7 @@ class RegistrationForm extends React.Component<IRegistrationFormProps, IRegistra
             form: {
                 [IUserKeys.displayName]: "",
                 [IUserKeys.eMailAddress]: "",
+                [IUserKeys.allowNewsletter]: 0,
                 [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: false,
                 [IUserKeys.password]: "",
                 [IUserKeys.passwordRepetition]: ""
@@ -70,6 +75,7 @@ class RegistrationForm extends React.Component<IRegistrationFormProps, IRegistra
             formError: {
                 [IUserKeys.displayName]: null,
                 [IUserKeys.eMailAddress]: null,
+                [IUserKeys.allowNewsletter]: null,
                 [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: null,
                 [IUserKeys.password]: null,
                 [IUserKeys.passwordRepetition]: null
@@ -147,6 +153,15 @@ class RegistrationForm extends React.Component<IRegistrationFormProps, IRegistra
                     value={this.state.form[IUserKeys.passwordRepetition]}
                 />
 
+                <AllowNewsletterCheckbox
+                    checked={this.state.form[IUserKeys.allowNewsletter] === 1}
+                    errorMessage={this.state.formError[IUserKeys.allowNewsletter]}
+                    onUpdateValue={this.updateForm}
+                    showErrorMessageOnLoad={false}
+                    style={this.upperInputStyle}
+                    themeType={ThemeTypes.LIGHT}
+                />
+
                 <LegalInformationConsentCheckbox
                     checked={this.state.form[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]}
                     errorMessage={this.state.formError[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]}
@@ -186,7 +201,7 @@ class RegistrationForm extends React.Component<IRegistrationFormProps, IRegistra
         );
     }
 
-    public updateForm = (key: IFormKeys, value: string | boolean): void => {
+    public updateForm = (key: IFormKeys, value: string | number | boolean): void => {
         this.setState(prevState => {
             return {
                 ...prevState,
@@ -224,6 +239,7 @@ class RegistrationForm extends React.Component<IRegistrationFormProps, IRegistra
                     this.state.form[IUserKeys.displayName],
                     this.state.form[IUserKeys.eMailAddress],
                     this.state.form[IUserKeys.password],
+                    this.state.form[IUserKeys.allowNewsletter],
                     (response: IResponse) => {
                         const errorMsg = response.errorMsg;
                         const successMsg = response.successMsg;
@@ -242,6 +258,8 @@ class RegistrationForm extends React.Component<IRegistrationFormProps, IRegistra
                                 errorKey = IUserKeys.passwordRepetition;
                             } else if (errorMsg.indexOf(IUserKeys.password) > -1) {
                                 errorKey = IUserKeys.password;
+                            } else if (errorMsg.indexOf(IUserKeys.allowNewsletter) > -1) {
+                                errorKey = IUserKeys.allowNewsletter;
                             }
     
                             if (errorKey) {
@@ -279,6 +297,7 @@ class RegistrationForm extends React.Component<IRegistrationFormProps, IRegistra
                 formError: {
                     [IUserKeys.displayName]: null,
                     [IUserKeys.eMailAddress]: null,
+                    [IUserKeys.allowNewsletter]: null,
                     [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: null,
                     [IUserKeys.password]: null,
                     [IUserKeys.passwordRepetition]: null

@@ -19,6 +19,7 @@ function initUserUpdate() {
 	setOnChange("birthdate");
 	setOnChange("eatingHabits", "textarea");
 	setOnChange("allowPost");
+	setOnChange("allowNewsletter");
 }
 
 function setOnChange(inputField, inputType) {

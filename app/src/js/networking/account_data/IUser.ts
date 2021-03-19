@@ -4,6 +4,7 @@ import Dict from "../../constants/dict"
 export enum IUserKeys {
     accessIdentifier = "accessIdentifier",
     accessLevel = "accessLevel",
+    allowNewsletter = "allowNewsletter",
     allowPost = "allowPost",
     birthdate = "birthdate",
     city = "city",
@@ -44,6 +45,7 @@ export const IUserValues = {
 export default interface IUser {
     [IUserKeys.accessIdentifier]?: string,
     [IUserKeys.accessLevel]?: number;
+    [IUserKeys.allowNewsletter]?: number;
     [IUserKeys.allowPost]?: number;
     [IUserKeys.birthdate]?: Date;
     [IUserKeys.city]?: string;
@@ -68,6 +70,7 @@ export type IUserValuesType = string | number | Date | null
 export interface IUserError {
     [IUserKeys.accessIdentifier]?: string | null;
     [IUserKeys.accessLevel]?: string | null;
+    [IUserKeys.allowNewsletter]?: string | null;
     [IUserKeys.allowPost]?: string | null;
     [IUserKeys.birthdate]?: string | null;
     [IUserKeys.city]?: string | null;

@@ -21,7 +21,8 @@
 	function signUp($response) {
 		UserModule::signUp(
 			$_POST["displayName"], $_POST["eMailAddress"], 
-			$_POST["password"], $_POST["password"]
+			$_POST["password"], $_POST["password"],
+			$_POST["allowNewsletter"]
 		);
 		$response->setSuccessMsg("mail_confirm_activation_send");
 	}
@@ -39,7 +40,7 @@
 			array_intersect_key(
 				$user, 
 				array_flip(array("userId", "firstName", "lastName", "displayName", "eMailAddress", "streetName", "houseNumber", 
-					"zipCode", "city", "country", "phoneNumber", "birthdate", "eatingHabits", "allowPost", "accessIdentifier"))
+					"zipCode", "city", "country", "phoneNumber", "birthdate", "eatingHabits", "allowPost", "allowNewsletter", "accessIdentifier"))
 			)
 		);
 	}

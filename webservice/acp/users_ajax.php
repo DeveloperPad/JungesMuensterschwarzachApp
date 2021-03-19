@@ -139,6 +139,15 @@
 		}
 	}
 
+	function updateAllowNewsletter($ownAccessLevel) {
+		try {		
+			UserModule::updateAllowNewsletter($_POST["userId"], $_POST["allowNewsletter"]);
+			CookieModule::set("alert", new Alert("success", $GLOBALS["dict"]["account_allowNewsletter_updated"]));
+		} catch (Exception $exc) {
+			CookieModule::set("alert", new Alert("danger", $GLOBALS["dict"][$exc->getMessage()]));
+		}
+	}
+
 	function updateIsActivated($ownAccessLevel) {
 		try {
 			UserModule::updateIsActivated($_POST["userId"], $_POST["isActivated"]);
