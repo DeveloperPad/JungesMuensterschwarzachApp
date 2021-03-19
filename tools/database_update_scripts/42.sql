@@ -1,4 +1,4 @@
-ALTER TABLE `account_data` ADD `allowNewsletter` BOOLEAN NOT NULL DEFAULT FALSE AFTER `allowPost`, ADD INDEX (`allowNewsletter`);
+ALTER TABLE `account_data` ADD `allowNewsletter` BOOLEAN NOT NULL DEFAULT 0 AFTER `allowPost`, ADD INDEX (`allowNewsletter`);
 INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('account_allowNewsletter', 'Allow us to send newsletter mails.', 'Uns erlauben, Newsletter per E-Mail zuzustellen.');
 INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('account_allowNewsletter_invalid', 'Receiving newsletters must be a binary value (yes/no)!', 'Das Erhalten von Newslettern muss ein binärer Wert sein (ja/nein)!');
 INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('account_allowNewsletter_label', 'Newsletter', 'Newsletter');
