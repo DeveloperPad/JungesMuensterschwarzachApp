@@ -1,19 +1,17 @@
 version: '3'
 services:
-  jma-proxy:
-    container_name: jma-proxy
-    image: jungesmuensterschwarzach/jma-proxy:${JMA_BUILD_TYPE}
+  proxy:
+    container_name: proxy
+    image: jungesmuensterschwarzach/jma-proxy:local
     build:
       context: .
       dockerfile: Dockerfile.proxy
-      args:
-        JMA_BUILD_TYPE: ${JMA_BUILD_TYPE}
     ports:
       - 80:80
       - 443:443
     restart: always
-  jma-database:
-    container_name: jma-database
+  database:
+    container_name: database
     image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD_FILE: /var/data/mysql/secrets/root_pass
@@ -33,8 +31,6 @@ services:
       - ./webservice:/var/www/html
   jma-dictionary-updater:
     container_name: jma-dictionary-updater
-    depends_on:
-      - jma-webservice
     image: jungesmuensterschwarzach/jma-dictionary-updater:latest
     build:
       context: .
@@ -44,18 +40,14 @@ services:
       - .:/workspace/project
   jma-phpmyadmin:
     container_name: jma-phpmyadmin
-    depends_on:
-      - jma-database
     image: phpmyadmin:latest
     environment:
-      PMA_HOST: jma-database
-      PMA_ABSOLUTE_URI: ${JMA_BASE_URL}:81
+      PMA_HOST: database
+      PMA_ABSOLUTE_URI: ${JMA_BASE_URL}/phpmyadmin
       MYSQL_ROOT_PASSWORD_FILE: /var/data/mysql/secrets/root_pass
       MEMORY_LIMIT: 1024M
       UPLOAD_LIMIT: 1024M
     restart: always
-    ports:
-      - 81:80
     volumes:
       - ${MYSQL_SECRETS}:/var/data/mysql/secrets
     networks:
