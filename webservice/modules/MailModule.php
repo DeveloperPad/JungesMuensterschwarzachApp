@@ -15,7 +15,7 @@
 	class MailModule {
 
 		public static function sendSignUpConfirmationMail($eMailAddress, $displayName, $code) {
-			$url = self::getRedeemTokenUrl($code);
+			$url = self::getAccountTokenUrl($code);
 			$title = $GLOBALS["dict"]["mail_confirm_activation_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"] 
 				. htmlspecialchars($displayName) 
@@ -27,8 +27,18 @@
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
+		public static function sendNewsletterConfirmationMail($eMailAddress, $code) {
+			$url = self::getNewsletterTokenUrl($code);
+			$title = $GLOBALS["dict"]["mail_confirm_newsletter_title"];
+			$message = $GLOBALS["dict"]["mail_confirm_newsletter_message_paragraph_1"]
+				. "<a href=\"$url\">$url</a>"
+				. $GLOBALS["dict"]["mail_confirm_newsletter_message_paragraph_2"]
+				. $GLOBALS["dict"]["mail_regards"];
+			self::sendMail($eMailAddress, $title, $message);
+		}
+
 		public static function sendPasswordResetMail($eMailAddress, $displayName, $code) {
-			$url = self::getRedeemTokenUrl($code);
+			$url = self::getAccountTokenUrl($code);
 			$title = $GLOBALS["dict"]["mail_password_reset_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
 				. htmlspecialchars($displayName)
@@ -41,7 +51,7 @@
 		}
 
 		public static function sendOldEMailUpdateMail($eMailAddress, $newEMailAddress, $displayName, $code) {
-			$url = self::getRedeemTokenUrl($code);
+			$url = self::getAccountTokenUrl($code);
 			$title = $GLOBALS["dict"]["mail_eMailAddress_update_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
 				. htmlspecialchars($displayName)
@@ -56,7 +66,7 @@
 		}
 
 		public static function sendNewEMailUpdateMail($eMailAddress, $displayName, $code) {
-			$url = self::getRedeemTokenUrl($code);
+			$url = self::getAccountTokenUrl($code);
 			$title = $GLOBALS["dict"]["mail_eMailAddress_update_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
 				. htmlspecialchars($displayName)
@@ -69,7 +79,7 @@
 		}
 
 		public static function sendAccountDeletionMail($eMailAddress, $displayName, $code) {
-			$url = self::getRedeemTokenUrl($code);
+			$url = self::getAccountTokenUrl($code);
 
 			$title = $GLOBALS["dict"]["mail_account_deletion_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
@@ -187,17 +197,24 @@
 			}
 		}
 
-		public static function getRedeemTokenUrl($code) {
+		private static function getAccountTokenUrl($code) {
 			return 
 				GlobalFunctions::getRequestProtocol() . "://" 
-				. $_SERVER["HTTP_HOST"] . MAIL_REDEEM_TOKEN_URL 
+				. $_SERVER["HTTP_HOST"] . MAIL_ACCOUNT_TOKEN_URL 
 				. rawurlencode($code);
 		}
 
-		public static function getEventParticipantsUrl($eventId) {
+		private static function getNewsletterTokenUrl($code) {
+			return
+				GlobalFunctions::getRequestProtocol() . "://"
+				. $_SERVER["HTTP_HOST"] . MAIL_NEWSLETTER_TOKEN_URL
+				. rawurlencode($code);
+		}
+
+		private static function getEventParticipantsUrl($eventId) {
 			return 
 				GlobalFunctions::getRequestProtocol() . "://" 
-				. $_SERVER["HTTP_HOST"] . "/app-backend/acp/events_participants.php?eventId="
+				. $_SERVER["HTTP_HOST"] . MAIL_EVENT_PARTICIPANTS_URL
 				. $eventId;
 		}
 		

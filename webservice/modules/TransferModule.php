@@ -3,6 +3,7 @@
 		require_once("../assets/global_requirements.php");
 	}
 	require_once(ROOT_LOCAL."/modules/DatabaseModule.php");
+	require_once(ROOT_LOCAL."/modules/NewsletterModule.php");
 	require_once(ROOT_LOCAL."/modules/TokenModule.php");
 	require_once(ROOT_LOCAL."/modules/UserModule.php");
 
@@ -52,6 +53,7 @@
 				UserModule::updateEMailAddress($userId, $transfer["newEMailAddress"]);
 				self::deleteTransfer($userId);
 				TokenModule::deleteToken(TokenModule::getTokenByUserId($userId));
+				NewsletterModule::deleteRegistration($transfer["newEMailAddress"]);
 				CookieModule::set("alert", new Alert("success", $GLOBALS["dict"]["account_eMailAddress_updated"]));
 			}
 		}

@@ -3,6 +3,7 @@
 		require_once("../assets/global_requirements.php");
 	}
 	require_once(ROOT_LOCAL."/modules/DatabaseModule.php");
+	require_once(ROOT_LOCAL."/modules/NewsletterModule.php");
 	require_once(ROOT_LOCAL."/modules/SessionModule.php");
 	require_once(ROOT_LOCAL."/modules/TokenModule.php");
 	require_once(ROOT_LOCAL."/modules/TransferModule.php");
@@ -513,6 +514,10 @@
 				}
 			}
 			$stmt->close();
+
+			NewsletterModule::deleteRegistration(
+				self::loadUser($userId, ACCESS_LEVEL_DEVELOPER)["eMailAddress"]
+			);
 		}
 
 		public static function requestAccountDeletion($userId) {
@@ -585,7 +590,7 @@
 			}
 		}
 		
-		private static function validateEMailAddress($eMailAddress, $shouldBeTaken, $includeTransfers = true) {
+		public static function validateEMailAddress($eMailAddress, $shouldBeTaken, $includeTransfers = true) {
 			$eMailAddress = trim($eMailAddress);
 			if (filter_var($eMailAddress, FILTER_VALIDATE_EMAIL) === false 
 					|| strlen($eMailAddress) > EMAILADDRESS_LENGTH_MAX) {
@@ -737,7 +742,7 @@
 			return $isTaken;
 		}
 		
-		private static function isEMailAddressTaken($eMailAddress, $includeTransfers = true) {
+		public static function isEMailAddressTaken($eMailAddress, $includeTransfers = true) {
 			$occurenceCounter = 0;
 
 			$stmt = DatabaseModule::getInstance()->prepare(

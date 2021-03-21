@@ -39,9 +39,9 @@ class HelpPage extends React.Component<IHelpPageProps> {
                 label: Dict.installation_heading
             },
             {
-                forwardTo: AppUrls.HELP_REDEEM_TOKEN,
-                iconString: "lock_open",
-                label: Dict.navigation_redeem_token
+                forwardTo: AppUrls.HELP_NEWSLETTER_SUBSCRIBE,
+                iconString: "move_to_inbox",
+                label: Dict.navigation_newsletter_subscribe
             },
             {
                 forwardTo: AppUrls.HELP_REQUEST_ACTIVATION_MAIL,

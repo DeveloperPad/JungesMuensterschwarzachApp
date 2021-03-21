@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Checkbox, Typography } from '@material-ui/core';
 
 import Dict from '../../constants/dict';
-import { CustomTheme, grid1Style } from '../../constants/theme';
+import { CustomTheme, grid1Style, linkMsgTypographyStyle } from '../../constants/theme';
 import ErrorMessageTypography from '../form_elements/ErrorMessageTypography';
 
 export enum ILegalInformationConsentCheckBoxKeys {
@@ -40,10 +40,6 @@ export default class LegalInformationConsentCheckbox
     private legalNoticeTypographyStyle: React.CSSProperties = {
         color: CustomTheme.COLOR_WHITE
     };
-    private legalNoticeLinkTypographyStyle: React.CSSProperties = {
-        color: CustomTheme.COLOR_LINK,
-        cursor: "pointer"
-    }
 
     constructor(props: ILegalInformationConsentCheckboxProps) {
         super(props);
@@ -67,7 +63,7 @@ export default class LegalInformationConsentCheckbox
                     <div style={grid1Style} />
                     <Typography style={this.legalNoticeTypographyStyle}>
                         {Dict.legal_notice_consent_paragraph_prefix}
-                        <span onClick={this.props.onForwardToLegalInformation} style={this.legalNoticeLinkTypographyStyle}>
+                        <span onClick={this.props.onForwardToLegalInformation} style={linkMsgTypographyStyle}>
                             {Dict.legal_notice_heading}
                         </span>
                         {Dict.legal_notice_consent_paragraph_suffix}

@@ -29,7 +29,9 @@
 		define("MAIL_SERVER", $mail_config["server"]);
 		define("MAIL_PORT", $mail_config["port"]);
 		define("MAIL_ENCODING", $mail_config["encoding"]);
-		define("MAIL_REDEEM_TOKEN_URL", $mail_config["redeem_token_url"]);
+		define("MAIL_ACCOUNT_TOKEN_URL", $mail_config["account_token_url"]);
+		define("MAIL_NEWSLETTER_TOKEN_URL", $mail_config["newsletter_token_url"]);
+		define("MAIL_EVENT_PARTICIPANTS_URL", $mail_config["event_participants_url"]);
 		define("MAIL_LOADED", true);
 	}
 	

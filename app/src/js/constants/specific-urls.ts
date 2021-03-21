@@ -4,6 +4,8 @@ export enum AppUrls {
     CONTACT = "/contact",
     EVENTS = "/events",
     HELP = "/help",
+    HELP_NEWSLETTER_SUBSCRIBE = "/help/newsletter/subscribe",
+    HELP_NEWSLETTER_REDEEM = "/help/newsletter/redeem",
     HELP_REDEEM_TOKEN = "/help/redeem_token",
     HELP_REDEEM_TOKEN_RESET_PASSWORD = "/help/redeem_token/reset_password",
     HELP_REQUEST_ACCOUNT_TRANSFER_MAIL = "/help/request_account_transfer_mail",
@@ -27,5 +29,6 @@ export enum WebserviceUrls {
     ACCOUNT_SESSIONS = "/account_sessions.php",
     EVENTS = "/events.php",
     IMAGES = "/images.php",
-    NEWS = "/news.php"
+    NEWS = "/news.php",
+    NEWSLETTER = "/newsletter.php"
 }

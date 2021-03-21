@@ -1,5 +1,6 @@
 import { InputBaseComponentProps } from '@material-ui/core/InputBase';
 import { createMuiTheme, Theme } from '@material-ui/core/styles';
+import React from 'react';
 
 /* general */
 
@@ -150,6 +151,11 @@ export const successMsgTypographyStyle: React.CSSProperties = {
     display: "inline-block",
     textAlign: "center"
 };
+
+export const linkMsgTypographyStyle: React.CSSProperties = {
+    color: CustomTheme.COLOR_LINK,
+    cursor: "pointer"
+}
 
 /* marker styles */
 

@@ -15,6 +15,8 @@ import LegalInformationPage from './js/components/pages/LegalInformationPage';
 import LoginPage from './js/components/pages/LoginPage';
 import LogoutPage from './js/components/pages/LogoutPage';
 import NewsItemPage from './js/components/pages/NewsItemPage';
+import NewsletterRedemptionPage from './js/components/pages/NewsletterRedemptionPage';
+import NewsletterSubscriptionPage from './js/components/pages/NewsletterSubscriptionPage';
 import NewsListPage from './js/components/pages/NewsListPage';
 import ProfilePage from './js/components/pages/ProfilePage';
 import ProfilePasswordChangePage from './js/components/pages/ProfilePasswordChangePage';
@@ -25,12 +27,14 @@ import RequestPasswordResetPage from './js/components/pages/RequestPasswordReset
 import TokenRedemptionPage from './js/components/pages/TokenRedemptionPage';
 import TokenRedemptionPasswordResetPage from './js/components/pages/TokenRedemptionPasswordResetPage';
 import Notifier, { showNotification } from './js/components/utilities/Notifier';
+import { registerPushManager } from './js/constants/global-functions';
 import { LogTags } from './js/constants/log-tags';
 import { AppUrls } from './js/constants/specific-urls';
 import { IUserKeys, IUserValues } from './js/networking/account_data/IUser';
+import {
+    AccountSessionSignOnRequest
+} from './js/networking/account_session/AccountSessionSignOnRequest';
 import { CookieService } from './js/services/CookieService';
-import { AccountSessionSignOnRequest } from './js/networking/account_session/AccountSessionSignOnRequest';
-import { registerPushManager } from './js/constants/global-functions';
 
 type IAppProps = RouteComponentProps<any, StaticContext>;
 
@@ -96,6 +100,8 @@ class App extends React.Component<IAppProps, IAppState> {
             <Route path={AppUrls.CHANGELOG} component={ChangelogPage} />
             <Route exact={true} path={AppUrls.EVENTS} component={EventListPage} />
             <Route path={AppUrls.EVENTS} component={EventItemPage} />
+            <Route path={AppUrls.HELP_NEWSLETTER_REDEEM} component={NewsletterRedemptionPage} />
+            <Route path={AppUrls.HELP_NEWSLETTER_SUBSCRIBE} component={NewsletterSubscriptionPage} />
             <Route path={AppUrls.HELP_REDEEM_TOKEN_RESET_PASSWORD} component={TokenRedemptionPasswordResetPage} />
             <Route path={AppUrls.HELP_REDEEM_TOKEN} component={TokenRedemptionPage} />
             <Route path={AppUrls.HELP_REQUEST_ACCOUNT_TRANSFER_MAIL} component={RequestAccountTransferMailPage} />
