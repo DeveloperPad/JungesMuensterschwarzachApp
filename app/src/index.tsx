@@ -13,7 +13,6 @@ import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import App from './App';
 import Formats from './js/constants/formats';
 import getTheme from './js/constants/theme';
-import { ConfigService } from './js/services/ConfigService';
 import { ServiceWorkerRegistrationService } from './js/services/ServiceWorkerRegistrationService';
 import { DeprecationService } from './js/services/DeprecationService';
 
@@ -28,7 +27,7 @@ moment.locale(Formats.DATE.LOCALE);
 ReactDOM.render(
   <MuiThemeProvider theme={getTheme()}>
     <MuiPickersUtilsProvider utils={DateMomentUtils} locale={Formats.DATE.LOCALE}>
-      <BrowserRouter basename={ConfigService.getConfig().BaseUrls.APP_SUBDIR ? ConfigService.getConfig().BaseUrls.APP_SUBDIR : null}>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <App />
       </BrowserRouter>
     </MuiPickersUtilsProvider>

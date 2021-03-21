@@ -1,7 +1,6 @@
 {
     "BaseUrls": {
-        "APP_SUBDIR": "",
-        "APP": "http://localhost:3000",
+        "APP": "http://localhost/app",
         "CONTACT_LINK": "mailto:lucas@luckev.info?subject=%5BJunges%20M%C3%BCnsterschwarzach%20App%5D%20Kontaktanfrage&body=%7BBeschreibe%20dein%20Anliegen%20hier.%7D",
         "WEBSERVICE": "http://localhost/app-backend/endpoints"
     },

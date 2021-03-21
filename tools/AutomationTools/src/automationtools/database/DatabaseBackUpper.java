@@ -17,6 +17,11 @@ public class DatabaseBackUpper {
     public static final String IMAGE_DIRECTORY = "storedImages";
 
     public static void main(String[] args) throws Exception {
+        if (System.getenv("JMA_BUILD_TYPE") == "local") {
+            System.out.println(LOG_TAG + "Skipping local database backup!");
+            System.exit(0);
+        }
+        
         System.out.println(LOG_TAG + "Starting database backup!");
 
         setGitAuthor();

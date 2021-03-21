@@ -19,7 +19,7 @@ import org.apache.commons.text.StringEscapeUtils;
 public class StringUpdater {
 
     private static final String ENDPOINT_STRINGS
-            = "http://jma-webservice/endpoints/strings.php";
+            = "http://172.16.1.241/endpoints/strings.php";
     private static final String ENCODING = StandardCharsets.UTF_8.displayName();
 
     private final String destination;
