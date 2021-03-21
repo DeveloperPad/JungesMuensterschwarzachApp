@@ -3,7 +3,6 @@ import mapboxConfig from 'static-content/js/mapbox.json';
 
 interface IConfig {
     BaseUrls: {
-        APP_SUBDIR: string;
         APP: string;
         CONTACT_LINK: string;
         WEBSERVICE: string;
