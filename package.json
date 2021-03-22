@@ -75,8 +75,8 @@
     "start-api-local:watch": "nodemon",
     "build-api": "tsc -p api",
     "start-app-local": "react-scripts start",
-    "build-app-dev": "cross-env-shell PUBLIC_URL=https://www.luckev.info/app \"react-scripts build\"",
-    "build-app-prod": "cross-env-shell PUBLIC_URL=https://app.junges-muensterschwarzach.de \"react-scripts build\""
+    "build-app-dev": "cross-env-shell PUBLIC_URL=\"/app\" \"react-scripts build\"",
+    "build-app-prod": "cross-env-shell PUBLIC_URL=\"\" \"react-scripts build\""
   },
   "browserslist": [
     ">0.2%",
