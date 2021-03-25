@@ -2,6 +2,7 @@ FROM php:apache
 WORKDIR /var/www/html
 COPY ./webservice ./
 COPY ./webservice/deployment/php.ini "$PHP_INI_DIR/php.ini"
+RUN echo "Acquire::Check-Valid-Until \"false\";\nAcquire::Check-Date \"false\";" | cat > /etc/apt/apt.conf.d/10no--check-valid-until
 RUN docker-php-ext-install mysqli
 RUN apt update && apt install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
