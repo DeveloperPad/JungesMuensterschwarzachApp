@@ -186,7 +186,7 @@
             $stmt->close();
 
             if (!$session) {
-                throw new Excpetion("account_session_expired");
+                throw new Exception("account_session_expired");
             }
             
             return $session["OTP"];
