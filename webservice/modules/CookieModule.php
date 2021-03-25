@@ -26,7 +26,7 @@
             $_COOKIE[$name] = $value;
         }
 
-        public static function get($name): ?object {
+        public static function get($name): mixed {
             $name = self::getFullName($name);
 
             $value = $_COOKIE[$name] ?? null;

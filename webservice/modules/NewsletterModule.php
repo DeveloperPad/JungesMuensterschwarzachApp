@@ -56,6 +56,33 @@
 			return $code;
 		}
 
+		public static function loadRegistrations() {
+			$stmt = DatabaseModule::getInstance()->prepare(
+				"(SELECT ad.eMailAddress, ad.accessLevel, al.accessIdentifier, NULL as code
+				  FROM account_data ad, access_levels al
+				  WHERE ad.accessLevel=al.accessLevel AND allowNewsletter=1)
+				 UNION
+				 (SELECT nr.eMailAddress, al.accessLevel, al.accessIdentifier, nr.code as code 
+				  FROM newsletter_registrations nr, access_levels al
+				  WHERE nr.activateUntil IS NULL AND al.accessLevel=10)
+				 ORDER BY accessLevel DESC, eMailAddress"
+			);
+
+			if ($stmt->execute() === false) {
+				$stmt->close();
+				throw new Exception("error_message_try_later");
+			}
+
+			$res = $stmt->get_result();
+			$newsletterRegistrations = array();
+			while ($row = $res->fetch_assoc()) {
+				array_push($newsletterRegistrations, $row);
+			}
+			$stmt->close();
+
+			return $newsletterRegistrations;
+		}
+
 		private static function loadRegistration($eMailAddress) {
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"SELECT * 

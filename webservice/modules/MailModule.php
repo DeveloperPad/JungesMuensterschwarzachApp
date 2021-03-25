@@ -37,6 +37,29 @@
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
+		public static function sendNewsletterMail($eMailAddress, $title, $content, $code) {
+			$cancelLink = 
+				$code !== null ?
+					self::getNewsletterTokenUrl($code) :
+					self::getProfileUrl();
+			$cancelMsg =
+				$code !== null ?
+					$GLOBALS["dict"]["account_allowNewsletter_registration_cancel_guest_prefix"]
+					. "<a href=\"$cancelLink\">".$GLOBALS["dict"]["account_allowNewsletter_registration_cancel_guest_infix"]."</a>"
+					. $GLOBALS["dict"]["account_allowNewsletter_registration_cancel_guest_suffix"]
+				:
+					$GLOBALS["dict"]["account_allowNewsletter_registration_cancel_account_prefix"]
+					. "<a href=\"$cancelLink\">".$GLOBALS["dict"]["navigation_profile"]."</a>"
+					. $GLOBALS["dict"]["account_allowNewsletter_registration_cancel_account_suffix"]
+				;
+			$message = $content
+				. "<hr/><small>"
+				. $cancelMsg
+				. "</small>";
+
+			self::sendMail($eMailAddress, $title, $message);
+		}
+
 		public static function sendPasswordResetMail($eMailAddress, $displayName, $code) {
 			$url = self::getAccountTokenUrl($code);
 			$title = $GLOBALS["dict"]["mail_password_reset_title"];
@@ -209,6 +232,12 @@
 				GlobalFunctions::getRequestProtocol() . "://"
 				. $_SERVER["HTTP_HOST"] . MAIL_NEWSLETTER_TOKEN_URL
 				. rawurlencode($code);
+		}
+
+		private static function getProfileUrl() {
+			return
+				GlobalFunctions::getRequestProtocol() . "://"
+				. $_SERVER["HTTP_HOST"] . MAIL_PROFILE_URL;
 		}
 
 		private static function getEventParticipantsUrl($eventId) {

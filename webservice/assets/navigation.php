@@ -55,6 +55,14 @@
 					</a>
 			<?php
 				}
+				if (intval($_COOKIE[CookieModule::getFullName("accessLevel")]) >= PERMISSION_NEWSLETTER) {
+			?>
+					<a href="<?php echo(ROOT_PUBLIC);?>/acp/newsletter_registrations.php" class="jma-navigation-dropdown-item">
+						<i class="fa-inverse far fa-envelope fa-fw"></i>
+						<span><?php echo($GLOBALS["dict"]["navigation_newsletters"]);?></span>
+					</a>
+			<?php
+				}
 				if (intval($_COOKIE[CookieModule::getFullName("accessLevel")]) >= PERMISSION_EVENTS) {
 			?>
 					<a href="<?php echo(ROOT_PUBLIC);?>/acp/events.php" class="jma-navigation-dropdown-item">

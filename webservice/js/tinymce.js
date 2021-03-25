@@ -23,6 +23,8 @@ tinymce.init({
     autosave_prefix: "{path}{query}-{id}-",
     autosave_restore_when_empty: false,
     autosave_retention: "2m",
+    relative_urls: false,
+    remove_script_host : false,
     image_advtab: true,
     // content_css: '//www.tiny.cloud/css/codepen.min.css',
     // importcss_append: true,

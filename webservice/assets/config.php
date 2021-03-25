@@ -31,6 +31,7 @@
 		define("MAIL_ENCODING", $mail_config["encoding"]);
 		define("MAIL_ACCOUNT_TOKEN_URL", $mail_config["account_token_url"]);
 		define("MAIL_NEWSLETTER_TOKEN_URL", $mail_config["newsletter_token_url"]);
+		define("MAIL_PROFILE_URL", $mail_config["profile_url"]);
 		define("MAIL_EVENT_PARTICIPANTS_URL", $mail_config["event_participants_url"]);
 		define("MAIL_LOADED", true);
 	}
@@ -55,6 +56,7 @@
 		define("PERMISSION_IMAGES", 30);
 		define("PERMISSION_NEWS", 30);
 		define("PERMISSION_PN", 30);
+		define("PERMISSION_NEWSLETTER", 40);
 		define("PERMISSION_USER", 40);
 		define("PERMISSIONS_LOADED", true);
 	}
