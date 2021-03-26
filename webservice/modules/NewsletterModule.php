@@ -24,7 +24,7 @@
 			} catch (Exception $exc) {
 				$registration = null;
 			}
-			if ($registration !== null && $registration["activateUntil"] === null) {
+			if ($registration !== null && $registration["activated"] !== null) {
 				throw new Exception("account_allowNewsletter_registration_already");
 			}
 			self::deleteRegistration($eMailAddress);
@@ -64,7 +64,7 @@
 				 UNION
 				 (SELECT nr.eMailAddress, al.accessLevel, al.accessIdentifier, nr.code as code 
 				  FROM newsletter_registrations nr, access_levels al
-				  WHERE nr.activateUntil IS NULL AND al.accessLevel=10)
+				  WHERE nr.activated IS NOT NULL AND al.accessLevel=10)
 				 ORDER BY accessLevel DESC, eMailAddress"
 			);
 
@@ -108,7 +108,7 @@
 			self::cleanUpRegistrations();
 
 			$registration = self::getRegistrationByCode($code);
-			if ($registration["activateUntil"] !== null) {
+			if ($registration["activated"] === null) {
 				self::activateRegistration($registration["eMailAddress"]);
 				return "account_allowNewsletter_registration_confirmed";
 			} else {
@@ -119,14 +119,13 @@
 
 		private static function activateRegistration($eMailAddress) {
 			$code = self::generateCode();
-			$activateUntil = null;
 
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"UPDATE newsletter_registrations
-				 SET code=?, activateUntil=?
+				 SET code=?, activateUntil=NULL, activated=NOW()
 				 WHERE eMailAddress=?"
 			);
-			$stmt->bind_param("sss", $code, $activateUntil, $eMailAddress);
+			$stmt->bind_param("ss", $code, $eMailAddress);
 			$result = $stmt->execute();
 			$stmt->close();
 
@@ -169,7 +168,7 @@
 		private static function cleanUpRegistrations() {
 			if (($res = DatabaseModule::getInstance()->query(
 				"SELECT * FROM newsletter_registrations 
-				 WHERE activateUntil IS NOT NULL AND DATEDIFF(activateUntil, NOW()) < 0"
+				 WHERE activated IS NULL AND DATEDIFF(activateUntil, NOW()) < 0"
 				)) === false) {
 				throw new Exception("token_cleanup_failed");
 			}

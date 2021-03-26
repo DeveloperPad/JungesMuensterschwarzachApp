@@ -38,6 +38,14 @@ export default function getTheme(): Theme {
 
 const theme: Theme = createMuiTheme({
     overrides: {
+        MuiButton: {
+            containedPrimary: {
+                '&.Mui-disabled': {
+                    color: "rgba(0, 0, 0, 0.75)",
+                    backgroundColor: "rgba(255, 152, 0, 0.50)"
+                },
+            }
+        },
         MuiCardContent: {
             root: {
                 "&:last-child": {

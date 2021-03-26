@@ -18,6 +18,7 @@ import Grid from '../utilities/Grid';
 import GridItem from '../utilities/GridItem';
 import { showNotification } from '../utilities/Notifier';
 import { AppUrls } from '../../constants/specific-urls';
+import LegalInformationConsentCheckbox, { ILegalInformationConsentCheckBoxKeys } from '../form_elements/LegalInformationConsentCheckbox';
 
 type INewsletterSubscriptionFormProps = RouteComponentProps<any, StaticContext> & WithTheme;
 
@@ -28,14 +29,16 @@ interface INewsletterSubscriptionFormState {
     successMsg: string | null;
 }
 
-type IFormKeys = IUserKeys.eMailAddress;
+type IFormKeys = IUserKeys.eMailAddress | ILegalInformationConsentCheckBoxKeys.LegalInformationConsent;
 
 interface IForm {
     [IUserKeys.eMailAddress]: string;
+    [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: boolean;
 }
 
 interface IFormError {
     [IUserKeys.eMailAddress]: string | null;
+    [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: string | null;
 }
 
 class NewsletterSubscriptionForm 
@@ -68,10 +71,12 @@ class NewsletterSubscriptionForm
 
         this.state = {
             form: {
-                [IUserKeys.eMailAddress]: ""
+                [IUserKeys.eMailAddress]: "",
+                [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: false
             },
             formError: {
-                [IUserKeys.eMailAddress]: null
+                [IUserKeys.eMailAddress]: null,
+                [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: null
             },
             subscriptionRequest: null,
             successMsg: null
@@ -126,8 +131,19 @@ class NewsletterSubscriptionForm
                     value={this.state.form[IUserKeys.eMailAddress]}
                 />
 
+                <LegalInformationConsentCheckbox
+                    checked={this.state.form[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]}
+                    errorMessage={this.state.formError[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]}
+                    onError={this.updateFormError}
+                    onForwardToLegalInformation={this.forwardToLegalInformation}
+                    onUpdateValue={this.updateForm}
+                    showErrorMessageOnLoad={false}
+                    style={this.marginTopStyle}
+                />
+
                 <SubmitButton
-                    disabled={this.state.subscriptionRequest !== null}
+                    disabled={this.state.subscriptionRequest !== null || 
+                        this.state.form[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent] === false}
                     label={Dict.account_sign_in}
                     onClick={this.sendRequest}
                     style={this.marginTopStyle}
@@ -156,6 +172,12 @@ class NewsletterSubscriptionForm
         );
     }
 
+    private forwardToLegalInformation = (): void => {
+        this.props.history.push(
+            AppUrls.LEGAL_INFORMATION
+        );
+    }
+
     private forwardToProfile = (): void => {
         this.props.history.push(
             AppUrls.PROFILE
@@ -174,7 +196,7 @@ class NewsletterSubscriptionForm
         );
     }
 
-    public updateForm = (key: IFormKeys, value: string): void => {
+    public updateForm = (key: IFormKeys, value: string|boolean): void => {
         this.setState(prevState => {
             return {
                 ...prevState,
