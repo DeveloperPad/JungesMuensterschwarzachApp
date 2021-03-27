@@ -187,6 +187,8 @@ class LegalInformationPage extends React.Component<ILegalInformationPageProps> {
                                     <Typography style={this.paragraphStyle}>{Dict.privacy_policy_data_type_personal_account_paragraph}</Typography>
                                     <Typography style={this.h3Style}>{Dict.privacy_policy_data_type_personal_event_heading}</Typography>
                                     <Typography style={this.paragraphStyle}>{Dict.privacy_policy_data_type_personal_event_paragraph}</Typography>
+                                    <Typography style={this.h3Style}>{Dict.privacy_policy_data_type_personal_newsletter_heading}</Typography>
+                                    <Typography style={this.paragraphStyle}>{Dict.privacy_policy_data_type_personal_newsletter_paragraph}</Typography>
 
                                     <Typography style={this.h2Style}>{Dict.privacy_policy_data_type_consents}</Typography>
                                     <Typography style={this.h3Style}>{Dict.privacy_policy_data_type_consents_mail_heading}</Typography>

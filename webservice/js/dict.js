@@ -553,7 +553,7 @@ E-Mail: prokura@abtei-muensterschwarzach.de",
 "legal_notice_consent_paragraph_prefix": "Ich akzeptiere hiermit das ", 
 "legal_notice_consent_paragraph_suffix": " inklusive Nutzungsbedingungen, Haftungsbeschränkung und -ausschluss sowie Datenschutzerklärung.", 
 "legal_notice_consent_required": "Du musst das Impressum akzeptieren.", 
-"legal_notice_effective": "Stand vom 03.12.2020", 
+"legal_notice_effective": "Stand vom 27.03.2021", 
 "legal_notice_heading": "Impressum", 
 "legal_notice_paragraph": "Für die vorliegende App „Junges Münsterschwarzach“ und dem zugehörigen Web-Service, erreichbar unter https://app.junges-muensterschwarzach.de, nachfolgend „Plattform“ genannt, sind folgende Einrichtung bzw. Personen verantwortlich im Sinne der einschlägigen gesetzlichen Bestimmungen:", 
 "legal_notice_responsible_content_heading": "Inhaltlich verantwortlich", 
@@ -762,6 +762,16 @@ Für die Verifikation der Alterbeschränkung bestimmter Veranstaltungen benötig
 Da manche Veranstaltungen mehrere Tage dauern, sorgen wir in dieser Zeit für Ihre Verpflegung. Um den Essensplan bereits im Vorfeld auf die Teilnehmer abstimmen zu können, benötigen wir Informationen über Ihre Essgewohnheiten. Dazu zählen beispielsweise Nahrungsmittelunverträglichkeiten oder eine vegetarische/vegane Lebensweise.\
 \
 Rechtsgrundlage für die Verarbeitung der Teilnehmerdaten ist Art. 6 Abs. 1 lit. a der DSGVO, da Sie uns Ihre Daten freiwillig für die Verarbeitung zum angegebenen Zweck zur Verfügung stellen und damit Ihre Einwilligung erteilen.", 
+"privacy_policy_data_type_personal_newsletter_heading": "Newsletter-Daten", 
+"privacy_policy_data_type_personal_newsletter_paragraph": "Diese Kategorie umfasst lediglich Ihre E-Mail-Adresse.\
+\
+Wir benötigen Ihre E-Mail-Adresse, um Ihnen in unregelmäßigen Abständen unsere Newsletter zustellen zu können.\
+Ihre E-Mail-Adresse wird dabei selbstverständlich vertraulich behandelt.\
+\
+Nachdem Sie Ihre E-Mail-Adresse im entsprechenden Newsletter-Anmeldeformular angegeben haben, müssen Sie diese per Aktivierungslink verifizieren. Damit bestätigen Sie sowohl die Echtheit als auch den Besitz über die angegebene Adresse.\
+Sollten Sie keine Newsletter mehr von uns empfangen wollen, dann folgenden Sie den Anweisungen (Link) in der Fußzeile des zuletzt empfangenen Newsletters und wir werden Ihre gespeicherte E-Mail-Adresse daraufhin aus unserem Newsletter-System entfernen.\
+\
+Rechtsgrundlage für die Verarbeitung der Account-Daten ist Art. 6 Abs. 1 lit. a der DSGVO, da Sie uns bei der Newsletter-Anmeldung Ihre Einwilligung erteilen.", 
 "privacy_policy_data_type_technical": "Technische Daten", 
 "privacy_policy_data_type_technical_cookies_heading": "Cookies", 
 "privacy_policy_data_type_technical_cookies_paragraph": "Die meisten Browser sind so eingestellt, dass sie die Verwendung von Cookies akzeptieren. Diese Funktion kann aber durch die Einstellung des Internet-Browsers von Ihnen abgeschaltet werden. Sie können Ihren Internet-Browser so einstellen, dass dieser entweder alle Cookies automatisch akzeptiert, alle Cookies automatisch ablehnt oder Sie bei jedem Cookie fragt, ob Sie es akzeptieren oder ablehnen möchten.\
