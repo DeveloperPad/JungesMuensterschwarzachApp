@@ -1,9 +1,21 @@
 FROM php:apache
 WORKDIR /var/www/html
+ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.1.12/supercronic-linux-amd64 \
+    SUPERCRONIC=supercronic-linux-amd64 \
+    SUPERCRONIC_PATH=/usr/local/bin/supercronic-linux-amd64 \
+    SUPERCRONIC_SHA1SUM=048b95b48b708983effb2e5c935a1ef8483d9e3e
 COPY ./webservice ./
 COPY ./webservice/deployment/php.ini "$PHP_INI_DIR/php.ini"
 RUN echo "Acquire::Check-Valid-Until \"false\";\nAcquire::Check-Date \"false\";" | cat > /etc/apt/apt.conf.d/10no--check-valid-until
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
+    install-php-extensions imap 
 RUN docker-php-ext-install mysqli
 RUN apt update && apt install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install -j$(nproc) gd
+RUN curl -fsSLO "${SUPERCRONIC_URL}" \
+ && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
+ && chmod +x "${SUPERCRONIC}" \
+ && mv "${SUPERCRONIC}" "${SUPERCRONIC_PATH}" \
+ && ln -s "${SUPERCRONIC_PATH}" /usr/local/bin/supercronic

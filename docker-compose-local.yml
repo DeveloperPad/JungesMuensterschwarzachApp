@@ -29,6 +29,9 @@ services:
   jma-webservice:
     volumes:
       - ./webservice:/var/www/html
+  jma-cron:
+    volumes:
+      - ./webservice:/var/www/html
   jma-dictionary-updater:
     container_name: jma-dictionary-updater
     image: jungesmuensterschwarzach/jma-dictionary-updater:latest

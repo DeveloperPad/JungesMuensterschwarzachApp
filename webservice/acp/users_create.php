@@ -24,7 +24,7 @@
 					try {
 						UserModule::signUp(
 							$_POST["displayName"], $_POST["eMailAddress"], 
-							$_POST["password"], $_POST["passwordRepetition"]
+							$_POST["password"], $_POST["passwordRepetition"], 0
 						);
 						unset($_POST);
 						$alert = new Alert("warning", $GLOBALS["dict"]["account_creation_success"]);

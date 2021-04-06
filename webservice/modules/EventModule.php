@@ -506,6 +506,43 @@
 			return $eventEnrollment;
 		}
 
+		public static function getEventIdByTitle($eventTitle) {
+			$sql = "SELECT e.eventId, e.eventTitle, e.eventEnrollmentStart, e.eventEnrollmentEnd 
+					FROM events e";
+			$stmt = DatabaseModule::getInstance()->prepare($sql);
+			
+			if ($stmt->execute() === false) {
+				$stmt->close();
+				throw new Exception("error_message_try_later");
+			}
+			
+			$res = $stmt->get_result();
+			$now = new DateTime();
+			$eventId = null;
+			while ($row = $res->fetch_assoc()) {
+				if (stripos($row["eventTitle"], $eventTitle) === false) {
+					continue;
+				}
+
+				$eventEnrollmentStart = DateTime::createFromFormat(DATE_FORMAT_DB_FULL, 
+					$row["eventEnrollmentStart"], new DateTimeZone(SERVER_TIMEZONE));
+				$eventEnrollmentEnd = DateTime::createFromFormat(DATE_FORMAT_DB_FULL, 
+					$row["eventEnrollmentEnd"], new DateTimeZone(SERVER_TIMEZONE));
+
+				if ($now < $eventEnrollmentStart) {
+					continue;
+				} else if ($eventEnrollmentEnd < $now) {
+					continue;
+				}
+
+				$eventId = $row["eventId"];
+				break;
+			}
+			$stmt->close();
+
+			return $eventId;
+		}
+
 		public static function createEvent($eventTitle, $eventTopic, $eventDetails, $eventStart, $eventEnd, $eventEnrollmentStart, $eventEnrollmentEnd, 
 				$eventOfferId, $eventScheduleId, $eventTargetGroupId, $eventPriceId, $eventPackingListId, $eventLocationId, $eventArrivalId, $requiredAccessLevel, $ownAccessLevel) {
 			self::validateEventTitle($eventTitle);

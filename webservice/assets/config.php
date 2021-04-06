@@ -27,8 +27,12 @@
 		define("MAIL_ACCOUNT_NAME", $mail_config["account_name"]);
 		define("MAIL_PASSWORD", $mail_config["password"]);
 		define("MAIL_SERVER", $mail_config["server"]);
-		define("MAIL_PORT", $mail_config["port"]);
+		define("MAIL_PORT_IMAP", $mail_config["port_imap"]);
+		define("MAIL_PORT_SMTP", $mail_config["port_smtp"]);
 		define("MAIL_ENCODING", $mail_config["encoding"]);
+		define("MAIL_FOLDER_DEFAULT", $mail_config["folder_default"]);
+		define("MAIL_FOLDER_ENROLLMENTS_PROCESSED", $mail_config["folder_enrollments_processed"]);
+		define("MAIL_FOLDER_ENROLLMENTS_FAILED", $mail_config["folder_enrollments_failed"]);
 		define("MAIL_ACCOUNT_TOKEN_URL", $mail_config["account_token_url"]);
 		define("MAIL_NEWSLETTER_TOKEN_URL", $mail_config["newsletter_token_url"]);
 		define("MAIL_PROFILE_URL", $mail_config["profile_url"]);
@@ -65,13 +69,13 @@
 	/* Account data */
 	
 	if (defined("ACCOUNT_DATA_LIMITS_LOADED") === false) {
-		define("FIRSTNAME_LENGTH_MAX", 50);
-		define("LASTNAME_LENGTH_MAX", 50);
-		define("DISPLAYNAME_LENGTH_MAX", 30);
+		define("FIRSTNAME_LENGTH_MAX", 100);
+		define("LASTNAME_LENGTH_MAX", 100);
+		define("DISPLAYNAME_LENGTH_MAX", 100);
 		define("EMAILADDRESS_LENGTH_MAX", 100);
-		define("STREETNAME_LENGTH_MAX", 50);
-		define("HOUSENUMBER_LENGTH_MAX", 10);
-		define("ZIPCODE_LENGTH_MAX", 10);
+		define("STREETNAME_LENGTH_MAX", 100);
+		define("HOUSENUMBER_LENGTH_MAX", 100);
+		define("ZIPCODE_LENGTH_MAX", 100);
 		define("CITY_LENGTH_MAX", 100);
 		define("COUNTRY_LENGTH_MAX", 100);
 		define("PHONENUMBER_LENGTH_MAX", 50);

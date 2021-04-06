@@ -44,7 +44,7 @@
 		}
 
 		public static function resendActivationMail($eMailAddress) {
-			$userId = self::getUserIdByEMailAddress($_POST["eMailAddress"]);
+			$userId = self::getUserIdByEMailAddress($eMailAddress);
 			$user = self::loadUser($userId, ACCESS_LEVEL_DEVELOPER);
 
 			if (intval($user["isActivated"]) !== 0) {
@@ -475,7 +475,7 @@
 		}
 
 		public static function requestPasswordReset($eMailAddress) {
-			$userId = self::getUserIdByEMailAddress($_POST["eMailAddress"]);
+			$userId = self::getUserIdByEMailAddress($eMailAddress);
 			$user = self::loadUser($userId, ACCESS_LEVEL_DEVELOPER);
 			$code = TokenModule::getCode($user["userId"], TokenModule::TOKEN_TYPE_PASSWORD_RESET);
 			MailModule::sendPasswordResetMail($user["eMailAddress"], $user["displayName"], $code);
