@@ -9,12 +9,29 @@
 
 	class WebsiteEnrollmentModule {
 
-		public static function process($enrollmentContent) {
+		public static function processNewEnrollment($enrollmentContent) {
 			$enrollment = self::parse($enrollmentContent);
+			print_r($enrollment);
 
-			// TODO
+			if (UserModule::isEMailAddressTaken($enrollment["eMailAddress"], false)) {
+				$userId = UserModule::getUserIdByEMailAddress($enrollment["eMailAddress"]);
+				$user = UserModule::loadUser($userId, ACCESS_LEVEL_DEVELOPER);
 
-			return $enrollment;
+				if (intval($user["isActivated"]) === 0) {
+					UserModule::resendActivationMail($user["eMailAddress"], true);
+				} else if (self::isAlreadyEnrolled($userId, $enrollment["event"]["eventParticipants"])) {
+					throw new Exception("event_user_enrolled_already");
+				} else {
+					UserModule::verifyEventEnrollment($user, $enrollment["event"]["eventTitle"]);
+				}
+			} else {
+				UserModule::signUp(
+					$enrollment["firstName"] . "-" . uniqid(),
+					$enrollment["eMailAddress"], null, null, 0, true
+				);
+			}
+
+			return MAIL_FOLDER_ENROLLMENTS_PREPROCESSED;
 		}
 
 		private static function parse($enrollmentContent) {
@@ -37,7 +54,7 @@
 
 				switch ($key) {
 					case "Kursauswahl":
-						$enrollment["eventId"] = EventModule::getEventIdByTitle($value);
+						$enrollment["event"] = EventModule::getNextEventByTitle($value);
 						break;
 					case "Name":
 						$nameParts = explode(" ", $value);
@@ -80,6 +97,21 @@
 			}
 
 			return $enrollment;
+		}
+
+		public static function applyEnrollmentMail($eMailAddress) {
+			// TODO
+		}
+
+		public static function expireEnrollmentMail($eMailAddress) {
+			// TODO
+		}
+
+		private static function isAlreadyEnrolled($userId, $participants) {
+			return in_array(
+				$userId,
+				array_map(function($participant) { return $participant["userId"]; }, $participants)
+			);
 		}
 		
 	}

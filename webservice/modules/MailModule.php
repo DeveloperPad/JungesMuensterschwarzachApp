@@ -14,15 +14,18 @@
 
 	class MailModule {
 
-		public static function sendSignUpConfirmationMail($eMailAddress, $displayName, $code) {
+		public static function sendSignUpConfirmationMail($eMailAddress, $displayName, $code, $withEnrollment) {
 			$url = self::getAccountTokenUrl($code);
 			$title = $GLOBALS["dict"]["mail_confirm_activation_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"] 
 				. htmlspecialchars($displayName) 
 				. $GLOBALS["dict"]["mail_message_salutation_suffix"]
 				. $GLOBALS["dict"]["mail_confirm_activation_message_paragraph_1"]
-				. "<a href=\"$url\">$url</a>"
-				. $GLOBALS["dict"]["mail_confirm_activation_message_paragraph_2"]
+				. "<a href=\"$url\">$url</a>";
+			if ($withEnrollment) {
+				$message .= $GLOBALS["dict"]["mail_confirm_activation_message_paragraph_enrollment"];
+			}
+			$message = $GLOBALS["dict"]["mail_confirm_activation_message_paragraph_2"]
 				. $GLOBALS["dict"]["mail_regards"];
 			self::sendMail($eMailAddress, $title, $message);
 		}
@@ -57,6 +60,22 @@
 				. $cancelMsg
 				. "</small>";
 
+			self::sendMail($eMailAddress, $title, $message);
+		}
+
+		public static function sendEventEnrollmentConfirmationMail(
+				$eMailAddress, $displayName, $code, $eventTitle) {
+			$url = self::getAccountTokenUrl($code);
+			$title = $GLOBALS["dict"]["mail_confirm_event_enrollment_title"];
+			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
+				. htmlspecialchars($displayName)
+				. $GLOBALS["dict"]["mail_message_salutation_suffix"]
+				. $GLOBALS["dict"]["mail_confirm_event_enrollment_message_paragraph_1"]
+				. "<strong>$eventTitle</strong>"
+				. $GLOBALS["dict"]["mail_confirm_event_enrollment_message_paragraph_2"]
+				. "<a href=\"$url\">$url</a>"
+				. $GLOBALS["dict"]["mail_confirm_event_enrollment_message_paragraph_3"]
+				. $GLOBALS["dict"]["mail_regards"];
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
@@ -198,8 +217,8 @@
 				$mailer->SMTPAuth = true;
 				$mailer->Username = MAIL_ACCOUNT_NAME;
 				$mailer->Password = MAIL_PASSWORD;
-				$mailer->Port = MAIL_PORT;
-				if (MAIL_PORT === 587) {
+				$mailer->Port = MAIL_PORT_SMTP;
+				if (MAIL_PORT_SMTP === 587) {
 					$mailer->SMTPSecure = "tls";
 				}
 

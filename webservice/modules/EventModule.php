@@ -506,7 +506,7 @@
 			return $eventEnrollment;
 		}
 
-		public static function getEventIdByTitle($eventTitle) {
+		public static function getNextEventByTitle($eventTitle) {
 			$sql = "SELECT e.eventId, e.eventTitle, e.eventEnrollmentStart, e.eventEnrollmentEnd 
 					FROM events e";
 			$stmt = DatabaseModule::getInstance()->prepare($sql);
@@ -540,7 +540,7 @@
 			}
 			$stmt->close();
 
-			return $eventId;
+			return self::loadEvent($eventId, ACCESS_LEVEL_DEVELOPER);
 		}
 
 		public static function createEvent($eventTitle, $eventTopic, $eventDetails, $eventStart, $eventEnd, $eventEnrollmentStart, $eventEnrollmentEnd, 

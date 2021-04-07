@@ -30,9 +30,11 @@
 		define("MAIL_PORT_IMAP", $mail_config["port_imap"]);
 		define("MAIL_PORT_SMTP", $mail_config["port_smtp"]);
 		define("MAIL_ENCODING", $mail_config["encoding"]);
-		define("MAIL_FOLDER_DEFAULT", $mail_config["folder_default"]);
-		define("MAIL_FOLDER_ENROLLMENTS_PROCESSED", $mail_config["folder_enrollments_processed"]);
-		define("MAIL_FOLDER_ENROLLMENTS_FAILED", $mail_config["folder_enrollments_failed"]);
+		define("MAIL_FOLDER_DEFAULT", "INBOX");
+		define("MAIL_FOLDER_ENROLLMENTS_PREPROCESSED", "ENROLLMENTS_PREPROCESSED");
+		define("MAIL_FOLDER_ENROLLMENTS_ENROLLED", "ENROLLMENTS_ENROLLED");
+		define("MAIL_FOLDER_ENROLLMENTS_UNCONFIRMED", "ENROLLMENTS_UNCONFIRMED");
+		define("MAIL_FOLDER_ENROLLMENTS_FAILED", "ENROLLMENTS_FAILED");
 		define("MAIL_ACCOUNT_TOKEN_URL", $mail_config["account_token_url"]);
 		define("MAIL_NEWSLETTER_TOKEN_URL", $mail_config["newsletter_token_url"]);
 		define("MAIL_PROFILE_URL", $mail_config["profile_url"]);

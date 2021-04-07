@@ -34,12 +34,11 @@
 
 		foreach ($enrollmentContents as $mailId => $enrollmentContent) {
 			try {
-				$enrollment = WebsiteEnrollmentModule::process($enrollmentContent);
-				print_r($enrollment);
-				echo("Processed event enrollment of " . $enrollment["firstName"] . ".\n");
-				//$mailbox->moveMail($mailId, $mailboxPrefix . MAIL_FOLDER_ENROLLMENTS_PROCESSED);
+				$toMailbox = WebsiteEnrollmentModule::processNewEnrollment($enrollmentContent);
+				echo("Processed event enrollment.\n");
+				//$mailbox->moveMail($mailId, $mailboxPrefix . $toMailbox);
 				echo("Moved mail with ID " . $mailId . " into folder " 
-					. MAIL_FOLDER_ENROLLMENTS_PROCESSED . ".\n");
+					. $toMailbox . ".\n");
 			} catch (Exception $exc) {
 				echo("Error: " . $exc->getMessage());
 				//$mailbox->moveMail($mailId, $mailboxPrefix . MAIL_FOLDER_ENROLLMENTS_FAILED);
@@ -55,29 +54,29 @@
 	function createMailboxes($mailbox) {
 		$mailboxes = $mailbox->getMailboxes();
 		$mailboxNames = array_map(function($box) { return $box["shortpath"]; }, $mailboxes);
+		$foldersToCreate = array(
+			MAIL_FOLDER_ENROLLMENTS_PREPROCESSED => true,
+			MAIL_FOLDER_ENROLLMENTS_ENROLLED => true,
+			MAIL_FOLDER_ENROLLMENTS_UNCONFIRMED => true,
+			MAIL_FOLDER_ENROLLMENTS_FAILED => true
+		);
 
-		$processedFolderExists = false;
-		$failedFolderExists = false;
 		foreach ($mailboxNames as $mailboxName) {
-			if (strpos($mailboxName, MAIL_FOLDER_ENROLLMENTS_PROCESSED) !== false) {
-				$processedFolderExists = true;
-			} else if (strpos($mailboxName, MAIL_FOLDER_ENROLLMENTS_FAILED) !== false) {
-				$failedFolderExists = true;
+			foreach ($foldersToCreate as $folder => $toCreate) {
+				if (strpos($mailboxName, $folder) !== false) {
+					$foldersToCreate[$folder] = false;
+					break;
+				}
 			}
 		}
 
-		if (!$processedFolderExists) {
-			$mailbox->createMailbox(MAIL_FOLDER_ENROLLMENTS_PROCESSED);
-			echo("Created mailbox " . MAIL_FOLDER_ENROLLMENTS_PROCESSED . ".\n");
-		} else {
-			echo("Mailbox " . MAIL_FOLDER_ENROLLMENTS_PROCESSED . " already exists.\n");
-		}
-
-		if (!$failedFolderExists) {
-			$mailbox->createMailbox(MAIL_FOLDER_ENROLLMENTS_FAILED);
-			echo("Created mailbox " . MAIL_FOLDER_ENROLLMENTS_FAILED . ".\n");
-		} else {
-			echo("Mailbox " . MAIL_FOLDER_ENROLLMENTS_FAILED . " already exists.\n");
+		foreach ($foldersToCreate as $folder => $toCreate) {
+			if ($toCreate) {
+				$mailbox->createMailbox($folder);
+				echo("Created Mailbox " . $folder . ".\n");
+			} else {
+				echo("Mailbox " . $folder . " already exists.\n");
+			}
 		}
 	}
 

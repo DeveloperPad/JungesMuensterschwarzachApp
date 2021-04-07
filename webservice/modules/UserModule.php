@@ -8,11 +8,11 @@
 	require_once(ROOT_LOCAL."/modules/TokenModule.php");
 	require_once(ROOT_LOCAL."/modules/TransferModule.php");
 	require_once(ROOT_LOCAL."/modules/MailModule.php");
-
-	//TODO: implement access check with own access level
+	
 	class UserModule {
 		
-		public static function signUp($displayName, $eMailAddress, $password, $passwordRepetition, $allowNewsletter) {
+		public static function signUp($displayName, $eMailAddress, $password = null, 
+				$passwordRepetition = null, $allowNewsletter = 0, $withEnrollment = false) {
 			self::validateDisplayName($displayName);
 			self::validateEMailAddress($eMailAddress, false, true);
 			self::validatePassword($password, $passwordRepetition);
@@ -26,7 +26,7 @@
 				self::getUserIdByCredentials($eMailAddress, $password),
 				TokenModule::TOKEN_TYPE_ACTIVATION
 			);
-			MailModule::sendSignUpConfirmationMail($eMailAddress, $displayName, $code);
+			MailModule::sendSignUpConfirmationMail($eMailAddress, $displayName, $code, $withEnrollment);
 		}
 		
 		private static function storeUser($displayName, $eMailAddress, $password, $allowNewsletter) {
@@ -43,7 +43,7 @@
 			return $result;
 		}
 
-		public static function resendActivationMail($eMailAddress) {
+		public static function resendActivationMail($eMailAddress, $withEnrollment = false) {
 			$userId = self::getUserIdByEMailAddress($eMailAddress);
 			$user = self::loadUser($userId, ACCESS_LEVEL_DEVELOPER);
 
@@ -52,7 +52,16 @@
 			}
 
 			$code = TokenModule::getCode($user["userId"], TokenModule::TOKEN_TYPE_ACTIVATION);
-			MailModule::sendSignUpConfirmationMail($user["eMailAddress"], $user["displayName"], $code);
+			MailModule::sendSignUpConfirmationMail(
+				$user["eMailAddress"], $user["displayName"], $code, $withEnrollment
+			);
+		}
+
+		public static function verifyEventEnrollment($user, $eventTitle) {
+			$code = TokenModule::getCode($user["userId"], TokenModule::TOKEN_TYPE_EVENT_ENROLLMENT);
+			MailModule::sendEventEnrollmentConfirmationMail(
+				$user["eMailAddress"], $user["displayName"], $code, $eventTitle
+			);
 		}
 
 		public static function signIn($eMailAddress, $password) {
@@ -710,7 +719,7 @@
 				$passwordRepetition = $password;
 			}
 			
-			if (strlen($password) < PASSWORD_LENGTH_MIN) {
+			if ($password !== null && strlen($password) < PASSWORD_LENGTH_MIN) {
 				throw new Exception("account_password_invalid");
 			}
 			
