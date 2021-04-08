@@ -38,13 +38,11 @@ services:
         ipv4_address: 172.16.1.241
   jma-cron:
     container_name: jma-cron
-    image: jungesmuensterschwarzach/jma-webservice:${JMA_BUILD_TYPE}
+    image: jungesmuensterschwarzach/jma-cron:${JMA_BUILD_TYPE}
     build:
       context: .
-      dockerfile: Dockerfile.webservice
+      dockerfile: Dockerfile.cron
     restart: always
-    entrypoint: supercronic
-    command: ./deployment/crontab
     volumes:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
 networks:

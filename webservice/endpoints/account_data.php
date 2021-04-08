@@ -77,6 +77,8 @@
 		
 		if ($token["tokenType"] === TokenModule::TOKEN_TYPE_ACTIVATION) {
 			$response->setSuccessMsg("account_isActivated_activation_success");
+		} else if ($token["tokenType"] === TokenModule::TOKEN_TYPE_EVENT_ENROLLMENT) {
+			$response->setSuccessMsg("event_user_enrolled");
 		} else if ($token["tokenType"] === TokenModule::TOKEN_TYPE_PASSWORD_RESET) {
 			// send fake success response to tell the app to show the password reset form
 			$response->setSuccessMsg("account_password_new");
