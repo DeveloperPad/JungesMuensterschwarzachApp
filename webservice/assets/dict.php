@@ -455,7 +455,7 @@
 "mail_account_transfer_not_sent" => "Die E-Mail zum Bestätigen des Account-Transfers konnte nicht versandt werden.", 
 "mail_confirm_activation_message_paragraph_1" => "um deinen kürzlich angelegten Account zu aktivieren, rufe bitte folgenden Link auf:<br><br>", 
 "mail_confirm_activation_message_paragraph_2" => "<br><br>Solltest du den Link nicht öffnen können, dann kopiere ihn in die Addresszeile deines Browsers und rufe ihn dort auf.<br>Dieser Link ist 7 Tage lang gültig. Danach wird dein Account gelöscht und du musst dich erneut registrieren.<br>Wenn du keinen Account bei uns erstellt haben solltest, kannst du diese E-Mail unbesorgt ignorieren.<br><br>", 
-"mail_confirm_activation_message_paragraph_enrollment" => "<strong>Beachte bitte, dass deine Kursanmeldung erst gültig ist, nachdem du deinen Account aktiviert hast. Sollte der Link abgelaufen sein, dann registriere dich bitte erneut.</strong><br/><br/>", 
+"mail_confirm_activation_message_paragraph_enrollment" => "<br/><br/><strong>Beachte bitte, dass deine Kursanmeldung erst gültig ist, nachdem du deinen Account aktiviert hast. Sollte der Link abgelaufen sein, dann registriere dich bitte erneut.</strong>", 
 "mail_confirm_activation_not_sent" => "Die E-Mail mit dem Account-Aktivierungslink konnte nicht versendet werden.", 
 "mail_confirm_activation_send" => "Eine E-Mail mit Account-Aktivierungslink wurde an die angegebene E-Mail-Adresse versendet.", 
 "mail_confirm_activation_title" => "[Junges Münsterschwarzach App] Account-Aktivierung", 

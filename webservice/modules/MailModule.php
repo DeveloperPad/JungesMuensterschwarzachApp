@@ -25,7 +25,7 @@
 			if ($withEnrollment) {
 				$message .= $GLOBALS["dict"]["mail_confirm_activation_message_paragraph_enrollment"];
 			}
-			$message = $GLOBALS["dict"]["mail_confirm_activation_message_paragraph_2"]
+			$message .= $GLOBALS["dict"]["mail_confirm_activation_message_paragraph_2"]
 				. $GLOBALS["dict"]["mail_regards"];
 			self::sendMail($eMailAddress, $title, $message);
 		}

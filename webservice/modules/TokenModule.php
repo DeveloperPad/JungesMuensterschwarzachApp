@@ -78,7 +78,7 @@
 					if ($user["isActivated"] === 0) {
 						UserModule::deleteUser($userId);
 					}
-					WebsiteEnrollmentModule::expireEnrollmentMail($user["eMailAddress"]);
+					WebsiteEnrollmentModule::expireMails($user["eMailAddress"]);
 				} catch (Exception $exc) {
 					throw new Exception("token_cleanup_failed");
 				}
@@ -90,7 +90,7 @@
 				}
 			} else if ($token["tokenType"] === self::TOKEN_TYPE_EVENT_ENROLLMENT) {
 				$user = UserModule::loadUser($userId, ACCESS_LEVEL_DEVELOPER);
-				WebsiteEnrollmentModule::expireEnrollmentMail($user["eMailAddress"]);
+				WebsiteEnrollmentModule::expireMails($user["eMailAddress"]);
 			}
 
 			self::deleteToken($token);
@@ -135,13 +135,13 @@
 			switch ($token["tokenType"]) {
 				case self::TOKEN_TYPE_ACTIVATION:
 					$user = UserModule::loadUser($token["userId"], ACCESS_LEVEL_DEVELOPER);
-					WebsiteEnrollmentModule::applyEnrollmentMail($user["eMailAddress"]);
+					WebsiteEnrollmentModule::applyEnrollmentMails($user["eMailAddress"], true);
 					UserModule::updateIsActivated($token["userId"], 1);
 					self::deleteToken($token);
 					break;
 				case self::TOKEN_TYPE_EVENT_ENROLLMENT:
 					$user = UserModule::loadUser($token["userId"], ACCESS_LEVEL_DEVELOPER);
-					WebsiteEnrollmentModule::applyEnrollmentMail($user["eMailAddress"]);
+					WebsiteEnrollmentModule::applyEnrollmentMails($user["eMailAddress"], false);
 					self::deleteToken($token);
 					break;
 				case self::TOKEN_TYPE_PASSWORD_RESET:
