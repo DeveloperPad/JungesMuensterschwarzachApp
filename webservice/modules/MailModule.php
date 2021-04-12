@@ -14,28 +14,28 @@
 
 	class MailModule {
 
-		public static function sendSignUpConfirmationMail($eMailAddress, $displayName, $code, $withEnrollment) {
+		public static function sendSignUpRequestMail($eMailAddress, $displayName, $code, $withEnrollment) {
 			$url = self::getAccountTokenUrl($code);
-			$title = $GLOBALS["dict"]["mail_confirm_activation_title"];
+			$title = $GLOBALS["dict"]["mail_request_activation_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"] 
 				. htmlspecialchars($displayName) 
 				. $GLOBALS["dict"]["mail_message_salutation_suffix"]
-				. $GLOBALS["dict"]["mail_confirm_activation_message_paragraph_1"]
+				. $GLOBALS["dict"]["mail_request_activation_message_paragraph_1"]
 				. "<a href=\"$url\">$url</a>";
 			if ($withEnrollment) {
-				$message .= $GLOBALS["dict"]["mail_confirm_activation_message_paragraph_enrollment"];
+				$message .= $GLOBALS["dict"]["mail_request_activation_message_paragraph_enrollment"];
 			}
-			$message .= $GLOBALS["dict"]["mail_confirm_activation_message_paragraph_2"]
+			$message .= $GLOBALS["dict"]["mail_request_activation_message_paragraph_2"]
 				. $GLOBALS["dict"]["mail_regards"];
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
-		public static function sendNewsletterConfirmationMail($eMailAddress, $code) {
+		public static function sendNewsletterRequestMail($eMailAddress, $code) {
 			$url = self::getNewsletterTokenUrl($code);
-			$title = $GLOBALS["dict"]["mail_confirm_newsletter_title"];
-			$message = $GLOBALS["dict"]["mail_confirm_newsletter_message_paragraph_1"]
+			$title = $GLOBALS["dict"]["mail_request_newsletter_title"];
+			$message = $GLOBALS["dict"]["mail_request_newsletter_message_paragraph_1"]
 				. "<a href=\"$url\">$url</a>"
-				. $GLOBALS["dict"]["mail_confirm_newsletter_message_paragraph_2"]
+				. $GLOBALS["dict"]["mail_request_newsletter_message_paragraph_2"]
 				. $GLOBALS["dict"]["mail_regards"];
 			self::sendMail($eMailAddress, $title, $message);
 		}
@@ -63,73 +63,74 @@
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
-		public static function sendEventEnrollmentConfirmationMail(
+		public static function sendEventEnrollmentRequestMail(
 				$eMailAddress, $displayName, $code, $eventTitle) {
 			$url = self::getAccountTokenUrl($code);
-			$title = $GLOBALS["dict"]["mail_confirm_event_enrollment_title"];
+			$title = $GLOBALS["dict"]["mail_request_event_enrollment_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
 				. htmlspecialchars($displayName)
 				. $GLOBALS["dict"]["mail_message_salutation_suffix"]
-				. $GLOBALS["dict"]["mail_confirm_event_enrollment_message_paragraph_1"]
+				. $GLOBALS["dict"]["mail_request_event_enrollment_message_paragraph_1"]
 				. "<strong>$eventTitle</strong>"
-				. $GLOBALS["dict"]["mail_confirm_event_enrollment_message_paragraph_2"]
+				. $GLOBALS["dict"]["mail_request_event_enrollment_message_paragraph_2"]
 				. "<a href=\"$url\">$url</a>"
-				. $GLOBALS["dict"]["mail_confirm_event_enrollment_message_paragraph_3"]
+				. $GLOBALS["dict"]["mail_request_event_enrollment_message_paragraph_3"]
 				. $GLOBALS["dict"]["mail_regards"];
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
-		public static function sendPasswordResetMail($eMailAddress, $displayName, $code) {
+		public static function sendPasswordResetRequestMail($eMailAddress, $displayName, $code) {
+			var_dump($code);
 			$url = self::getAccountTokenUrl($code);
-			$title = $GLOBALS["dict"]["mail_password_reset_title"];
+			$title = $GLOBALS["dict"]["mail_request_password_reset_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
 				. htmlspecialchars($displayName)
 				. $GLOBALS["dict"]["mail_message_salutation_suffix"]
-				. $GLOBALS["dict"]["mail_password_reset_message_paragraph_1"]
+				. $GLOBALS["dict"]["mail_request_password_reset_message_paragraph_1"]
 				. "<a href=\"$url\">$url</a>"
-				. $GLOBALS["dict"]["mail_password_reset_message_paragraph_2"]
+				. $GLOBALS["dict"]["mail_request_password_reset_message_paragraph_2"]
 				. $GLOBALS["dict"]["mail_regards"];
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
-		public static function sendOldEMailUpdateMail($eMailAddress, $newEMailAddress, $displayName, $code) {
+		public static function sendOldEMailUpdateRequestMail($eMailAddress, $newEMailAddress, $displayName, $code) {
 			$url = self::getAccountTokenUrl($code);
-			$title = $GLOBALS["dict"]["mail_eMailAddress_update_title"];
+			$title = $GLOBALS["dict"]["mail_request_eMailAddress_update_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
 				. htmlspecialchars($displayName)
 				. $GLOBALS["dict"]["mail_message_salutation_suffix"]
-				. $GLOBALS["dict"]["mail_eMailAddress_update_old_message_paragraph_1"]
+				. $GLOBALS["dict"]["mail_request_eMailAddress_update_old_message_paragraph_1"]
 				. "<strong>$newEMailAddress</strong>"
-				. $GLOBALS["dict"]["mail_eMailAddress_update_old_message_paragraph_2"]
+				. $GLOBALS["dict"]["mail_request_eMailAddress_update_old_message_paragraph_2"]
 				. "<a href=\"$url\">$url</a>"
-				. $GLOBALS["dict"]["mail_eMailAddress_update_old_message_paragraph_3"]
+				. $GLOBALS["dict"]["mail_request_eMailAddress_update_old_message_paragraph_3"]
 				. $GLOBALS["dict"]["mail_regards"];
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
-		public static function sendNewEMailUpdateMail($eMailAddress, $displayName, $code) {
+		public static function sendNewEMailUpdateRequestMail($eMailAddress, $displayName, $code) {
 			$url = self::getAccountTokenUrl($code);
-			$title = $GLOBALS["dict"]["mail_eMailAddress_update_title"];
+			$title = $GLOBALS["dict"]["mail_request_eMailAddress_update_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
 				. htmlspecialchars($displayName)
 				. $GLOBALS["dict"]["mail_message_salutation_suffix"]
-				. $GLOBALS["dict"]["mail_eMailAddress_update_new_message_paragraph_1"]
+				. $GLOBALS["dict"]["mail_request_eMailAddress_update_new_message_paragraph_1"]
 				. "<a href=\"$url\">$url</a>"
-				. $GLOBALS["dict"]["mail_eMailAddress_update_new_message_paragraph_2"]
+				. $GLOBALS["dict"]["mail_request_eMailAddress_update_new_message_paragraph_2"]
 				. $GLOBALS["dict"]["mail_regards"];
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
-		public static function sendAccountDeletionMail($eMailAddress, $displayName, $code) {
+		public static function sendAccountDeletionRequestMail($eMailAddress, $displayName, $code) {
 			$url = self::getAccountTokenUrl($code);
 
-			$title = $GLOBALS["dict"]["mail_account_deletion_title"];
+			$title = $GLOBALS["dict"]["mail_request_account_deletion_title"];
 			$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
 				. htmlspecialchars($displayName)
 				. $GLOBALS["dict"]["mail_message_salutation_suffix"]
-				. $GLOBALS["dict"]["mail_account_deletion_message_paragraph_1"]
+				. $GLOBALS["dict"]["mail_request_account_deletion_message_paragraph_1"]
 				. "<a href=\"$url\">$url</a>"
-				. $GLOBALS["dict"]["mail_account_deletion_message_paragraph_2"]
+				. $GLOBALS["dict"]["mail_request_account_deletion_message_paragraph_2"]
 				. $GLOBALS["dict"]["mail_regards"];
 			self::sendMail($eMailAddress, $title, $message);
 		}

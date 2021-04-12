@@ -28,17 +28,20 @@
 				foreach ($enrollmentContents as $mailId => $enrollmentContent) {
 					try {
 						$toMailbox = WebsiteEnrollmentModule::processNewEnrollment($enrollmentContent);
-						echo("Processed event enrollment.\n");
-						//$mailbox->moveMail($mailId, MAIL_FOLDER_PREFIX . $toMailbox);
+						echo("Processed event enrollment.<br/>");
+						$mailbox->moveMail($mailId, $toMailbox);
 						echo("Moved mail with ID " . $mailId . " into folder " 
-							. $toMailbox . ".\n");
+							. $toMailbox . ".<br/>");
 					} catch (Exception $exc) {
-						echo("Error: " . $exc->getMessage());
-						//$mailbox->moveMail($mailId, MAIL_FOLDER_PREFIX . MAIL_FOLDER_ENROLLMENTS_FAILED);
+						echo("Error: " . $exc->getMessage() . "<br/>");
+						$mailbox->moveMail(
+							$mailId, MAIL_FOLDER_ENROLLMENTS_FAILED
+						);
+						$mailbox->markMailAsUnread($mailId);
 						echo("Moved mail with ID " . $mailId . " into folder "
-							. MAIL_FOLDER_ENROLLMENTS_FAILED . ".\n");
+							. MAIL_FOLDER_ENROLLMENTS_FAILED . ".<br/>");
 					}
-					echo("\n");
+					echo("<br/>");
 				}
 			} catch (Exception $exc) {
 				echo("Error: " . $exc->getMessage());
@@ -69,8 +72,57 @@
 			return MAIL_FOLDER_ENROLLMENTS_PREPROCESSED;
 		}
 
-		public static function applyEnrollmentMails($eMailAddress) {
-			// TODO
+		public static function applyEnrollmentMails($eMailAddress, $triggerPasswordReset) {
+			$mailbox = self::getMailbox();
+			$contents = self::getMailContents(
+				$mailbox,
+				MAIL_FOLDER_ENROLLMENTS_PREPROCESSED
+			);
+
+			foreach ($contents as $mailId => $content) {
+				try {
+					$enrollment = self::parse($content);
+
+					if ($enrollment["eMailAddress"] !== $eMailAddress) {
+						continue;
+					}
+
+					$userId = UserModule::getUserIdByEMailAddress($eMailAddress);
+					self::updateAccountInformation($userId, $enrollment);
+					
+					$savedEnrollment = EventModule::loadEventEnrollment(
+						$enrollment["event"]["eventId"], $userId, ACCESS_LEVEL_DEVELOPER
+					);
+					if ($savedEnrollment === null) {
+						EventModule::enroll(
+							$userId,
+							$enrollment["event"]["eventId"],
+							$enrollment["eventEnrollmentComment"],
+							ACCESS_LEVEL_DEVELOPER
+						);
+					} else {
+						EventModule::updateEventEnrollmentComment(
+							$userId, $enrollment["event"]["eventId"],
+							$enrollment["eventEnrollmentComment"], ACCESS_LEVEL_DEVELOPER
+						);
+					}
+
+					$mailbox->moveMail(
+						$mailId, MAIL_FOLDER_ENROLLMENTS_ENROLLED
+					);
+					
+					if ($triggerPasswordReset === true) {
+						UserModule::requestPasswordReset($eMailAddress);
+						$triggerPasswordReset = false;
+					}
+				} catch (Exception $exc) {
+					error_log($exc->getMessage());
+					$mailbox->moveMail(
+						$mailId, MAIL_FOLDER_ENROLLMENTS_FAILED
+					);
+					$mailbox->markMailAsUnread($mailId);
+				}
+			}
 		}
 
 		public static function expireMails($eMailAddress) {
@@ -87,9 +139,9 @@
 				}
 
 				$mailbox->moveMail(
-					$mailId, 
-					MAIL_FOLDER_PREFIX . MAIL_FOLDER_ENROLLMENTS_UNCONFIRMED
+					$mailId, MAIL_FOLDER_ENROLLMENTS_UNCONFIRMED
 				);
+				$mailbox->markMailAsUnread($mailId);
 			}
 		}
 
@@ -102,7 +154,7 @@
 
 		private static function getMailbox() {
 			$mailbox = new Mailbox(
-				MAIL_FOLDER_PREFIX . MAIL_FOLDER_DEFAULT,
+				MAIL_FOLDER_PREFIX,
 				MAIL_ACCOUNT_NAME,
 				MAIL_PASSWORD
 			);
@@ -110,7 +162,7 @@
 			return $mailbox;
 		}
 
-		private static function createMailboxes($mailbox) {
+		private static function createMailboxes(Mailbox $mailbox) {
 			$mailboxes = $mailbox->getMailboxes();
 			$mailboxNames = array_map(function($box) { return $box["shortpath"]; }, $mailboxes);
 			$foldersToCreate = array(
@@ -132,9 +184,9 @@
 			foreach ($foldersToCreate as $folder => $toCreate) {
 				if ($toCreate) {
 					$mailbox->createMailbox($folder);
-					echo("Created Mailbox " . $folder . ".\n");
+					echo("Created Mailbox " . $folder . ".<br/>");
 				} else {
-					echo("Mailbox " . $folder . " already exists.\n");
+					echo("Mailbox " . $folder . " already exists.<br/>");
 				}
 			}
 		}
@@ -144,7 +196,7 @@
 			
 			$mailbox->switchMailbox(MAIL_FOLDER_PREFIX . $folder);
 			$mailIds = $mailbox->searchMailbox();
-			rsort($mailIds);
+			sort($mailIds);
 
 			$eventEnrollmentContents = array();
 			foreach ($mailIds as $mailId) {
@@ -202,6 +254,7 @@
 						break;
 					case "Ort":
 						$enrollment["city"] = $value;
+						$enrollment["country"] = "Deutschland";
 						break;
 					case "Geburtsdatum":
 						$birthdate = new DateTime($value, new DateTimeZone(SERVER_TIMEZONE));
@@ -226,6 +279,19 @@
 			}
 
 			return $enrollment;
+		}
+
+		private static function updateAccountInformation($userId, $enrollment) {
+			UserModule::updateFirstName($userId, $enrollment["firstName"]);
+			UserModule::updateLastName($userId, $enrollment["lastName"]);
+			UserModule::updateStreetName($userId, $enrollment["streetName"]);
+			UserModule::updateHouseNumber($userId, $enrollment["houseNumber"]);
+			UserModule::updateZipCode($userId, $enrollment["zipCode"]);
+			UserModule::updateCity($userId, $enrollment["city"]);
+			UserModule::updateCountry($userId, $enrollment["country"]);
+			UserModule::updateBirthdate($userId, $enrollment["birthdate"]);
+			UserModule::updateEatingHabits($userId, $enrollment["eatingHabits"]);
+			UserModule::updatePhoneNumber($userId, $enrollment["phoneNumber"]);
 		}
 		
 	}

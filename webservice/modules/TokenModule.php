@@ -135,14 +135,14 @@
 			switch ($token["tokenType"]) {
 				case self::TOKEN_TYPE_ACTIVATION:
 					$user = UserModule::loadUser($token["userId"], ACCESS_LEVEL_DEVELOPER);
-					WebsiteEnrollmentModule::applyEnrollmentMails($user["eMailAddress"], true);
 					UserModule::updateIsActivated($token["userId"], 1);
 					self::deleteToken($token);
+					WebsiteEnrollmentModule::applyEnrollmentMails($user["eMailAddress"], true);
 					break;
 				case self::TOKEN_TYPE_EVENT_ENROLLMENT:
 					$user = UserModule::loadUser($token["userId"], ACCESS_LEVEL_DEVELOPER);
-					WebsiteEnrollmentModule::applyEnrollmentMails($user["eMailAddress"], false);
 					self::deleteToken($token);
+					WebsiteEnrollmentModule::applyEnrollmentMails($user["eMailAddress"], false);
 					break;
 				case self::TOKEN_TYPE_PASSWORD_RESET:
 					// user can update it's password now and the token gets deleted afterwards

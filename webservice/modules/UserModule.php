@@ -26,7 +26,7 @@
 				self::getUserIdByCredentials($eMailAddress, $password),
 				TokenModule::TOKEN_TYPE_ACTIVATION
 			);
-			MailModule::sendSignUpConfirmationMail($eMailAddress, $displayName, $code, $withEnrollment);
+			MailModule::sendSignUpRequestMail($eMailAddress, $displayName, $code, $withEnrollment);
 		}
 		
 		private static function storeUser($displayName, $eMailAddress, $password, $allowNewsletter) {
@@ -52,14 +52,14 @@
 			}
 
 			$code = TokenModule::getCode($user["userId"], TokenModule::TOKEN_TYPE_ACTIVATION);
-			MailModule::sendSignUpConfirmationMail(
+			MailModule::sendSignUpRequestMail(
 				$user["eMailAddress"], $user["displayName"], $code, $withEnrollment
 			);
 		}
 
 		public static function verifyEventEnrollment($user, $eventTitle) {
 			$code = TokenModule::getCode($user["userId"], TokenModule::TOKEN_TYPE_EVENT_ENROLLMENT);
-			MailModule::sendEventEnrollmentConfirmationMail(
+			MailModule::sendEventEnrollmentRequestMail(
 				$user["eMailAddress"], $user["displayName"], $code, $eventTitle
 			);
 		}
@@ -307,10 +307,10 @@
 			$code = TokenModule::getCode($user["userId"], TokenModule::TOKEN_TYPE_E_MAIL_UPDATE);
 
 			if (intval($transfer["oldEMailAddressConfirmed"]) === 0) {
-				MailModule::sendOldEMailUpdateMail($user["eMailAddress"], $transfer["newEMailAddress"], $user["displayName"], $code);
+				MailModule::sendOldEMailUpdateRequestMail($user["eMailAddress"], $transfer["newEMailAddress"], $user["displayName"], $code);
 				CookieModule::set("alert", new Alert("success", $GLOBALS["dict"]["account_transfer_initialized"]));
 			} else {
-				MailModule::sendNewEMailUpdateMail($transfer["newEMailAddress"], $user["displayName"], $code);
+				MailModule::sendNewEMailUpdateRequestMail($transfer["newEMailAddress"], $user["displayName"], $code);
 				CookieModule::set("alert", new Alert("success", $GLOBALS["dict"]["account_transfer_progressed"]));
 			}
 		}
@@ -487,7 +487,7 @@
 			$userId = self::getUserIdByEMailAddress($eMailAddress);
 			$user = self::loadUser($userId, ACCESS_LEVEL_DEVELOPER);
 			$code = TokenModule::getCode($user["userId"], TokenModule::TOKEN_TYPE_PASSWORD_RESET);
-			MailModule::sendPasswordResetMail($user["eMailAddress"], $user["displayName"], $code);
+			MailModule::sendPasswordResetRequestMail($user["eMailAddress"], $user["displayName"], $code);
 		}
 		
 		public static function updatePassword($userId, $password, $passwordRepetition) {
@@ -532,7 +532,7 @@
 		public static function requestAccountDeletion($userId) {
 			$user = self::loadUser($userId, ACCESS_LEVEL_DEVELOPER);
 			$code = TokenModule::getCode($user["userId"], TokenModule::TOKEN_TYPE_DELETION);
-			MailModule::sendAccountDeletionMail($user["eMailAddress"], $user["displayName"], $code);
+			MailModule::sendAccountDeletionRequestMail($user["eMailAddress"], $user["displayName"], $code);
 		}
 		
 		public static function deleteUser($userId) {

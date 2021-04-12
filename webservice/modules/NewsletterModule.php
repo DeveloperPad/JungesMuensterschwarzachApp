@@ -31,7 +31,7 @@
 
 			$code = self::createRegistration($eMailAddress);
 
-			MailModule::sendNewsletterConfirmationMail($eMailAddress, $code);
+			MailModule::sendNewsletterRequestMail($eMailAddress, $code);
 
 			return "account_allowNewsletter_registration_confirm_sent";
 		}
