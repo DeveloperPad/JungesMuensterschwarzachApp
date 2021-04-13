@@ -507,8 +507,9 @@
 		}
 
 		public static function getNextEventByTitle($eventTitle) {
-			$sql = "SELECT e.eventId, e.eventTitle, e.eventEnrollmentStart, e.eventEnrollmentEnd 
-					FROM events e";
+			$sql = "SELECT eventId, eventTitle, eventEnrollmentStart, eventEnrollmentEnd 
+					FROM events
+					ORDER BY eventStart";
 			$stmt = DatabaseModule::getInstance()->prepare($sql);
 			
 			if ($stmt->execute() === false) {

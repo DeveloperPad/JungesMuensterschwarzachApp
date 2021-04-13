@@ -36,3 +36,17 @@ UPDATE `strings` SET `identifier` = 'mail_request_activation_title', `en` = '[Ju
 UPDATE `strings` SET `identifier` = 'mail_request_activation_message_paragraph_1' WHERE `strings`.`identifier` = 'mail_confirm_activation_message_paragraph_1';
 UPDATE `strings` SET `identifier` = 'mail_request_activation_message_paragraph_2' WHERE `strings`.`identifier` = 'mail_confirm_activation_message_paragraph_2';
 UPDATE `strings` SET `identifier` = 'mail_request_activation_message_paragraph_enrollment' WHERE `strings`.`identifier` = 'mail_confirm_activation_message_paragraph_enrollment';
+UPDATE `strings` SET `identifier` = 'mail_event_enrollment_notification_other_message_paragraph_1' WHERE `strings`.`identifier` = 'mail_event_enrollment_notification_message_paragraph_1';
+UPDATE `strings` SET `identifier` = 'mail_event_enrollment_notification_other_message_paragraph_2' WHERE `strings`.`identifier` = 'mail_event_enrollment_notification_message_paragraph_2';
+UPDATE `strings` SET `identifier` = 'mail_event_enrollment_notification_other_message_paragraph_3' WHERE `strings`.`identifier` = 'mail_event_enrollment_notification_message_paragraph_3';
+UPDATE `strings` SET `identifier` = 'mail_event_enrollment_notification_other_message_paragraph_4' WHERE `strings`.`identifier` = 'mail_event_enrollment_notification_message_paragraph_4';
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_enrollment_notification_self_message_paragraph_1', 'you have successfully enrolled to the event ', 'du hast dich erfolgreich zur Veranstaltung ');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_enrollment_notification_self_message_paragraph_2', '.<br/><br/>', ' angemeldet.<br/><br/>');
+UPDATE `strings` SET `identifier` = 'mail_event_enrollment_notification_other_title' WHERE `strings`.`identifier` = 'mail_event_enrollment_notification_title';
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_enrollment_notification_self_title', '[Junges Münsterschwarzach App] Event Enrollment Confirmation', '[Junges Münsterschwarzach App] Bestätigung zur Veranstaltungsanmeldung');
+UPDATE `strings` SET `identifier` = 'mail_event_disenrollment_notification_other_title' WHERE `strings`.`identifier` = 'mail_event_disenrollment_notification_title';
+UPDATE `strings` SET `identifier` = 'mail_event_disenrollment_notification_other_message_paragraph_1' WHERE `strings`.`identifier` = 'mail_event_disenrollment_notification_message_paragraph_1';
+UPDATE `strings` SET `identifier` = 'mail_event_disenrollment_notification_other_message_paragraph_2' WHERE `strings`.`identifier` = 'mail_event_disenrollment_notification_message_paragraph_2';
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_disenrollment_notification_self_title', '[Junges Münsterschwarzach App] Event Disenrollment Confirmation', '[Junges Münsterschwarzach App] Bestätigung zur Veranstaltungsabmeldung');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_disenrollment_notification_self_message_paragraph_1', 'you have successfully disenrolled from the event ', 'du hast dich erfolgreich von der Veranstaltung ');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_disenrollment_notification_self_message_paragraph_2', '.<br/><br/>', ' abgemeldet.<br/><br/>');

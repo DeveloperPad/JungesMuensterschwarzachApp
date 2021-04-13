@@ -64,7 +64,7 @@
 				}
 			} else {
 				UserModule::signUp(
-					$enrollment["firstName"] . "-" . uniqid(),
+					$enrollment["firstName"] . "-" . random_int(1000, 9999),
 					$enrollment["eMailAddress"], null, null, 0, true
 				);
 			}
