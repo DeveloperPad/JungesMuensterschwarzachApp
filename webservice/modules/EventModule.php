@@ -1015,7 +1015,6 @@
 				|| isset($user["zipCode"]) === false
 				|| isset($user["city"]) === false
 				|| isset($user["country"]) === false
-				|| isset($user["phoneNumber"]) === false
 				|| isset($user["birthdate"]) === false
 				|| isset($user["eatingHabits"]) === false) {
 					throw new Exception("event_user_enrollment_missing_account_data");

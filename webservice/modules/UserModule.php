@@ -406,6 +406,10 @@
 		}
 
 		public static function updatePhoneNumber($userId, $phoneNumber) {
+			if ($phoneNumber === "") {
+				$phoneNumber = null;
+			}
+			
 			self::validatePhoneNumber($phoneNumber);
 			
 			$stmt = DatabaseModule::getInstance()->prepare(
@@ -668,9 +672,7 @@
 		private static function validatePhoneNumber($phoneNumber) {
 			$phoneNumber = trim($phoneNumber);
 
-			if (empty($phoneNumber) === true) {
-				throw new Exception("account_phoneNumber_required");
-			} else if (strlen($phoneNumber) > PHONENUMBER_LENGTH_MAX) {
+			if (strlen($phoneNumber) > PHONENUMBER_LENGTH_MAX) {
 				throw new Exception("account_phoneNumber_invalid");
 			}
 		}

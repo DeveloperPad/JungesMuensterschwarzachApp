@@ -85,7 +85,9 @@
 								<td class="col-2">
 									<div class="badge badge-pill badge-<?php echo($participant["allowPost"] ? "success" : "danger");?>"><?php echo($GLOBALS["dict"]["account_allowPost_label"]);?></div>
 									<div class="badge badge-pill badge-<?php echo($participant["allowNewsletter"] ? "success" : "danger");?>"><?php echo($GLOBALS["dict"]["account_allowNewsletter_label"]);?></div>
-									<div><?php echo($participant["phoneNumber"]);?></div>
+									<?php if (isset($participant["phoneNumber"])) { ?>
+										<div><?php echo($participant["phoneNumber"]);?></div>
+									<?php } ?>
 									<div><a href="mailto:<?php echo(urlencode($participant["eMailAddress"])); ?>"><?php echo($participant["eMailAddress"]);?></a></div>
 								</td>
 								<td class="col-2">

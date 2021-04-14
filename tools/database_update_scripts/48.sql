@@ -50,3 +50,4 @@ UPDATE `strings` SET `identifier` = 'mail_event_disenrollment_notification_other
 INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_disenrollment_notification_self_title', '[Junges Münsterschwarzach App] Event Disenrollment Confirmation', '[Junges Münsterschwarzach App] Bestätigung zur Veranstaltungsabmeldung');
 INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_disenrollment_notification_self_message_paragraph_1', 'you have successfully disenrolled from the event ', 'du hast dich erfolgreich von der Veranstaltung ');
 INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_disenrollment_notification_self_message_paragraph_2', '.<br/><br/>', ' abgemeldet.<br/><br/>');
+DELETE FROM `strings` WHERE `strings`.`identifier` = \'account_phoneNumber_required\';
