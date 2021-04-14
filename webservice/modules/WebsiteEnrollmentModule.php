@@ -5,6 +5,7 @@
 		require_once("../assets/global_requirements.php");
 	}
 	require_once(ROOT_LOCAL."/modules/EventModule.php");
+	require_once(ROOT_LOCAL."/modules/MailModule.php");
 	require_once(ROOT_LOCAL."/modules/UserModule.php");
 
 	require_once(ROOT_LOCAL."/libs/PhpImap/Exceptions/ConnectionException.php");
@@ -38,6 +39,7 @@
 							$mailId, MAIL_FOLDER_ENROLLMENTS_FAILED
 						);
 						$mailbox->markMailAsUnread($mailId);
+						MailModule::sendEventEnrollmentNotificationFailureMail();
 						echo("Moved mail with ID " . $mailId . " into folder "
 							. MAIL_FOLDER_ENROLLMENTS_FAILED . ".<br/>");
 					}
@@ -50,6 +52,7 @@
 
 		public static function processNewEnrollment($enrollmentContent) {
 			$enrollment = self::parse($enrollmentContent);
+			$toMailbox = MAIL_FOLDER_ENROLLMENTS_PREPROCESSED;
 
 			if (UserModule::isEMailAddressTaken($enrollment["eMailAddress"], false)) {
 				$userId = UserModule::getUserIdByEMailAddress($enrollment["eMailAddress"]);
@@ -58,7 +61,7 @@
 				if (intval($user["isActivated"]) === 0) {
 					UserModule::resendActivationMail($user["eMailAddress"], true);
 				} else if (self::isAlreadyEnrolled($userId, $enrollment["event"]["eventParticipants"])) {
-					return MAIL_FOLDER_ENROLLMENTS_ENROLLED;
+					$toMailbox = MAIL_FOLDER_ENROLLMENTS_ENROLLED;
 				} else {
 					UserModule::verifyEventEnrollment($user, $enrollment["event"]["eventTitle"]);
 				}
@@ -69,7 +72,7 @@
 				);
 			}
 
-			return MAIL_FOLDER_ENROLLMENTS_PREPROCESSED;
+			return $toMailbox;
 		}
 
 		public static function applyEnrollmentMails($eMailAddress, $triggerPasswordReset) {
@@ -121,6 +124,7 @@
 						$mailId, MAIL_FOLDER_ENROLLMENTS_FAILED
 					);
 					$mailbox->markMailAsUnread($mailId);
+					MailModule::sendEventEnrollmentNotificationFailureMail();
 				}
 			}
 		}

@@ -134,6 +134,31 @@
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
+		public static function sendEventEnrollmentNotificationFailureMail() {
+			try {
+				$userList = UserModule::loadUserList(ACCESS_LEVEL_DEVELOPER);
+				foreach ($userList as $user) {
+					if (intval($user["accessLevel"]) < ACCESS_LEVEL_DEVELOPER) {
+						continue;
+					}
+
+					try {
+						$title = $GLOBALS["dict"]["mail_event_enrollment_notification_failure_title"];
+						$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
+							. htmlspecialchars($user["displayName"])
+							. $GLOBALS["dict"]["mail_message_salutation_suffix"]
+							. $GLOBALS["dict"]["mail_event_enrollment_notification_failure_message_paragraph"]
+							. $GLOBALS["dict"]["mail_regards"];
+						self::sendMail($user["eMailAddress"], $title, $message);
+					} catch (Exception $exc) {
+						error_log($exc->getMessage());
+					}
+				}
+			} catch (Exception $exc) {
+				error_log($exc->getMessage());
+			}
+		}
+
 		public static function sendEventEnrollmentNotificationMail($eventId, $userId) {
 			try {
 				$enrolledUser = UserModule::loadUser($userId, ACCESS_LEVEL_DEVELOPER);
@@ -155,23 +180,24 @@
 
 				$userList = UserModule::loadUserList(ACCESS_LEVEL_DEVELOPER);
 				foreach ($userList as $user) {
-					if (intval($user["accessLevel"]) < ACCESS_LEVEL_MODERATOR) {
+					if (intval($user["accessLevel"]) < ACCESS_LEVEL_MODERATOR
+						|| $enrolledUser["userId"] === $user["userId"]) {
 						continue;
 					}
 
-					$title = $GLOBALS["dict"]["mail_event_enrollment_notification_other_title"];
-					$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
-						. htmlspecialchars($user["displayName"])
-						. $GLOBALS["dict"]["mail_message_salutation_suffix"]
-						. "<strong>" . $enrolledUser["firstName"] . " " . $enrolledUser["lastName"] . "</strong>"
-						. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_1"]
-						. "<strong>" . $event["eventTitle"] . "</strong>"
-						. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_2"]
-						. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_3"]
-						. "<a href=\"" . self::getEventParticipantsUrl($eventId) . "\">" . $GLOBALS["dict"]["event_participants_list"] . "</a>"
-						. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_4"]
-						. $GLOBALS["dict"]["mail_regards"];
 					try {
+						$title = $GLOBALS["dict"]["mail_event_enrollment_notification_other_title"];
+						$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
+							. htmlspecialchars($user["displayName"])
+							. $GLOBALS["dict"]["mail_message_salutation_suffix"]
+							. "<strong>" . $enrolledUser["firstName"] . " " . $enrolledUser["lastName"] . "</strong>"
+							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_1"]
+							. "<strong>" . $event["eventTitle"] . "</strong>"
+							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_2"]
+							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_3"]
+							. "<a href=\"" . self::getEventParticipantsUrl($eventId) . "\">" . $GLOBALS["dict"]["event_participants_list"] . "</a>"
+							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_4"]
+							. $GLOBALS["dict"]["mail_regards"];
 						self::sendMail($user["eMailAddress"], $title, $message);
 					} catch (Exception $exc) {
 						error_log($exc->getMessage());
@@ -203,20 +229,21 @@
 
 				$userList = UserModule::loadUserList(ACCESS_LEVEL_DEVELOPER);
 				foreach ($userList as $user) {
-					if (intval($user["accessLevel"]) < ACCESS_LEVEL_MODERATOR) {
+					if (intval($user["accessLevel"]) < ACCESS_LEVEL_MODERATOR
+						|| $disenrolledUser["userId"] === $user["userId"]) {
 						continue;
 					}
 
-					$title = $GLOBALS["dict"]["mail_event_disenrollment_notification_other_title"];
-					$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
-						. htmlspecialchars($user["displayName"])
-						. $GLOBALS["dict"]["mail_message_salutation_suffix"]
-						. "<strong>" . htmlspecialchars($disenrolledUser["firstName"]) . " " . htmlspecialchars($disenrolledUser["lastName"]) . "</strong>"
-						. $GLOBALS["dict"]["mail_event_disenrollment_notification_other_message_paragraph_1"]
-						. "<strong>" . htmlspecialchars($event["eventTitle"]) . "</strong>"
-						. $GLOBALS["dict"]["mail_event_disenrollment_notification_other_message_paragraph_2"]
-						. $GLOBALS["dict"]["mail_regards"];
 					try {
+						$title = $GLOBALS["dict"]["mail_event_disenrollment_notification_other_title"];
+						$message = $GLOBALS["dict"]["mail_message_salutation_prefix"]
+							. htmlspecialchars($user["displayName"])
+							. $GLOBALS["dict"]["mail_message_salutation_suffix"]
+							. "<strong>" . htmlspecialchars($disenrolledUser["firstName"]) . " " . htmlspecialchars($disenrolledUser["lastName"]) . "</strong>"
+							. $GLOBALS["dict"]["mail_event_disenrollment_notification_other_message_paragraph_1"]
+							. "<strong>" . htmlspecialchars($event["eventTitle"]) . "</strong>"
+							. $GLOBALS["dict"]["mail_event_disenrollment_notification_other_message_paragraph_2"]
+							. $GLOBALS["dict"]["mail_regards"];
 						self::sendMail($user["eMailAddress"], $title, $message);
 					} catch (Exception $exc) {
 						error_log($exc->getMessage());
