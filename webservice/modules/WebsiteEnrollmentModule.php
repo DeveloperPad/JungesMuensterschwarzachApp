@@ -232,43 +232,47 @@
 				}
 				$key = $lineParts[0];
 				$value = trim(implode(":", array_slice($lineParts, 1)));
+				if ($value === "") {
+					$value = null;
+				}
 
 				switch ($key) {
 					case "Kursauswahl":
 						$enrollment["event"] = EventModule::getNextEventByTitle($value);
 						break;
-					case "Name":
-						$nameParts = explode(" ", $value);
-						$enrollment["firstName"] = 
-							implode(" ", array_slice($nameParts, 0, count($nameParts) - 1));
-						$enrollment["lastName"] = end($nameParts);
+					case "Vorname":
+						$enrollment["firstName"] = $value;
 						break;
-					case "Strasse / Hausnr.":
-						$streetParts = explode(" ", $value);
-						$enrollment["streetName"] = 
-							implode(" ", array_slice($streetParts, 0, count($streetParts) - 1));
-						$enrollment["houseNumber"] = end($streetParts);
+					case "Nachname":
+						$enrollment["lastName"] = $value;
+						break;
+					case "Straße":
+						$enrollment["streetName"] = $value;
+						break;
+					case "Hausnummer":
+						$enrollment["houseNumber"] = $value;
 						break;
 					case "PLZ":
 						$enrollment["zipCode"] = $value;
 						break;
 					case "Ort":
 						$enrollment["city"] = $value;
-						$enrollment["country"] = "Deutschland";
 						break;
-					case "Geburtsdatum":
-						$birthdate = new DateTime($value, new DateTimeZone(SERVER_TIMEZONE));
-						$enrollment["birthdate"] = $birthdate->format(DATE_FORMAT_USER_DATE);
-						break;
-					case "Vegetarier":
-						$enrollment["eatingHabits"] = 
-							$value === "Ja" ? "Vegetarisch" : "Uneingeschränkt";
+					case "Land":
+						$enrollment["country"] = $value;
 						break;
 					case "Mail":
 						$enrollment["eMailAddress"] = $value;
 						break;
 					case "Telefon":
 						$enrollment["phoneNumber"] = $value;
+						break;
+					case "Geburtstag":
+						$birthdate = new DateTime($value, new DateTimeZone(SERVER_TIMEZONE));
+						$enrollment["birthdate"] = $birthdate->format(DATE_FORMAT_USER_DATE);
+						break;
+					case "Bitte sag' uns, ob du vegetarisch isst oder Allergien hast.":
+						$enrollment["eatingHabits"] = $value;
 						break;
 					case "Möchtest du uns noch etwas sagen?":
 						$enrollment["eventEnrollmentComment"] = $value;
