@@ -220,71 +220,83 @@
 		}
 
 		private static function parse($enrollmentContent) {
+			$keyDict = array( // mail key to enrollment key
+				// on update: update "array_keys" code below 
+				"Kursauswahl" => "event",
+				"Vorname" => "firstName",
+				"Nachname" => "lastName",
+				"Straße" => "streetName",
+				"Hausnummer" => "houseNumber",
+				"PLZ" => "zipCode",
+				"Ort" => "city",
+				"Land" => "country",
+				"Mail" => "eMailAddress",
+				"Telefon" => "phoneNumber",
+				"Geburtstag" => "birthdate",
+				"Bitte sag' uns, ob du vegetarisch isst oder Allergien hast." => "eatingHabits",
+				"Möchtest du uns noch etwas sagen?" => "eventEnrollmentComment"
+			);
 			$content = str_replace("\r\n", "\n", trim($enrollmentContent));
 			$lines = explode("\n", $content);
-
 			$enrollment = array();
 
+			$savedMailKey = null;
+			$savedValue = "";
 			foreach ($lines as $line) {
-				if (strlen($line) === 0) {
-					continue;
-				}
-
 				$lineParts = explode(":", $line);
 				if (count($lineParts) < 2) {
+					$savedValue .= "\n" . $line;
 					continue;
 				}
+
 				$key = $lineParts[0];
 				$value = trim(implode(":", array_slice($lineParts, 1)));
-				if ($value === "") {
-					$value = null;
+
+				if (!array_key_exists($key, $keyDict)) {
+					$savedValue .= "\n" . $line;
+					continue;
 				}
 
+				if ($savedMailKey !== null && $savedMailKey !== $key) {
+					$enrollment = self::updateParsedEnrollment(
+						$enrollment, $savedMailKey, $savedValue, $keyDict
+					);
+				}
+
+				$savedMailKey = $key;
 				switch ($key) {
-					case "Kursauswahl":
-						$enrollment["event"] = EventModule::getNextEventByTitle($value);
+					case array_keys($keyDict)[0]:
+						$savedValue = EventModule::getNextEventByTitle($value);
 						break;
-					case "Vorname":
-						$enrollment["firstName"] = $value;
-						break;
-					case "Nachname":
-						$enrollment["lastName"] = $value;
-						break;
-					case "Straße":
-						$enrollment["streetName"] = $value;
-						break;
-					case "Hausnummer":
-						$enrollment["houseNumber"] = $value;
-						break;
-					case "PLZ":
-						$enrollment["zipCode"] = $value;
-						break;
-					case "Ort":
-						$enrollment["city"] = $value;
-						break;
-					case "Land":
-						$enrollment["country"] = $value;
-						break;
-					case "Mail":
-						$enrollment["eMailAddress"] = $value;
-						break;
-					case "Telefon":
-						$enrollment["phoneNumber"] = $value;
-						break;
-					case "Geburtstag":
+					case array_keys($keyDict)[10]:
 						$birthdate = new DateTime($value, new DateTimeZone(SERVER_TIMEZONE));
-						$enrollment["birthdate"] = $birthdate->format(DATE_FORMAT_USER_DATE);
-						break;
-					case "Bitte sag' uns, ob du vegetarisch isst oder Allergien hast.":
-						$enrollment["eatingHabits"] = $value;
-						break;
-					case "Möchtest du uns noch etwas sagen?":
-						$enrollment["eventEnrollmentComment"] = $value;
+						$savedValue = $birthdate->format(DATE_FORMAT_USER_DATE);
 						break;
 					default:
+						$savedValue = $value;
 						break;
 				}
 			}
+
+			if ($savedMailKey !== null) {
+				$enrollment = self::updateParsedEnrollment(
+					$enrollment, $savedMailKey, $savedValue, $keyDict
+				);
+			}
+
+			return $enrollment;
+		}
+
+		private static function updateParsedEnrollment($enrollment, $mailKey, $value, $keyDict) {
+			if ($value === "") {
+				if ($mailKey === array_keys($keyDict)[11]) {
+					$value = "Uneingeschränkt";
+				} else {
+					$value = null;
+				}
+			}
+
+			$enrollment[$keyDict[$mailKey]] = $value;
 
 			return $enrollment;
 		}
