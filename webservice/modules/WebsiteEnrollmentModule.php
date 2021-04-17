@@ -247,6 +247,7 @@
 			$savedMailKey = null;
 			$savedValue = "";
 			foreach ($lines as $line) {
+				$line = trim(str_replace("&nbsp;", " ", $line));
 				if ($line === "") {
 					continue;
 				}
