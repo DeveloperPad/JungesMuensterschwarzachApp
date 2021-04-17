@@ -297,11 +297,7 @@
 
 		private static function updateParsedEnrollment($enrollment, $mailKey, $value, $keyDict) {
 			if ($value === "") {
-				if ($mailKey === array_keys($keyDict)[11]) {
-					$value = "Uneingeschränkt";
-				} else {
-					$value = null;
-				}
+				$value = null;
 			}
 
 			$enrollment[$keyDict[$mailKey]] = $value;
