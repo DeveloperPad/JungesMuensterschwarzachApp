@@ -739,6 +739,7 @@
 				throw new Exception("event_user_enrolled_already");
 			}
 
+			$eventEnrollmentComment = $eventEnrollmentComment === "" ? null : $eventEnrollmentComment;
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"INSERT INTO event_enrollments(userId, eventId, eventEnrollmentComment)
 				 VALUES(?, ?, ?)"
@@ -763,6 +764,7 @@
 				throw new Exception("event_user_enrolled_not");
 			}
 
+			$eventEnrollmentComment = $eventEnrollmentComment === "" ? null : $eventEnrollmentComment;
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"UPDATE event_enrollments SET eventEnrollmentComment=? WHERE userId=? AND eventId=?"
 			);
@@ -1056,7 +1058,7 @@
 		}
 
 		private static function validateEventEnrollmentComment($eventEnrollmentComment) {
-			if ($eventEnrollmentComment === null || strlen($eventEnrollmentComment) > EVENT_ENROLLMENT_COMMENT_LENGTH_MAX) {
+			if (strlen($eventEnrollmentComment) > EVENT_ENROLLMENT_COMMENT_LENGTH_MAX) {
 				throw new Exception("event_eventEnrollmentComment_invalid");
 			}
 		}

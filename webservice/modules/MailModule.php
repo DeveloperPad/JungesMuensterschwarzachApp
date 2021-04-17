@@ -134,7 +134,7 @@
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
-		public static function sendEventEnrollmentNotificationFailureMail() {
+		public static function sendEventEnrollmentNotificationFailureMail($error, $trace) {
 			try {
 				$userList = UserModule::loadUserList(ACCESS_LEVEL_DEVELOPER);
 				foreach ($userList as $user) {
@@ -148,6 +148,8 @@
 							. htmlspecialchars($user["displayName"])
 							. $GLOBALS["dict"]["mail_message_salutation_suffix"]
 							. $GLOBALS["dict"]["mail_event_enrollment_notification_failure_message_paragraph"]
+							. $GLOBALS["dict"]["label_failure"] . " " . $error . "<br/><br/>"
+							. json_encode($trace) . "<br/><br/>"
 							. $GLOBALS["dict"]["mail_regards"];
 						self::sendMail($user["eMailAddress"], $title, $message);
 					} catch (Exception $exc) {

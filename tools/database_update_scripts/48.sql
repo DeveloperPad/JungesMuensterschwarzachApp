@@ -53,3 +53,4 @@ INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_disenrollme
 DELETE FROM `strings` WHERE `strings`.`identifier` = \'account_phoneNumber_required\';
 INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_enrollment_notification_failure_title', '[Junges Münsterschwarzach App] Event Enrollment Failure', '[Junges Münsterschwarzach App] Fehler bei einer Veranstaltungsanmeldung');
 INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_enrollment_notification_failure_message_paragraph', 'TBD', 'die automatisierte Verarbeitung einer Veranstaltungsanmeldung ist fehlgeschlagen.<br/>Überprüfe bitte das Postfach mit der fehlgeschlagenen Anmeldung und korrigiere diese.<br/><br/>');
+ALTER TABLE `event_enrollments` CHANGE `eventEnrollmentComment` `eventEnrollmentComment` MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;

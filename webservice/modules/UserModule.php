@@ -405,13 +405,10 @@
 			$stmt->close();
 		}
 
-		public static function updatePhoneNumber($userId, $phoneNumber) {
-			if ($phoneNumber === "") {
-				$phoneNumber = null;
-			}
-			
+		public static function updatePhoneNumber($userId, $phoneNumber) {			
 			self::validatePhoneNumber($phoneNumber);
 			
+			$phoneNumber = $phoneNumber === "" ? null : $phoneNumber;
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"UPDATE account_data SET phoneNumber=?, modificationDate=NOW() WHERE userId=?"
 			);

@@ -39,7 +39,9 @@
 							$mailId, MAIL_FOLDER_ENROLLMENTS_FAILED
 						);
 						$mailbox->markMailAsUnread($mailId);
-						MailModule::sendEventEnrollmentNotificationFailureMail();
+						MailModule::sendEventEnrollmentNotificationFailureMail(
+							$exc->getMessage(), $exc->getTrace()
+						);
 						echo("Moved mail with ID " . $mailId . " into folder "
 							. MAIL_FOLDER_ENROLLMENTS_FAILED . ".<br/>");
 					}
@@ -124,7 +126,9 @@
 						$mailId, MAIL_FOLDER_ENROLLMENTS_FAILED
 					);
 					$mailbox->markMailAsUnread($mailId);
-					MailModule::sendEventEnrollmentNotificationFailureMail();
+					MailModule::sendEventEnrollmentNotificationFailureMail(
+						$exc->getMessage(), $exc->getTrace()
+					);
 				}
 			}
 		}
@@ -243,6 +247,10 @@
 			$savedMailKey = null;
 			$savedValue = "";
 			foreach ($lines as $line) {
+				if ($line === "") {
+					continue;
+				}
+
 				$lineParts = explode(":", $line);
 				if (count($lineParts) < 2) {
 					$savedValue .= "\n" . $line;
