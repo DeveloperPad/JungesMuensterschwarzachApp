@@ -72,7 +72,6 @@ public static "account_displayName_updated" = "Der Anzeigename wurde erfolgreich
 public static "account_eatingHabits" = "Essgewohnheiten"; 
 public static "account_eatingHabits_invalid" = "Die Textlänge der Essgewohnheiten ist nicht gültig."; 
 public static "account_eatingHabits_placeholder" = "Gib die Essgewohnheiten ein."; 
-public static "account_eatingHabits_required" = "Die Essgewohnheiten werden benötigt, da du für Veranstaltungen angemeldet bist."; 
 public static "account_eatingHabits_updated" = "Die Essgewohnheiten wurden erfolgreich aktualisiert."; 
 public static "account_eMailAddress" = "E-Mail-Adresse"; 
 public static "account_eMailAddress_invalid" = "Diese E-Mail-Adresse ist ungültig."; 

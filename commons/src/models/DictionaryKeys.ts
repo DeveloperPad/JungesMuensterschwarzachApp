@@ -71,7 +71,6 @@ public static "account_displayName_updated" = "account_displayName_updated";
 public static "account_eatingHabits" = "account_eatingHabits"; 
 public static "account_eatingHabits_invalid" = "account_eatingHabits_invalid"; 
 public static "account_eatingHabits_placeholder" = "account_eatingHabits_placeholder"; 
-public static "account_eatingHabits_required" = "account_eatingHabits_required"; 
 public static "account_eatingHabits_updated" = "account_eatingHabits_updated"; 
 public static "account_eMailAddress" = "account_eMailAddress"; 
 public static "account_eMailAddress_invalid" = "account_eMailAddress_invalid"; 

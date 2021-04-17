@@ -94,7 +94,7 @@
 									<span><?php echo(GlobalFunctions::formatDate($participant["birthdate"]));?></span>
 								</td>
 								<td class="col-1">
-									<span><?php echo($participant["eatingHabits"]);?></span>
+									<span><?php if (isset($participant["eatingHabits"])) { echo($participant["eatingHabits"]); }?></span>
 								</td>
 								<td class="col-2">
 									<span><?php echo($participant["eventEnrollmentComment"]);?></span>

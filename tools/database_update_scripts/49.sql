@@ -1,0 +1,1 @@
+DELETE FROM `strings` WHERE `strings`.`identifier`='account_eatingHabits_required';

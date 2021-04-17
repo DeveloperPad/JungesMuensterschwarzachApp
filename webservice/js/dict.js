@@ -72,7 +72,6 @@ Dies wird alle über dich gesammelte Daten löschen und dich von allen Veranstal
 "account_eatingHabits": "Essgewohnheiten", 
 "account_eatingHabits_invalid": "Die Textlänge der Essgewohnheiten ist nicht gültig.", 
 "account_eatingHabits_placeholder": "Gib die Essgewohnheiten ein.", 
-"account_eatingHabits_required": "Die Essgewohnheiten werden benötigt, da du für Veranstaltungen angemeldet bist.", 
 "account_eatingHabits_updated": "Die Essgewohnheiten wurden erfolgreich aktualisiert.", 
 "account_eMailAddress": "E-Mail-Adresse", 
 "account_eMailAddress_invalid": "Diese E-Mail-Adresse ist ungültig.", 

@@ -408,7 +408,7 @@
 		public static function updatePhoneNumber($userId, $phoneNumber) {			
 			self::validatePhoneNumber($phoneNumber);
 			
-			$phoneNumber = $phoneNumber === "" ? null : $phoneNumber;
+			$phoneNumber = $phoneNumber === "" ? null : trim($phoneNumber);
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"UPDATE account_data SET phoneNumber=?, modificationDate=NOW() WHERE userId=?"
 			);
@@ -442,6 +442,7 @@
 		public static function updateEatingHabits($userId, $eatingHabits) {
 			self::validateEatingHabits($eatingHabits);
 			
+			$eatingHabits = $eatingHabits === "" ? null : trim($eatingHabits);
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"UPDATE account_data SET eatingHabits=?, modificationDate=NOW() WHERE userId=?"
 			);
@@ -667,8 +668,6 @@
 		}
 
 		private static function validatePhoneNumber($phoneNumber) {
-			$phoneNumber = trim($phoneNumber);
-
 			if (strlen($phoneNumber) > PHONENUMBER_LENGTH_MAX) {
 				throw new Exception("account_phoneNumber_invalid");
 			}
@@ -684,11 +683,7 @@
 		}
 
 		private static function validateEatingHabits($eatingHabits) {
-			$eatingHabits = trim($eatingHabits);
-
-			if (empty($eatingHabits) === true) {
-				throw new Exception("account_eatingHabits_required");
-			} else if (strlen($eatingHabits) > EATINGHABITS_LENGTH_MAX) {
+			if (strlen($eatingHabits) > EATINGHABITS_LENGTH_MAX) {
 				throw new Exception("account_eatingHabits_invalid");
 			}
 		}

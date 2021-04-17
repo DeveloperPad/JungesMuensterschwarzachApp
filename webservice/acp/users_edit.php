@@ -188,9 +188,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="control-label col-12" for="eatingHabits"><?php echo($GLOBALS["dict"]["account_eatingHabits"]);?>
-							<span class="jma-required-event"><?php echo($GLOBALS["dict"]["account_credentials_mark"]);?></span>
-						</label>
+						<label class="control-label col-12" for="eatingHabits"><?php echo($GLOBALS["dict"]["account_eatingHabits"]);?></label>
 						<div class="col-12">
 							<textarea name="eatingHabits" class="form-control disable-resizing" placeholder="<?php echo($GLOBALS["dict"]["account_eatingHabits_placeholder"]);?>"
 								maxlength="<?php echo(EATINGHABITS_LENGTH_MAX);?>" rows="5"><?php if (isset($_POST["eatingHabits"]) === true) echo(htmlspecialchars($_POST["eatingHabits"]));?></textarea>

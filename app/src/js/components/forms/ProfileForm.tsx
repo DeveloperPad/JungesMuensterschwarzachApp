@@ -531,9 +531,6 @@ class ProfileForm extends React.PureComponent<IProfileFormProps, IProfileFormSta
                                     onBlur={this.updateAccountData}
                                     value={this.state.form[IUserKeys.eatingHabits]}
                                 />
-                                <Typography style={eventMarkerStyle}>
-                                    {Dict.account_credentials_mark}
-                                </Typography>
                             </Grid>
                         </div>
                     </AccordionDetails>
