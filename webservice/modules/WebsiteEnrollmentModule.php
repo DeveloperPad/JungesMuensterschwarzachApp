@@ -68,8 +68,10 @@
 					UserModule::verifyEventEnrollment($user, $enrollment["event"]["eventTitle"]);
 				}
 			} else {
+				$timeParts = explode(" ", microtime());
+				$timestamp = $timeParts[1] . $timeParts[0] * 100000000;
 				UserModule::signUp(
-					$enrollment["firstName"] . "-" . random_int(1000, 9999),
+					$GLOBALS["dict"]["account_accessLevel_user"] . "-" . $timestamp,
 					$enrollment["eMailAddress"], null, null, 0, true
 				);
 			}
