@@ -25,17 +25,20 @@
 
 
 	function fetchEventList($ownUser, $response) {
-		$response->setEventList(
-			EventModule::loadEventList($ownUser ? $ownUser["accessLevel"] : ACCESS_LEVEL_GUEST)
-		);
+		$events = EventModule::loadEventList($ownUser ? $ownUser["accessLevel"] : ACCESS_LEVEL_GUEST);
+		$events = array_map(function($event) {
+			$event["eventParticipants"] = maskAndSortParticipants($event["eventParticipants"]);
+			return $event;
+		}, $events);
+		$response->setEventList($events);
 	}
 
 	function fetchEvent($ownUser, $response) {
-		$response->setEventList(
-			array(
-				EventModule::loadEvent($_POST["eventId"], $ownUser ? $ownUser["accessLevel"] : ACCESS_LEVEL_GUEST)
-			)
-		);
+		$event = EventModule::loadEvent($_POST["eventId"], $ownUser ? $ownUser["accessLevel"] : ACCESS_LEVEL_GUEST);
+		
+		$event["eventParticipants"] = maskAndSortParticipants($event["eventParticipants"]);
+
+		$response->setEventList(array($event));
 	}
 
 	function fetchEventEnrollment($ownUser, $response) {
@@ -73,6 +76,26 @@
 
 		EventModule::disenroll($ownUser["userId"], $_POST["eventId"], $ownUser["accessLevel"]);
 		$response->setSuccessMsg("event_user_disenrolled");
+	}
+
+	function maskAndSortParticipants($participants) {
+		$participants = array_map(function($user) {
+			return UserModule::maskPublic($user);
+		}, $participants);
+
+		$accessLevels = array();
+		$displayNames = array();
+		foreach ($participants as $key => $user) {
+			$accessLevels[$key] = $user["accessLevel"];
+			$displayNames[$key] = $user["displayName"];
+		}
+		array_multisort(
+			$accessLevels, SORT_DESC,
+			$displayNames, SORT_ASC,
+			$participants
+		);
+		
+		return $participants;
 	}
 
 ?>

@@ -224,6 +224,32 @@
 			$stmt->close();
 			return $accessLevels;
 		}
+
+		public static function maskPrivate($user) {
+			return array_intersect_key(
+				$user, 
+				array_flip(array(
+					"userId", "displayName", "eMailAddress",
+					"accessLevel", "accessIdentifier",
+					"firstName", "lastName",
+					"streetName", "houseNumber", 
+					"zipCode", "city", "country",
+					"phoneNumber",
+					"birthdate", "eatingHabits",
+					"allowPost", "allowNewsletter"
+				))
+			);
+		}
+
+		public static function maskPublic($user) {
+			return array_intersect_key(
+				$user, 
+				array_flip(array(
+					"userId", "displayName",
+					"accessLevel", "accessIdentifier"
+				))
+			);
+		}
 		
 		public static function updateAccessLevel($userId, $accessLevel, $ownAccessLevel) {
 			self::validateAccessLevel($accessLevel, false, $ownAccessLevel);

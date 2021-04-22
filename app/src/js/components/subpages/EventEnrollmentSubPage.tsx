@@ -1,13 +1,13 @@
+import { Card, CardContent, Typography, withTheme, WithTheme } from '@material-ui/core';
 import * as React from 'react';
 import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
-
-import { Card, CardContent, Typography, withTheme, WithTheme } from '@material-ui/core';
-
 import Formats from '../../constants/formats';
 import { formatDate } from '../../constants/global-functions';
 import { CustomTheme } from '../../constants/theme';
 import IEventItem, { IEventItemKeys } from '../../networking/events/IEventItem';
 import EventEnrollmentForm from '../forms/EventEnrollmentForm';
+import ParticipantsList from '../lists/ParticipantsList';
+
 
 type IEventEnrollmentSubPageProps = RouteComponentProps<any, StaticContext> & WithTheme & {
     eventItem: IEventItem;
@@ -59,15 +59,13 @@ class EventEnrollmentSubPage extends React.Component<IEventEnrollmentSubPageProp
 
                     <EventEnrollmentForm eventItem={this.props.eventItem} refetchEventItem={this.props.refetchEventItem} />
 
-                    { /* }
                     <hr />
-                    
+
                     <div style={this.lowerSeparatorStyle} />
 
                     <ParticipantsList
                         participants={this.props.eventItem[IEventItemKeys.eventParticipants]!}
                     />
-                    { */ }
                 </CardContent>
             </Card>
         );

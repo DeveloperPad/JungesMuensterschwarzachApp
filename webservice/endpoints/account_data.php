@@ -36,13 +36,8 @@
 			$_COOKIE[CookieModule::getFullName("sessionHash")],
 			ACCESS_LEVEL_DEVELOPER
 		);
-		$response->setUser(
-			array_intersect_key(
-				$user, 
-				array_flip(array("userId", "firstName", "lastName", "displayName", "eMailAddress", "streetName", "houseNumber", 
-					"zipCode", "city", "country", "phoneNumber", "birthdate", "eatingHabits", "allowPost", "allowNewsletter", "accessIdentifier"))
-			)
-		);
+		$user = UserModule::maskPrivate($user);
+		$response->setUser($user);
 	}
 
 	function update($response) {

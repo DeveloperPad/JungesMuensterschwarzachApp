@@ -1,17 +1,17 @@
+import { Card, CardContent, Typography, withTheme, WithTheme } from '@material-ui/core';
 import * as React from 'react';
 import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
-
-import { Card, CardContent, Typography, withTheme, WithTheme } from '@material-ui/core';
-
 import Dict from '../../constants/dict';
 import Formats from '../../constants/formats';
 import { formatDate, getDate } from '../../constants/global-functions';
 import { AppUrls } from '../../constants/specific-urls';
 import { IUserKeys } from '../../networking/account_data/IUser';
 import INewsItem from '../../networking/news/INewsItem';
-import NewsRequest, { INewsItemResponse } from '../../networking/news/NewsRequest';
+import { INewsItemResponse } from '../../networking/news/NewsItemRequest';
+import NewsRequest from '../../networking/news/NewsRequest';
 import Background from '../utilities/Background';
 import ImageCarousel from '../utilities/ImageCarousel';
+import Badge from '../utilities/Badge';
 
 type INewsItemPageProps = RouteComponentProps<any, StaticContext> & WithTheme;
 
@@ -215,9 +215,16 @@ class NewsItemPage extends React.Component<INewsItemPageProps, INewsItemPageStat
                                 variant="caption">
                                 {
                                     Dict.news_published_by
-                                    + this.state.newsItem.author[IUserKeys.firstName] + " (\""
+                                }
+                                    <Badge
+                                        accessLevel={this.state.newsItem.author[IUserKeys.accessLevel]}
+                                        small={true}
+                                    />
+                                {
+                                    " " + this.state.newsItem.author[IUserKeys.firstName] + " (\""
                                     + this.state.newsItem.author[IUserKeys.displayName] + "\") "
-                                    + this.state.newsItem.author[IUserKeys.lastName]}
+                                    + this.state.newsItem.author[IUserKeys.lastName]
+                                }
                             </Typography>
                         </div>
                         <div>
@@ -237,8 +244,14 @@ class NewsItemPage extends React.Component<INewsItemPageProps, INewsItemPageStat
                             <Typography
                                 variant="caption">
                                 {
-                                    Dict.news_published_by + "\""
-                                    + this.state.newsItem.author[IUserKeys.displayName] + "\""
+                                    Dict.news_published_by
+                                }
+                                    <Badge
+                                        accessLevel={this.state.newsItem.author[IUserKeys.accessLevel]}
+                                        small={true}
+                                    />
+                                {   
+                                    " \"" + this.state.newsItem.author[IUserKeys.displayName] + "\""
                                 }
                             </Typography>
                         </div>

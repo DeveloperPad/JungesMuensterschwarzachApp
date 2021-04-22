@@ -33,11 +33,11 @@ export const IUserValues = {
         user: 20
     },
     [IUserKeys.accessIdentifier]: {
-        developer: Dict.account_accessLevel_developer,
-        editor: Dict.account_accessLevel_editor,
-        guest: Dict.account_accessLevel_guest,
-        moderator: Dict.account_accessLevel_moderator,
-        user: Dict.account_accessLevel_user
+        50: Dict.account_accessLevel_developer,
+        40: Dict.account_accessLevel_moderator,
+        30: Dict.account_accessLevel_editor,
+        20: Dict.account_accessLevel_user,
+        10: Dict.account_accessLevel_guest
     }
 }
 

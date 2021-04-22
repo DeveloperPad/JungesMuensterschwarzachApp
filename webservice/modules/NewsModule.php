@@ -97,7 +97,8 @@
 			}
 			
 			$stmt = DatabaseModule::getInstance()->prepare(
-				"SELECT userId, firstName, lastName, displayName FROM account_data WHERE userId=?"
+				"SELECT userId, firstName, lastName, displayName, accessLevel 
+				 FROM account_data WHERE userId=?"
 			);
 			$stmt->bind_param("i", $authorId);
 			

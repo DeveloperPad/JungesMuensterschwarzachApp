@@ -41,6 +41,7 @@ interface IEventEnrollmentFormState {
     fetchedForm: IForm | null;
     form: IForm;
     formError: IFormError;
+    isEnrolled: boolean;
     isLoggedIn: boolean;
     notice: INotice | null;
     showEnrollmentConfirmationDialog: boolean;
@@ -82,6 +83,7 @@ class EventEnrollmentForm extends React.PureComponent<IEventEnrollmentFormProps,
             formError: {
                 [IEventEnrollmentKeys.eventEnrollmentComment]: null
             },
+            isEnrolled: false,
             isLoggedIn: false,
             notice: {
                 message: Dict.label_wait,
@@ -191,11 +193,11 @@ class EventEnrollmentForm extends React.PureComponent<IEventEnrollmentFormProps,
             </Typography>
         ) : now < enrollmentStart ? (
             <Typography>
-                {this.state.fetchedForm ? Dict.event_user_disenrollment_too_early : Dict.event_user_enrollment_too_early}
+                {this.state.isEnrolled ? Dict.event_user_disenrollment_too_early : Dict.event_user_enrollment_too_early}
             </Typography>
         ) : enrollmentEnd < now ? (
             <Typography>
-                {this.state.fetchedForm ? Dict.event_user_disenrollment_too_late : Dict.event_user_enrollment_too_late}
+                {this.state.isEnrolled ? Dict.event_user_disenrollment_too_late : Dict.event_user_enrollment_too_late}
             </Typography>
         ) : (
             <>
@@ -213,14 +215,14 @@ class EventEnrollmentForm extends React.PureComponent<IEventEnrollmentFormProps,
                 <div style={this.lowerSeparatorStyle} />
 
                 <SubmitButton
-                    label={this.state.fetchedForm ? Dict.event_disenroll : Dict.event_enroll}
-                    onClick={this.state.fetchedForm ? this.disenroll.bind(this) : this.showConfirmationDialog.bind(this, true)}
+                    label={this.state.isEnrolled ? Dict.event_disenroll : Dict.event_enroll}
+                    onClick={this.state.isEnrolled ? this.disenroll.bind(this) : this.showConfirmationDialog.bind(this, true)}
                 />
             </>
         );
         const registrationStateTypographyStyle: React.CSSProperties = {
             ...this.contentIndentationStyle,
-            color: this.state.fetchedForm ? CustomTheme.COLOR_SUCCESS : CustomTheme.COLOR_FAILURE
+            color: this.state.isEnrolled ? CustomTheme.COLOR_SUCCESS : CustomTheme.COLOR_FAILURE
         }
 
         return (
@@ -256,7 +258,7 @@ class EventEnrollmentForm extends React.PureComponent<IEventEnrollmentFormProps,
                 <Typography
                     style={registrationStateTypographyStyle}
                 >
-                    {this.state.fetchedForm ? Dict.event_user_enrollment_state_enrolled : Dict.event_user_enrollment_state_enrolled_not}
+                    {this.state.isEnrolled ? Dict.event_user_enrollment_state_enrolled : Dict.event_user_enrollment_state_enrolled_not}
                 </Typography>
 
                 <hr />
@@ -300,7 +302,6 @@ class EventEnrollmentForm extends React.PureComponent<IEventEnrollmentFormProps,
             this.props.eventItem[IEventItemKeys.eventId],
             (response: IFetchEventEnrollmentDataResponse) => {
                 const errorMsg = response.errorMsg;
-                const eventEnrollment = response.eventEnrollment;
 
                 if (errorMsg) {
                     this.setState(prevState => {
@@ -313,16 +314,33 @@ class EventEnrollmentForm extends React.PureComponent<IEventEnrollmentFormProps,
                         }
                     });
                 } else {
+                    let comment = "";
+                    let isEnrolled = false;
+
+                    const eventEnrollment = response.eventEnrollment;
+                    if (eventEnrollment) {
+                        isEnrolled = true;
+                        const eventEnrollmentComment = 
+                            eventEnrollment[IEventEnrollmentKeys.eventEnrollmentComment];
+                        
+                        if (eventEnrollmentComment) {
+                            comment = eventEnrollmentComment;
+                        }
+                    }
+
+                    const fetchedForm: IForm = {
+                        [IEventEnrollmentKeys.eventEnrollmentComment]: comment
+                    };
+
                     this.setState(prevState => {
                         return {
                             ...prevState,
-                            fetchedForm: eventEnrollment,
-                            form: eventEnrollment ? eventEnrollment : {
-                                [IEventEnrollmentKeys.eventEnrollmentComment]: ""
-                            },
+                            fetchedForm,
+                            form: fetchedForm,
                             formError: {
                                 [IEventEnrollmentKeys.eventEnrollmentComment]: null
                             },
+                            isEnrolled,
                             notice: null
                         }
                     });
@@ -359,7 +377,7 @@ class EventEnrollmentForm extends React.PureComponent<IEventEnrollmentFormProps,
     }
 
     private enroll = (): void => {
-        if (!this.state.isLoggedIn || this.state.formError[IEventEnrollmentKeys.eventEnrollmentComment]) {
+        if (!this.state.isLoggedIn || this.state.isEnrolled) {
             return;
         }
 
@@ -435,6 +453,7 @@ class EventEnrollmentForm extends React.PureComponent<IEventEnrollmentFormProps,
 
     private updateEventEnrollmentData = (key: IFormKeys, value: string): void => {
         if (!this.state.isLoggedIn
+            || !this.state.isEnrolled
             || !this.state.fetchedForm
             || this.state.fetchedForm[key] === value
             || this.state.formError[key]) {
@@ -504,7 +523,7 @@ class EventEnrollmentForm extends React.PureComponent<IEventEnrollmentFormProps,
     /* - disenroll - */
 
     private disenroll = (): void => {
-        if (!this.state.isLoggedIn) {
+        if (!this.state.isLoggedIn || !this.state.isEnrolled) {
             return;
         }
 

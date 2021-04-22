@@ -284,8 +284,14 @@ class LoginForm extends React.Component<ILoginFormProps, ILoginFormState> {
 
     private signInAsGuest = (): void => {
         Promise.all([
-            CookieService.set(IUserKeys.accessLevel, IUserValues[IUserKeys.accessLevel].guest),
-            CookieService.set(IUserKeys.accessIdentifier, IUserValues[IUserKeys.accessIdentifier].guest),
+            CookieService.set(
+                IUserKeys.accessLevel,
+                IUserValues[IUserKeys.accessLevel].guest
+            ),
+            CookieService.set(
+                IUserKeys.accessIdentifier,
+                IUserValues[IUserKeys.accessIdentifier][IUserValues[IUserKeys.accessLevel].guest]
+            ),
             registerPushManager()
         ])
         .catch(exc => {

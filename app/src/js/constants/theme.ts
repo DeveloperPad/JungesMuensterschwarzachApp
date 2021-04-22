@@ -1,6 +1,7 @@
 import { InputBaseComponentProps } from '@material-ui/core/InputBase';
 import { createMuiTheme, Theme } from '@material-ui/core/styles';
 import React from 'react';
+import { IUserKeys, IUserValues } from '../networking/account_data/IUser';
 
 /* general */
 
@@ -13,6 +14,7 @@ export enum ThemeTypes {
 /* colors */
 
 export enum CustomTheme {
+    COLOR_BLACK = "#000000",
     COLOR_BODY_INNER = "#fdfdfd",
     COLOR_FAILURE = "#ff0000",
     COLOR_LEGAL_NOTICE_EFFECTIVE_DATE = "#333333",
@@ -26,7 +28,11 @@ export enum CustomTheme {
     COLOR_REQUIRED_MARKER_EVENT = "#08af08",
     COLOR_SECONDARY = "#ffbc36",
     COLOR_SUCCESS = "#00ff00",
-    COLOR_WHITE = "#ffffff"
+    COLOR_WHITE = "#ffffff",
+    COLOR_ACCESS_LEVEL_DEVELOPER = "#007bff",
+    COLOR_ACCESS_LEVEL_MODERATOR = "#dc3545",
+    COLOR_ACCESS_LEVEL_EDITOR = "#28a745",
+    COLOR_ACCESS_LEVEL_USER = "#343a40"
 }
 
 
@@ -106,7 +112,6 @@ const theme: Theme = createMuiTheme({
         }
     }
 });
-
 
 /* text field theme */
 
@@ -191,6 +196,40 @@ export const logoItemStyle: React.CSSProperties = {
     width: "100%"
 }
 
+/* avatar item styles */
+
+export const avatarListItemStyle: React.CSSProperties = {
+    height: theme.spacing(4),
+    width: theme.spacing(4)
+}
+
+/* access level badges */
+
+export function getAccessLevelBadgeStyle(accessLevel: number): React.CSSProperties {
+    let hexColor = CustomTheme.COLOR_WHITE;
+
+    switch (accessLevel) {
+        case IUserValues[IUserKeys.accessLevel].developer:
+            hexColor = CustomTheme.COLOR_ACCESS_LEVEL_DEVELOPER;
+            break;
+        case IUserValues[IUserKeys.accessLevel].moderator:
+            hexColor = CustomTheme.COLOR_ACCESS_LEVEL_MODERATOR;
+            break;
+        case IUserValues[IUserKeys.accessLevel].editor:
+            hexColor = CustomTheme.COLOR_ACCESS_LEVEL_EDITOR;
+            break;
+        case IUserValues[IUserKeys.accessLevel].user:
+            hexColor = CustomTheme.COLOR_ACCESS_LEVEL_USER;
+            break;
+    }
+
+    return {
+        color: getContrastTextColor(hexToRgb(hexColor)),
+        backgroundColor: hexColor,
+        borderRadius: "8px"
+    }
+}
+
 /* grid styles */
 
 export const gridHorizontalStyle: React.CSSProperties = {
@@ -220,3 +259,28 @@ export const grid7Style: React.CSSProperties = {
 export const grid10Style: React.CSSProperties = {
     flex: 10
 };
+
+/* utility functions */
+
+function hexToRgb(hex: string): RGB|null {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+    return result
+        ? {
+              r: parseInt(result[1], 16),
+              g: parseInt(result[2], 16),
+              b: parseInt(result[3], 16)
+          }
+        : null
+}
+
+function getContrastTextColor(rgb: RGB|null): string {
+    return !rgb || (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000 > 125 ?
+        CustomTheme.COLOR_BLACK : CustomTheme.COLOR_WHITE;
+
+}
+
+interface RGB {
+    r: number;
+    g: number;
+    b: number;
+}

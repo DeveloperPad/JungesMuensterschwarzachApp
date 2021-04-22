@@ -455,9 +455,10 @@
 					ad.streetName, ad.houseNumber, ad.zipCode, ad.city, ad.country, 
 					ad.eMailAddress, ad.phoneNumber, ad.allowPost, ad.allowNewsletter, 
 					ad.birthdate, ad.eatingHabits, 
-					ee.eventEnrollmentComment, ee.enrollmentDate 
-				 FROM account_data ad, event_enrollments ee 
-				 WHERE ee.eventId=? AND ad.userId=ee.userId 
+					ee.eventEnrollmentComment, ee.enrollmentDate, 
+					al.accessLevel, al.accessIdentifier
+				 FROM account_data ad, access_levels al, event_enrollments ee 
+				 WHERE ee.eventId=? AND ad.userId=ee.userId AND ad.accessLevel=al.accessLevel 
 				 ORDER BY ee.enrollmentDate"
 			);
 			$stmt->bind_param("i", $event["eventId"]);
