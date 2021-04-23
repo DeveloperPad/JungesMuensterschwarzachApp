@@ -14,8 +14,9 @@
 	if ($_SERVER["REQUEST_METHOD"] === "POST") {
 		try {
 			$pnModule = new PushNotificationModule();
-			$report = $pnModule->sendCustomNotification($_POST["requiredAccessLevel"], 
-				$_POST["title"], $_POST["body"], null, $ownAccessLevel);
+			$report = $pnModule->sendCustomNotification(
+				$_POST["requiredAccessLevel"], $_POST["title"], $_POST["body"], $ownAccessLevel
+			);
 			unset($_POST);
 			CookieModule::set("alert", new Alert("success", $report));
 		} catch (Exception $exc) {

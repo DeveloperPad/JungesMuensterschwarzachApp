@@ -2,6 +2,19 @@
 
 	$secrets_directory = getenv("JMA_SECRETS") ? getenv("JMA_SECRETS") : "/var/data/secrets/jma";
 
+
+	/* App */
+
+	if (defined("APP_LOADED") === false) {
+		$app_config = json_decode(file_get_contents($secrets_directory."/app.json"), true);
+
+		define("APP_BASEURLS_APP", $app_config["BaseUrls"]["APP"]);
+		define("APP_BASEURLS_CONTACT_LINK", $app_config["BaseUrls"]["CONTACT_LINK"]);
+		define("APP_BASEURLS_WEBSERVICE", $app_config["BaseUrls"]["WEBSERVICE"]);
+		define("APP_LOADED", true);
+	}
+
+
 	/* Database */
 
 	if (defined("DB_LOADED") === false) {

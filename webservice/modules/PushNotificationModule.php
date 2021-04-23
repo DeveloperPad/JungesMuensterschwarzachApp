@@ -12,17 +12,13 @@
 
 	class PushNotificationModule {
 
-		const ACTION_OPEN_NEWS = "OPEN_NEWS";
-		const ACTION_OPEN_EVENT = "OPEN_EVENT";
-
 		public static function sendNewsNotification($newsId, $ownAccessLevel) {
 			$news = NewsModule::loadNewsArticle($newsId, $ownAccessLevel);
 
 			$payload = new stdClass();
 			$payload->title = "pn_receive_news";
 			$payload->body = $news["title"];
-			$payload->click_action = self::ACTION_OPEN_NEWS;
-			$payload->newsId = $news["newsId"];
+			$payload->click_action = APP_BASEURLS_APP . "/news/" . $news["newsId"];
 
 			return self::sendPushNotification($news["requiredAccessLevel"], $payload);
 		}
@@ -33,13 +29,12 @@
 			$payload = new stdClass();
 			$payload->title = "pn_receive_event";
 			$payload->body = $event["eventTitle"];
-			$payload->click_action = self::ACTION_OPEN_EVENT;
-			$payload->eventId = $event["eventId"];
+			$payload->click_action = APP_BASEURLS_APP . "/events/" . $event["eventId"];
 
 			return self::sendPushNotification($event["requiredAccessLevel"], $payload);
 		}
 
-		public static function sendCustomNotification($requiredAccessLevel, $title, $body, $action, $ownAccessLevel) {
+		public static function sendCustomNotification($requiredAccessLevel, $title, $body, $ownAccessLevel) {
 			if ($ownAccessLevel < $requiredAccessLevel) {
 				throw new Exception("account_accessLevel_invalid");
 			}
@@ -47,7 +42,7 @@
 			$payload = new stdClass();
 			$payload->title = $title;
 			$payload->body = $body;
-			$payload->click_action = $action;
+			$payload->click_action = APP_BASEURLS_APP;
 
 			return self::sendPushNotification($requiredAccessLevel, $payload);
 		}
@@ -116,15 +111,6 @@
 		private static function validatePayload($payload) {
 			self::validatePayloadTitle($payload->title);
 			self::validatePayloadBody($payload->body);
-
-			if (isset($payload->click_action) === true) {
-				if ($payload->click_action === self::ACTION_OPEN_NEWS && isset($payload->newsId) === false) {
-					throw new Exception("pn_send_data_newsId_missing");
-				}
-				if ($payload->click_action === self::ACTION_OPEN_EVENT && isset($payload->eventId) === false) {
-					throw new Exception("pn_send_data_eventId_missing");
-				}
-			}
 		}
 
 		private static function validatePayloadTitle($title) {

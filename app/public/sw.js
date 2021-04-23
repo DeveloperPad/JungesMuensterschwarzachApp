@@ -1,16 +1,9 @@
 importScripts("./js/dict.js");
 
 async function loadConfig() {
-  await fetch("./js/app.json")
-    .then(response => response.json())
-    .then(appConfig => {
-      self = {
-        ...self,
-        ...appConfig
-      }
-    });
+  return fetch("./js/app.json")
+    .then(response => response.json());
 }
-loadConfig();
 
 self.addEventListener("pushsubscriptionchange", e => {
   e.waitUntil(handleSubscriptionChange());
@@ -24,42 +17,42 @@ async function handleSubscriptionChange() {
     return Promise.reject();
   }
 
-  return Promise.all([getSubscription(), getUserId()]).then(
-    values => {
-      const subscription = values[0];
-      const userId = values[1];
+  return loadConfig().then(config => {
+    return Promise.all([getSubscription(config), getUserId()]).then(
+      async values => {
+        const subscription = values[0];
+        const userId = values[1];
 
-      const data = new URLSearchParams();
-      data.append("action", "subscribe");
-      data.append("endpoint", subscription.endpoint);
-      data.append("keyAuth", subscription.toJSON().keys ? subscription.toJSON().keys.auth : "")
-      data.append("keyPub", subscription.toJSON().keys ? subscription.toJSON().keys.p256dh : "");
-      data.append("userId", userId);
-      
+        const data = new URLSearchParams();
+        data.append("action", "subscribe");
+        data.append("endpoint", subscription.endpoint);
+        data.append("keyAuth", subscription.toJSON().keys ? subscription.toJSON().keys.auth : "")
+        data.append("keyPub", subscription.toJSON().keys ? subscription.toJSON().keys.p256dh : "");
+        data.append("userId", userId);
+        
 
-      return fetch(self.BaseUrls.WEBSERVICE + "/account_push_subscriptions.php", {
-        method: "POST",
-        body: data
-      }).then(response => {
-        return response.text().then(text => {
-          const res = JSON.parse(text);
-          if (res.successMsg) {
-            console.log("[SERVICE WORKER] \t" + self.Dict[res.successMsg]);
-          } else {
-            console.log("[SERVICE WORKER] \t" + self.Dict[res.errorMsg]);
-          }
-          return Promise.resolve();
+        const response = await fetch(config.BaseUrls.WEBSERVICE + "/account_push_subscriptions.php", {
+          method: "POST",
+          body: data
         });
-      });
-    },
-    error => {
-      console.log("[SERVICE WORKER] \tPush Subscription could not be updated: " + error);
-      return Promise.reject();
-    }
-  );
+        const text = await response.text();
+        const res = JSON.parse(text);
+        if (res.successMsg) {
+          console.log("[SERVICE WORKER] \t" + self.Dict[res.successMsg]);
+        } else {
+          console.log("[SERVICE WORKER] \t" + self.Dict[res.errorMsg]);
+        }
+        return await Promise.resolve();
+      },
+      error => {
+        console.log("[SERVICE WORKER] \tPush Subscription could not be updated: " + error);
+        return Promise.reject();
+      }
+    );
+  });
 }
 
-async function getSubscription() {
+async function getSubscription(config) {
   let subscription = await self.registration.pushManager.getSubscription();
 
   if (subscription) {
@@ -68,7 +61,7 @@ async function getSubscription() {
     console.log("[SERVICE WORKER] \tAcquiring new subscription...");
     subscription = await self.registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(self.PNConfig.SERVER_PUB)
+      applicationServerKey: urlBase64ToUint8Array(config.PNConfig.SERVER_PUB)
     });
     console.log("[SERVICE WORKER] \tAcquired new subscription: " + JSON.stringify(subscription));
   }
@@ -119,24 +112,14 @@ self.addEventListener("push", e => {
   )
 });
 
-self.addEventListener("notificationclick", e => {
+self.addEventListener("notificationclick", async e => {
   console.log("[SERVICE WORKER] \tNotification click received: " + JSON.stringify(e));
   const notification = e.notification;
   notification.close();
-  return e.waitUntil(clients.openWindow(getClickActionUrl(notification.data)));
+
+  if (!notification.data || !notification.data.click_action) {
+    return;
+  }
+
+  return e.waitUntil(clients.openWindow(notification.data.click_action));
 });
-
-function getClickActionUrl(data) {
-  if (!data || typeof data.click_action !== "string") {
-    return self.BaseUrls.APP;
-  }
-
-  switch (data.click_action.toUpperCase()) {
-    case "OPEN_NEWS":
-      return self.BaseUrls.APP + "/news/" + (data.newsId ? data.newsId : "");
-    case "OPEN_EVENT":
-      return self.BaseUrls.APP + "/events/" + (data.eventId ? data.eventId : "");
-    default:
-      return self.BaseUrls.APP;
-  }
-}
