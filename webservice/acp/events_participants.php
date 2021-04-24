@@ -45,6 +45,7 @@
 				<hr>
 				<h3 class="float-left"><?php echo($GLOBALS["dict"]["event_eventTitle_prefix"] . $event["eventTitle"]);?></h3>
 				<a href="events.php" class="btn btn-primary float-right ml-2"><?php echo($GLOBALS["dict"]["label_back"]);?></a>
+				<a href="events_participants_mail.php?eventId=<?php echo($event["eventId"]);?>" class="btn btn-primary float-right"><?php echo($GLOBALS["dict"]["mail_event_participants_add"]);?></a>
 				<div class="clearfix"></div>
 				<hr>
 				<div class="table-responsive">

@@ -40,7 +40,7 @@
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
-		public static function sendNewsletterMail($eMailAddress, $title, $content, $code, $attachments) {
+		public static function sendNewsletterMail($eMailAddress, $title, $content, $code, $attachments, $replyToUser) {
 			$cancelLink = 
 				$code !== null ?
 					self::getNewsletterTokenUrl($code) :
@@ -60,7 +60,7 @@
 				. $cancelMsg
 				. "</small>";
 
-			self::sendMail($eMailAddress, $title, $message, $attachments);
+			self::sendMail($eMailAddress, $title, $message, $attachments, $replyToUser);
 		}
 
 		public static function sendEventEnrollmentRequestMail(
@@ -258,7 +258,7 @@
 
 
 
-		public static function sendMail($recipientAddress, $title, $message, $attachments = []) {
+		public static function sendMail($recipientAddress, $title, $message, $attachments = [], $replyToUser = null) {
 			self::validateAttachments($attachments);
 			
 			if (MAIL_ACTIVE === false) {
@@ -280,7 +280,16 @@
 				}
 
 				$mailer->setFrom(MAIL_ADDRESS, MAIL_AUTHOR);
-				$mailer->addReplyTo(MAIL_ADDRESS, MAIL_AUTHOR);
+				if ($replyToUser) {
+					$mailer->addReplyTo(
+						$replyToUser["eMailAddress"],
+						isset($replyToUser["firstName"]) && isset($replyToUser["lastName"]) ?
+							$replyToUser["firstName"] . " " . $replyToUser["lastName"] :
+							$replyToUser["displayName"]
+					);
+				} else {
+					$mailer->addReplyTo(MAIL_ADDRESS, MAIL_AUTHOR);
+				}
 				$mailer->addAddress($recipientAddress);
 
 				$mailer->Subject = $title;

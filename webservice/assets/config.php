@@ -43,6 +43,7 @@
 		define("MAIL_PORT_IMAP", $mail_config["port_imap"]);
 		define("MAIL_PORT_SMTP", $mail_config["port_smtp"]);
 		define("MAIL_ENCODING", $mail_config["encoding"]);
+		define("MAIL_COURSE_INSTRUCTORS", $mail_config["mail_course_instructors"]);
 		define("MAIL_ATTACHMENT_SIZE_MAX", 5000000);
 		define("MAIL_FOLDER_PREFIX", "{".MAIL_SERVER.":".MAIL_PORT_IMAP."/imap/ssl}");
 		define("MAIL_FOLDER_DEFAULT", "INBOX");

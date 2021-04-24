@@ -9,28 +9,23 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 	
-	if ($ownAccessLevel < PERMISSION_NEWSLETTER) {
+	if ($ownAccessLevel < PERMISSION_USER || isset($_GET["eventId"]) === false) {
 		header("Location: ../index.php");
 		exit;
 	}
 
-	if ($_SERVER["REQUEST_METHOD"] === "POST") {
-		try {
+	try {
+		$event = EventModule::loadEvent($_GET["eventId"], $ownAccessLevel);
+		$currentUser = UserModule::loadUser(CookieModule::get("userId"), ACCESS_LEVEL_DEVELOPER);
+
+		if ($_SERVER["REQUEST_METHOD"] === "POST") {
 			$isPublication = isset($_POST["publish"]);
-			$currentUser = UserModule::loadUser(CookieModule::get("userId"), ACCESS_LEVEL_DEVELOPER);
 
 			if ($isPublication) {
-				$registrations = NewsletterModule::loadRegistrations();
-				array_push(
-					$registrations, 
-					array(
-						"eMailAddress" => MAIL_COURSE_INSTRUCTORS,
-						"code" => null
-					)
-				);
+				$participants = $event["eventParticipants"];
+				array_push($participants, array("eMailAddress" => MAIL_COURSE_INSTRUCTORS));
 			} else {
-				$currentUser["code"] = null;
-				$registrations = [$currentUser];
+				$participants = [$currentUser];
 			}
 
 			$attachments = [];
@@ -47,14 +42,13 @@
 				array_push($attachments, $attachment);
 			}
 
-			foreach ($registrations as $registration) {
-				MailModule::sendNewsletterMail(
-					$registration["eMailAddress"],
-					$GLOBALS["dict"]["mail_title_prefix"]
-						. "[" . $GLOBALS["dict"]["navigation_newsletters"] . "] "
+			foreach ($participants as $participant) {
+				MailModule::sendMail(
+					$participant["eMailAddress"],
+					$GLOBALS["dict"]["mail_title_prefix"] 
+						. "[" . $event["eventTitle"]. "] "
 						. $_POST["title"],
 					$_POST["content"],
-					$registration["code"],
 					$attachments,
 					$currentUser
 				);
@@ -62,20 +56,20 @@
 
 			if ($isPublication) {
 				CookieModule::set("alert", new Alert("success", 
-					$GLOBALS["dict"]["newsletter_creation_publish_success_prefix"]
-					. count($registrations)
-					. $GLOBALS["dict"]["newsletter_creation_publish_success_suffix"]
+					$GLOBALS["dict"]["mail_event_participants_publish_success_prefix"]
+					. count($participants)
+					. $GLOBALS["dict"]["mail_event_participants_publish_success_suffix"]
 				));
-				header("Location: ./newsletter_registrations.php");
+				header("Location: ./events_participants_mail.php?eventId=".$_GET["eventId"]);
 				exit;
 			} else {
 				CookieModule::set("alert", new Alert("warning", 
-					$GLOBALS["dict"]["newsletter_creation_preview_success"]
+					$GLOBALS["dict"]["mail_event_participants_preview_success"]
 				));
 			}
-		} catch (Exception $exc) {
-			CookieModule::set("alert", new Alert("danger", $GLOBALS["dict"][$exc->getMessage()]));
 		}
+	} catch (Exception $exc) {
+		CookieModule::set("alert", new Alert("danger", $GLOBALS["dict"][$exc->getMessage()]));
 	}
 
 	$cookieAlert = CookieModule::get("alert");
@@ -96,17 +90,17 @@
 				}
 			?>
 			<div class="jumbotron jma-background-color">
-				<h1><?php echo($GLOBALS["dict"]["navigation_newsletters"]);?></h1>
+				<h1><?php echo($GLOBALS["dict"]["event_eventTitle_prefix"] . $event["eventTitle"]);?></h1>
 				<hr>
-				<h3 class="float-left"><?php echo($GLOBALS["dict"]["newsletter_add"]);?></h3>
-				<a href="newsletter_registrations.php" class="btn btn-primary float-right"><?php echo($GLOBALS["dict"]["newsletter_registrations_back"]);?></a>
+				<h3 class="float-left"><?php echo($GLOBALS["dict"]["mail_event_participants_add"]);?></h3>
+				<a href="events_participants.php?eventId=<?php echo($_GET["eventId"]); ?>" class="btn btn-primary float-right"><?php echo($GLOBALS["dict"]["event_participants_list_back"]);?></a>
 				<div class="clearfix"></div>
 				<hr>
-				<form name="newsletterCreateForm" method="POST" enctype="multipart/form-data" class="form-horizontal">
+				<form name="eventsParticipantsMailForm" method="POST" enctype="multipart/form-data" class="form-horizontal">
 					<div class="form-group">
 						<label class="control-label col-12" for="title"><?php echo($GLOBALS["dict"]["mail_title"]);?></label>
 						<div class="col-12 input-group">
-							<span class="input-group-addon"><?php echo($GLOBALS["dict"]["mail_title_prefix"] . "[" . $GLOBALS["dict"]["navigation_newsletters"] . "] "); ?></span>
+							<span class="input-group-addon"><?php echo($GLOBALS["dict"]["mail_title_prefix"]."[".$event["eventTitle"]."]"); ?></span>
 							<input name="title" type="text" class="form-control font-weight-bold" placeholder="<?php echo($GLOBALS["dict"]["mail_title_placeholder"]);?>"
 								value="<?php if (isset($_POST["title"]) === true) echo(htmlspecialchars($_POST["title"]));?>" required>
 						</div>

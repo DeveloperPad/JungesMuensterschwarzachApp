@@ -1,0 +1,12 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_participants_add', 'Create new circular mail', 'Neue Rundmail erstellen');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('event_participants_list_back', 'Back to participants list', 'Zurück zur Teilnehmerliste');
+UPDATE `strings` SET `identifier` = 'mail_title_prefix' WHERE `strings`.`identifier` = 'newsletter_title_prefix';
+UPDATE `strings` SET `identifier` = 'mail_title' WHERE `strings`.`identifier` = 'newsletter_title';
+UPDATE `strings` SET `identifier` = 'mail_title_placeholder' WHERE `strings`.`identifier` = 'newsletter_title_placeholder';
+UPDATE `strings` SET `identifier` = 'mail_content' WHERE `strings`.`identifier` = 'newsletter_content';
+UPDATE `strings` SET `identifier` = 'mail_content_placeholder' WHERE `strings`.`identifier` = 'newsletter_content_placeholder';
+UPDATE `strings` SET `identifier` = 'mail_attachments' WHERE `strings`.`identifier` = 'newsletter_attachments';
+UPDATE `strings` SET `identifier` = 'mail_attachments_notice' WHERE `strings`.`identifier` = 'mail_attachment_notice';
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_participants_publish_success_prefix', 'The circular mail has been sent to ', 'Der Rundbrief wurde an ');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_participants_publish_success_suffix', ' event participants.', ' Veranstaltungsteilnehmer versandt.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_event_participants_preview_success', 'A preview circular mail has been sent to your e-mail address.', 'Ein Vorschau-Rundbrief wurde an deine E-Mail-Adresse versandt.');
