@@ -40,7 +40,7 @@
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
-		public static function sendNewsletterMail($eMailAddress, $title, $content, $code) {
+		public static function sendNewsletterMail($eMailAddress, $title, $content, $code, $attachments) {
 			$cancelLink = 
 				$code !== null ?
 					self::getNewsletterTokenUrl($code) :
@@ -60,7 +60,7 @@
 				. $cancelMsg
 				. "</small>";
 
-			self::sendMail($eMailAddress, $title, $message);
+			self::sendMail($eMailAddress, $title, $message, $attachments);
 		}
 
 		public static function sendEventEnrollmentRequestMail(
@@ -258,7 +258,9 @@
 
 
 
-		public static function sendMail($recipientAddress, $title, $message) {
+		public static function sendMail($recipientAddress, $title, $message, $attachments = []) {
+			self::validateAttachments($attachments);
+			
 			if (MAIL_ACTIVE === false) {
 				return;
 			}
@@ -284,6 +286,11 @@
 				$mailer->Subject = $title;
 				$mailer->Body = $message;
 				$mailer->AltBody = $message;
+				foreach ($attachments as $attachment) {
+					$mailer->AddAttachment(
+						$attachment["tmp_name"], $attachment["name"]
+					);
+				}
 
 				$mailer->send();
 			} catch (Exception $exc) {
@@ -319,6 +326,14 @@
 				GlobalFunctions::getRequestProtocol() . "://" 
 				. $_SERVER["HTTP_HOST"] . MAIL_EVENT_PARTICIPANTS_URL
 				. $eventId;
+		}
+
+		private static function validateAttachments($attachments) {
+			foreach ($attachments as $attachment) {
+				if ($attachment["size"] > MAIL_ATTACHMENT_SIZE_MAX) {
+					throw new Exception("mail_attachment_invalid");
+				}
+			}
 		}
 		
 	}

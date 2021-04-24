@@ -1,0 +1,3 @@
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('newsletter_attachments', 'Attachments', 'Anhänge');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_attachment_invalid', 'Mail attachments may only be smaller than 5MB.', 'Mail-Anhänge dürfen maximal 5 MB groß sein.');
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('mail_attachment_notice', 'Attachments cannot be saved and must be selected again after reloading the page (e.g. after sending a preview mail). Furthermore, each attachment may only be less than 5 MB in size.', 'Anhänge können nicht gespeichert werden und müssen nach dem Nachladen der Seite (z.B. dem Versenden einer Vorschau-Mail) erneut ausgewählt werden. Außerdem darf jeder Anhang nur maximal 5MB groß sein.');

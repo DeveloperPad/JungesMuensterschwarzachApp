@@ -26,12 +26,27 @@
 				$registrations = [$user];
 			}
 
+			$attachments = [];
+			$attachmentCount = count($_FILES["attachments"]["name"]);
+			for ($i = 0; $i < $attachmentCount; $i++) {
+				$attachment = [];
+				$attachment["name"] = $_FILES["attachments"]["name"][$i];
+				$attachment["tmp_name"] = $_FILES["attachments"]["tmp_name"][$i];
+				$attachment["size"] = $_FILES["attachments"]["size"][$i];
+
+				if (empty($attachment["name"])) {
+					continue;
+				}
+				array_push($attachments, $attachment);
+			}
+
 			foreach ($registrations as $registration) {
 				MailModule::sendNewsletterMail(
 					$registration["eMailAddress"],
 					$GLOBALS["dict"]["newsletter_title_prefix"] . $_POST["title"],
 					$_POST["content"],
-					$registration["code"]
+					$registration["code"],
+					$attachments
 				);
 			}
 
@@ -77,8 +92,7 @@
 				<a href="newsletter_registrations.php" class="btn btn-primary float-right"><?php echo($GLOBALS["dict"]["newsletter_registrations_back"]);?></a>
 				<div class="clearfix"></div>
 				<hr>
-				<form name="newsletterCreateForm" method="POST" class="form-horizontal">
-				<div class="form-group">
+				<form name="newsletterCreateForm" method="POST" enctype="multipart/form-data" class="form-horizontal">
 					<div class="form-group">
 						<label class="control-label col-12" for="title"><?php echo($GLOBALS["dict"]["newsletter_title"]);?></label>
 						<div class="col-12 input-group">
@@ -92,6 +106,16 @@
 						<div class="col-12">
 							<textarea name="content" class="form-control wysiwyg-editor" placeholder="<?php echo($GLOBALS["dict"]["newsletter_content_placeholder"]);?>" 
 								required><?php if (isset($_POST["content"]) === true) echo(htmlspecialchars($_POST["content"]));?></textarea>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-12" for="attachments"><?php echo($GLOBALS["dict"]["newsletter_attachments"]);?></label>
+						<div class="col-12">
+							<input id="attachments" name="attachments[]" class="form-control" type="file" multiple="multiple"
+							 value="<?php if (isset($_FILES["attachments"])) echo($_FILES["attachments"]); ?>"/>
+						</div>
+						<div class="col-12">
+							<p><small><?php echo($GLOBALS["dict"]["mail_attachment_notice"]);?></small></p>
 						</div>
 					</div>
 					<hr>
