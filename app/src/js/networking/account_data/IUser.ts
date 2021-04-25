@@ -14,6 +14,7 @@ export enum IUserKeys {
     eatingHabits = "eatingHabits",
     firstName = "firstName",
     houseNumber = "houseNumber",
+    supplementaryAddress = "supplementaryAddress",
     lastName = "lastName",
     password = "password",
     passwordRepetition = "passwordRepetition", // fake user data property for client side repetition verification
@@ -55,6 +56,7 @@ export default interface IUser {
     [IUserKeys.eatingHabits]?: string;
     [IUserKeys.firstName]?: string;
     [IUserKeys.houseNumber]?: string;
+    [IUserKeys.supplementaryAddress]?: string;
     [IUserKeys.lastName]?: string;
     [IUserKeys.password]?: string;
     [IUserKeys.passwordRepetition]?: string;
@@ -80,6 +82,7 @@ export interface IUserError {
     [IUserKeys.eatingHabits]?: string | null;
     [IUserKeys.firstName]?: string | null;
     [IUserKeys.houseNumber]?: string | null;
+    [IUserKeys.supplementaryAddress]?: string | null;
     [IUserKeys.lastName]?: string | null;
     [IUserKeys.password]?: string | null;
     [IUserKeys.passwordRepetition]?: string | null;

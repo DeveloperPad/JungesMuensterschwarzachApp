@@ -451,14 +451,9 @@
 
 		private static function appendParticipantsList($event) {
 			$stmt = DatabaseModule::getInstance()->prepare(
-				"SELECT ad.userId, ad.firstName, ad.displayName, ad.lastName, 
-					ad.streetName, ad.houseNumber, ad.zipCode, ad.city, ad.country, 
-					ad.eMailAddress, ad.phoneNumber, ad.allowPost, ad.allowNewsletter, 
-					ad.birthdate, ad.eatingHabits, 
-					ee.eventEnrollmentComment, ee.enrollmentDate, 
-					al.accessLevel, al.accessIdentifier
-				 FROM account_data ad, access_levels al, event_enrollments ee 
-				 WHERE ee.eventId=? AND ad.userId=ee.userId AND ad.accessLevel=al.accessLevel 
+				"SELECT ad.userId, ee.eventEnrollmentComment, ee.enrollmentDate 
+				 FROM account_data ad, event_enrollments ee 
+				 WHERE ee.eventId=? AND ad.userId=ee.userId  
 				 ORDER BY ee.enrollmentDate"
 			);
 			$stmt->bind_param("i", $event["eventId"]);
@@ -471,7 +466,12 @@
 			}
 
 			$res = $stmt->get_result();
-			while ($participant = $res->fetch_assoc()) {
+			while ($row = $res->fetch_assoc()) {
+				$participant = array_merge(
+					UserModule::loadUser($row["userId"], ACCESS_LEVEL_DEVELOPER),
+					$row
+				);
+
 				array_push($event["eventParticipants"], $participant);
 			}
 

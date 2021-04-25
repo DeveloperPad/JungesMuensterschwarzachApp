@@ -12,6 +12,7 @@ function initUserUpdate() {
 	setOnChange("eMailAddress");
 	setOnChange("streetName");
 	setOnChange("houseNumber");
+	setOnChange("supplementaryAddress");
 	setOnChange("zipCode");
 	setOnChange("city");
 	setOnChange("country");

@@ -233,6 +233,7 @@
 				"Nachname" => "lastName",
 				"Straße" => "streetName",
 				"Hausnummer" => "houseNumber",
+				"Adresszusatz" => "supplementaryAddress",
 				"PLZ" => "zipCode",
 				"Ort" => "city",
 				"Land" => "country",
@@ -279,7 +280,7 @@
 					case array_keys($keyDict)[0]:
 						$savedValue = EventModule::getNextEventByTitle($value);
 						break;
-					case array_keys($keyDict)[10]:
+					case array_keys($keyDict)[11]:
 						$birthdate = new DateTime($value, new DateTimeZone(SERVER_TIMEZONE));
 						$savedValue = $birthdate->format(DATE_FORMAT_USER_DATE);
 						break;
@@ -313,6 +314,7 @@
 			UserModule::updateLastName($userId, $enrollment["lastName"]);
 			UserModule::updateStreetName($userId, $enrollment["streetName"]);
 			UserModule::updateHouseNumber($userId, $enrollment["houseNumber"]);
+			UserModule::updateSupplementaryAddress($userId, $enrollment["supplementaryAddress"]);
 			UserModule::updateZipCode($userId, $enrollment["zipCode"]);
 			UserModule::updateCity($userId, $enrollment["city"]);
 			UserModule::updateCountry($userId, $enrollment["country"]);

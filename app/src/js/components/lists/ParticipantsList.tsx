@@ -51,7 +51,7 @@ class ParticipantsList extends React.Component<IParticipantsListProps> {
     private showParticipantRows = (): React.ReactNode => {
         return this.props.participants.map((participant: IUser) => {
             return (
-                <TableRow>
+                <TableRow key={participant[IUserKeys.userId]}>
                     <TableCell style={this.accessLevelTableCellStyle} align="center">
                         <Badge accessLevel={participant.accessLevel}/>
                     </TableCell>

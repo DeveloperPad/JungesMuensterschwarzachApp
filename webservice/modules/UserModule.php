@@ -122,7 +122,8 @@
 
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"SELECT ad.userId, ad.displayName, ad.firstName, ad.lastName, ad.eMailAddress, 
-				ad.streetName, ad.houseNumber, ad.zipCode, ad.city, ad.country, ad.phoneNumber, ad.birthdate, 
+				ad.streetName, ad.houseNumber, ad.supplementaryAddress, 
+				ad.zipCode, ad.city, ad.country, ad.phoneNumber, ad.birthdate, 
 				ad.eatingHabits, ad.allowPost, ad.allowNewsletter, ad.isActivated, 
 				ad.registrationDate, ad.modificationDate, 
 				al.accessLevel, al.accessIdentifier 
@@ -153,7 +154,8 @@
 
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"SELECT ad.userId, ad.displayName, ad.firstName, ad.lastName, ad.eMailAddress, 
-				ad.streetName, ad.houseNumber, ad.zipCode, ad.city, ad.country, ad.phoneNumber, ad.birthdate, 
+				ad.streetName, ad.houseNumber, ad.supplementaryAddress, 
+				ad.zipCode, ad.city, ad.country, ad.phoneNumber, ad.birthdate, 
 				ad.eatingHabits, ad.allowPost, ad.allowNewsletter, ad.isActivated, 
 				ad.registrationDate, ad.modificationDate, 
 				al.accessLevel, al.accessIdentifier 
@@ -232,7 +234,7 @@
 					"userId", "displayName", "eMailAddress",
 					"accessLevel", "accessIdentifier",
 					"firstName", "lastName",
-					"streetName", "houseNumber", 
+					"streetName", "houseNumber", "supplementaryAddress",
 					"zipCode", "city", "country",
 					"phoneNumber",
 					"birthdate", "eatingHabits",
@@ -378,6 +380,22 @@
 				"UPDATE account_data SET houseNumber=?, modificationDate=NOW() WHERE userId=?"
 			);
 			$stmt->bind_param("si", $houseNumber, $userId);
+			
+			if ($stmt->execute() === false) {
+				$stmt->close();
+				throw new Exception("error_message_try_later");
+			}
+			$stmt->close();
+		}
+
+		public static function updateSupplementaryAddress($userId, $supplementaryAddress) {
+			self::validateSupplementaryAddress($supplementaryAddress);
+			
+			$supplementaryAddress = $supplementaryAddress === "" ? null : trim($supplementaryAddress);
+			$stmt = DatabaseModule::getInstance()->prepare(
+				"UPDATE account_data SET supplementaryAddress=?, modificationDate=NOW() WHERE userId=?"
+			);
+			$stmt->bind_param("si", $supplementaryAddress, $userId);
 			
 			if ($stmt->execute() === false) {
 				$stmt->close();
@@ -660,6 +678,14 @@
 				throw new Exception("account_houseNumber_required");
 			} else if (strlen($houseNumber) > HOUSENUMBER_LENGTH_MAX) {
 				throw new Exception("account_houseNumber_invalid");
+			}
+		}
+
+		private static function validateSupplementaryAddress($supplementaryAddress) {
+			$supplementaryAddress = trim($supplementaryAddress);
+			
+			if (strlen($supplementaryAddress) > SUPPLEMENTARY_ADDRESS_LENGTH_MAX) {
+				throw new Exception("account_supplementaryAddress_invalid");
 			}
 		}
 

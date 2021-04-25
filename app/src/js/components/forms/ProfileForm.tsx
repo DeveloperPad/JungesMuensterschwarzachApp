@@ -21,7 +21,7 @@ import { DeleteAccountDataRequest } from '../../networking/account_data/DeleteAc
 import {
     FetchAccountDataRequest, IFetchAccountDataResponse
 } from '../../networking/account_data/FetchAccountDataRequest';
-import { IUserKeys } from '../../networking/account_data/IUser';
+import IUser, { IUserKeys } from '../../networking/account_data/IUser';
 import { UpdateAccountDataRequest } from '../../networking/account_data/UpdateAccountDataRequest';
 import INotice from '../../networking/INotice';
 import { IResponse } from '../../networking/Request';
@@ -42,6 +42,7 @@ import HouseNumberInput from '../form_elements/HouseNumberInput';
 import LastNameInput from '../form_elements/LastNameInput';
 import PhoneNumberInput from '../form_elements/PhoneNumberInput';
 import StreetNameInput from '../form_elements/StreetNameInput';
+import SupplementaryAddressInput from '../form_elements/SupplementaryAddressInput';
 import ZipCodeInput from '../form_elements/ZipCodeInput';
 import Grid from '../utilities/Grid';
 import { showNotification } from '../utilities/Notifier';
@@ -71,6 +72,7 @@ type IFormKeys =
     IUserKeys.eatingHabits |
     IUserKeys.firstName |
     IUserKeys.houseNumber |
+    IUserKeys.supplementaryAddress |
     IUserKeys.lastName |
     IUserKeys.phoneNumber |
     IUserKeys.streetName |
@@ -89,6 +91,7 @@ interface IForm {
     [IUserKeys.eatingHabits]: string;
     [IUserKeys.firstName]: string;
     [IUserKeys.houseNumber]: string;
+    [IUserKeys.supplementaryAddress]: string;
     [IUserKeys.lastName]: string;
     [IUserKeys.phoneNumber]: string;
     [IUserKeys.streetName]: string;
@@ -107,6 +110,7 @@ interface IFormError {
     [IUserKeys.eatingHabits]: string | null;
     [IUserKeys.firstName]: string | null;
     [IUserKeys.houseNumber]: string | null;
+    [IUserKeys.supplementaryAddress]: string | null;
     [IUserKeys.lastName]: string | null;
     [IUserKeys.phoneNumber]: string | null;
     [IUserKeys.streetName]: string | null;
@@ -403,6 +407,18 @@ class ProfileForm extends React.PureComponent<IProfileFormProps, IProfileFormSta
                             <Grid
                                 style={gridHorizontalStyle}
                             >
+                                <SupplementaryAddressInput
+                                    errorMessage={this.state.formError[IUserKeys.supplementaryAddress]}
+                                    onError={this.updateFormError}
+                                    onUpdateValue={this.updateForm}
+                                    onBlur={this.updateAccountData}
+                                    value={this.state.form[IUserKeys.supplementaryAddress]}
+                                />
+                            </Grid>
+                            {this.separator()}
+                            <Grid
+                                style={gridHorizontalStyle}
+                            >
                                 <ZipCodeInput
                                     errorMessage={this.state.formError[IUserKeys.zipCode]}
                                     onError={this.updateFormError}
@@ -575,6 +591,7 @@ class ProfileForm extends React.PureComponent<IProfileFormProps, IProfileFormSta
             [IUserKeys.eatingHabits]: "",
             [IUserKeys.firstName]: "",
             [IUserKeys.houseNumber]: "",
+            [IUserKeys.supplementaryAddress]: "",
             [IUserKeys.lastName]: "",
             [IUserKeys.phoneNumber]: "",
             [IUserKeys.streetName]: "",
@@ -595,6 +612,7 @@ class ProfileForm extends React.PureComponent<IProfileFormProps, IProfileFormSta
             [IUserKeys.eatingHabits]: null,
             [IUserKeys.firstName]: null,
             [IUserKeys.houseNumber]: null,
+            [IUserKeys.supplementaryAddress]: null,
             [IUserKeys.lastName]: null,
             [IUserKeys.phoneNumber]: null,
             [IUserKeys.streetName]: null,
@@ -638,6 +656,7 @@ class ProfileForm extends React.PureComponent<IProfileFormProps, IProfileFormSta
                                 [IUserKeys.eatingHabits]: user.eatingHabits || "",
                                 [IUserKeys.firstName]: user.firstName || "",
                                 [IUserKeys.houseNumber]: user.houseNumber || "",
+                                [IUserKeys.supplementaryAddress]: user.supplementaryAddress || "",
                                 [IUserKeys.lastName]: user.lastName || "",
                                 [IUserKeys.phoneNumber]: user.phoneNumber || "",
                                 [IUserKeys.streetName]: user.streetName || "",

@@ -3,15 +3,16 @@ export default class Formats {
         MAX: {
             CITY: 100,
             COUNTRY: 100,
-            DISPLAY_NAME: 30,
+            DISPLAY_NAME: 100,
             EATING_HABITS: 65535,
             EVENT_ENROLLMENT_COMMENT: 65535,
-            FIRST_NAME: 50,
-            HOUSE_NUMBER: 10,
-            LAST_NAME: 50,
+            FIRST_NAME: 100,
+            HOUSE_NUMBER: 100,
+            LAST_NAME: 100,
             PHONE_NUMBER: 50,
-            STREET_NAME: 50,
-            ZIP_CODE: 10
+            STREET_NAME: 100,
+            SUPPLEMENTARY_ADDRESS: 100,
+            ZIP_CODE: 100
         }
     }
 

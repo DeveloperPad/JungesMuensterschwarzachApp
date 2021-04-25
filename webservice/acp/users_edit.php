@@ -140,6 +140,14 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label class="control-label col-12" for="supplementaryAddress"><?php echo($GLOBALS["dict"]["account_supplementaryAddress"]);?></label>
+						<div class="col-12 input-group">
+							<span class="input-group-addon"><i class="fas fa-home fa-fw"></i></span>
+							<input name="supplementaryAddress" type="text" class="form-control" placeholder="<?php echo($GLOBALS["dict"]["account_supplementaryAddress_placeholder"]);?>"
+								value="<?php if (isset($_POST["supplementaryAddress"]) === true) echo($_POST["supplementaryAddress"]);?>" maxlength="<?php echo(SUPPLEMENTARY_ADDRESS_LENGTH_MAX);?>">
+						</div>
+					</div>
+					<div class="form-group">
 						<label class="control-label col-12" for="zipCode"><?php echo($GLOBALS["dict"]["account_zipCode"]);?>
 							<span class="jma-required-event"><?php echo($GLOBALS["dict"]["account_credentials_mark"]);?></span>
 						</label>

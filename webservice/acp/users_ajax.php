@@ -76,6 +76,15 @@
 		}
 	}
 
+	function updateSupplementaryAddress($ownAccessLevel) {
+		try {	
+			UserModule::updateSupplementaryAddress($_POST["userId"], $_POST["supplementaryAddress"]);
+			CookieModule::set("alert", new Alert("success", $GLOBALS["dict"]["account_supplementaryAddress_updated"]));
+		} catch (Exception $exc) {
+			CookieModule::set("alert", new Alert("danger", $GLOBALS["dict"][$exc->getMessage()]));
+		}
+	}
+
 	function updateZipCode($ownAccessLevel) {
 		try {	
 			UserModule::updateZipCode($_POST["userId"], $_POST["zipCode"]);

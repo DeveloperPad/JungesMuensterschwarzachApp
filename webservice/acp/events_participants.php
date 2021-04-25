@@ -80,6 +80,9 @@
 								<td class="col-3">
 									<div><?php echo($participant["firstName"] . " " . $participant["lastName"]);?></div>
 									<div><?php echo($participant["streetName"] . " " . $participant["houseNumber"]);?></div>
+									<?php if (isset($participant["supplementaryAddress"])) { ?>
+										<div><?php echo($participant["supplementaryAddress"]); ?></div>
+									<?php } ?>
 									<div><?php echo($participant["zipCode"] . " " . $participant["city"]);?></div>
 									<div><?php echo($participant["country"]);?></div>
 								</td>
