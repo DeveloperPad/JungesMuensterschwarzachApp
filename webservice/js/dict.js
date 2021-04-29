@@ -1,10 +1,11 @@
 var dict = {
 "account_accessLevel": "Berechtigungsstufe", 
+"account_accessLevel_courseInstructor": "Kursleiter", 
+"account_accessLevel_courseLeader": "Kursleitung", 
 "account_accessLevel_developer": "Entwickler", 
 "account_accessLevel_editor": "Redakteur", 
 "account_accessLevel_guest": "Gast", 
 "account_accessLevel_invalid": "Die ausgewählte Berechtigungsstufe ist ungültig.", 
-"account_accessLevel_moderator": "Moderator", 
 "account_accessLevel_updated": "Die Berechtigungsstufe wurde erfolgreich aktualisiert.", 
 "account_accessLevel_user": "Benutzer", 
 "account_add": "Neuen Account anlegen", 
@@ -870,7 +871,7 @@ Mit dieser Datenschutzerklärung möchten wir Sie über die Art, den Umfang und 
 "privacy_policy_technical_security": "Sicherheit", 
 "privacy_policy_technical_security_access_heading": "Datenzugang", 
 "privacy_policy_technical_security_access_paragraph": "Zugang zu den gespeicherten personenbezogenen Daten haben nur sehr wenige Personen.\
-Dies sind lediglich die Entwickler und Administratoren/Moderatoren.\
+Dies sind in vollem Umfang die Entwickler und die Kursleitung sowie in begrenztem Umfang die Kursleiter.\
 \
 Die Passwörter der Benutzer-Accounts werden zudem bereits vor dem Speichern in die Datenbank verschlüsselt und können deshalb von niemandem eingesehen werden.\
 \

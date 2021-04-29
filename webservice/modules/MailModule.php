@@ -138,7 +138,7 @@
 			try {
 				$userList = UserModule::loadUserList(ACCESS_LEVEL_DEVELOPER);
 				foreach ($userList as $user) {
-					if (intval($user["accessLevel"]) < ACCESS_LEVEL_DEVELOPER) {
+					if (!PERMISSIONS[intval($user["accessLevel"])][PERMISSION_DEV_PROCESSING_ERRORS]) {
 						continue;
 					}
 
@@ -182,7 +182,7 @@
 
 				$userList = UserModule::loadUserList(ACCESS_LEVEL_DEVELOPER);
 				foreach ($userList as $user) {
-					if (intval($user["accessLevel"]) < ACCESS_LEVEL_MODERATOR
+					if (!PERMISSIONS[intval($user["accessLevel"])][PERMISSION_MAIL_EVENT_ENROLLMENT_RECEIVE]
 						|| $enrolledUser["userId"] === $user["userId"]) {
 						continue;
 					}
@@ -231,7 +231,7 @@
 
 				$userList = UserModule::loadUserList(ACCESS_LEVEL_DEVELOPER);
 				foreach ($userList as $user) {
-					if (intval($user["accessLevel"]) < ACCESS_LEVEL_MODERATOR
+					if (!PERMISSIONS[intval($user["accessLevel"])][PERMISSION_MAIL_EVENT_ENROLLMENT_RECEIVE]
 						|| $disenrolledUser["userId"] === $user["userId"]) {
 						continue;
 					}

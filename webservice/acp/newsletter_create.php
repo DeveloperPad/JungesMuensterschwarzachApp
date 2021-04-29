@@ -9,7 +9,7 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 	
-	if ($ownAccessLevel < PERMISSION_NEWSLETTER) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_NEWS]) {
 		header("Location: ../index.php");
 		exit;
 	}

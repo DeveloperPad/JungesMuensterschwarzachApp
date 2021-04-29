@@ -1,10 +1,11 @@
 export class DictionaryKeys {
 public static "account_accessLevel" = "account_accessLevel"; 
+public static "account_accessLevel_courseInstructor" = "account_accessLevel_courseInstructor"; 
+public static "account_accessLevel_courseLeader" = "account_accessLevel_courseLeader"; 
 public static "account_accessLevel_developer" = "account_accessLevel_developer"; 
 public static "account_accessLevel_editor" = "account_accessLevel_editor"; 
 public static "account_accessLevel_guest" = "account_accessLevel_guest"; 
 public static "account_accessLevel_invalid" = "account_accessLevel_invalid"; 
-public static "account_accessLevel_moderator" = "account_accessLevel_moderator"; 
 public static "account_accessLevel_updated" = "account_accessLevel_updated"; 
 public static "account_accessLevel_user" = "account_accessLevel_user"; 
 public static "account_add" = "account_add"; 

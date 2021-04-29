@@ -6,7 +6,8 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 	
-	if ($ownAccessLevel < PERMISSION_IMAGES) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_IMAGES]
+			&& !PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_EVENTS]) {
 		header("Location: ../index.php");
 		exit;
 	}
@@ -73,12 +74,12 @@
 				<div class="col-2">
 					<a href="events_participants.php?eventId=<?php echo($event["eventId"]);?>"><i class="fas fa-users fa-fw text-success mx-1"></i></a>
 					<?php
-					if ($ownAccessLevel >= PERMISSION_IMAGES) {
+					if (PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_IMAGES]) {
 					?>
 						<a href="images.php?eventId=<?php echo($event["eventId"]);?>"><i class="far fa-images fa-fw text-info mx-1"></i></a>
 					<?php
 					}
-					if ($ownAccessLevel >= PERMISSION_EVENTS) {
+					if (PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_EVENTS]) {
 					?>
 					<a href="events_edit.php?eventId=<?php echo($event["eventId"]);?>"><i class="far fa-edit fa-fw text-dark mx-1"></i></a>
 					<a href="#"><i class="far fa-trash-alt fa-fw text-danger" data-toggle="modal" data-target="#deleteEventModal" 

@@ -6,7 +6,8 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 	
-	if ($ownAccessLevel < PERMISSION_EVENTS || isset($_GET["eventId"]) === false) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_EVENTS] 
+			|| isset($_GET["eventId"]) === false) {
 		header("Location: ../index.php");
 		exit;
 	}

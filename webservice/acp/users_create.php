@@ -4,7 +4,7 @@
 	require_once(ROOT_LOCAL."/modules/SessionModule.php");
 	
 	
-	if (SessionModule::getOwnAccessLevel() < PERMISSION_USER) {
+	if (!PERMISSIONS[SessionModule::getOwnAccessLevel()][PERMISSION_ADMIN_USER_EDIT]) {
 		header("Location: ../index.php");
 		exit;
 	}

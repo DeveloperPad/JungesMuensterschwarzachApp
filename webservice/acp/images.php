@@ -8,7 +8,7 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 
-	if ($ownAccessLevel < PERMISSION_IMAGES) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_IMAGES]) {
 		header("Location: ../index.php");
 		exit;
 	}

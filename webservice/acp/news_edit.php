@@ -7,7 +7,8 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 	
-	if ($ownAccessLevel < PERMISSION_NEWS || isset($_GET["newsId"]) === false) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_NEWS] 
+			|| isset($_GET["newsId"]) === false) {
 		header("Location: ../index.php");
 		exit;
 	}

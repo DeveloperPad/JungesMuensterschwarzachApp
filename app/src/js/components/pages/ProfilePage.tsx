@@ -18,7 +18,7 @@ class ProfilePage extends React.Component<IProfilePageProps> {
 
         CookieService.get<number>(IUserKeys.accessLevel)
             .then(accessLevel => {
-                if (accessLevel === null || accessLevel <= IUserValues[IUserKeys.accessLevel].guest) {
+                if (accessLevel === null || accessLevel === IUserValues[IUserKeys.accessLevel].guest) {
                     this.props.history.push(
                         AppUrls.LOGIN
                     );

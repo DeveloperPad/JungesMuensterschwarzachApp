@@ -19,13 +19,15 @@
         }
 
         public static function getAccessBadge($accessLevel) {
-            if ($accessLevel >= ACCESS_LEVEL_DEVELOPER) {
+            if ($accessLevel === ACCESS_LEVEL_DEVELOPER) {
                 return "badge-primary";
-            } else if ($accessLevel >= ACCESS_LEVEL_MODERATOR) {
+            } else if ($accessLevel === ACCESS_LEVEL_COURSE_LEADER) {
                 return "badge-danger";
-            } else if ($accessLevel >= ACCESS_LEVEL_EDITOR) {
+            } else if ($accessLevel === ACCESS_LEVEL_COURSE_INSTRUCTOR) {
+                return "badge-warning";
+            } else if ($accessLevel === ACCESS_LEVEL_EDITOR) {
                 return "badge-success";
-            } else if ($accessLevel >= ACCESS_LEVEL_USER) {
+            } else if ($accessLevel === ACCESS_LEVEL_USER) {
                 return "badge-dark";
             } else { // Guest
                 return "badge-secondary";

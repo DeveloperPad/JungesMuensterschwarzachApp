@@ -7,7 +7,7 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 	
-	if($ownAccessLevel < PERMISSION_NEWS) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_NEWS]) {
 		return;
 	}
 	

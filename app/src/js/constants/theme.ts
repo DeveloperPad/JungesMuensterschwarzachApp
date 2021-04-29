@@ -30,7 +30,8 @@ export enum CustomTheme {
     COLOR_SUCCESS = "#00ff00",
     COLOR_WHITE = "#ffffff",
     COLOR_ACCESS_LEVEL_DEVELOPER = "#007bff",
-    COLOR_ACCESS_LEVEL_MODERATOR = "#dc3545",
+    COLOR_ACCESS_LEVEL_COURSE_LEADER = "#dc3545",
+    COLOR_ACCESS_LEVEL_COURSE_INSTRUCTOR = "#dc3545",
     COLOR_ACCESS_LEVEL_EDITOR = "#28a745",
     COLOR_ACCESS_LEVEL_USER = "#343a40"
 }
@@ -212,8 +213,11 @@ export function getAccessLevelBadgeStyle(accessLevel: number): React.CSSProperti
         case IUserValues[IUserKeys.accessLevel].developer:
             hexColor = CustomTheme.COLOR_ACCESS_LEVEL_DEVELOPER;
             break;
-        case IUserValues[IUserKeys.accessLevel].moderator:
-            hexColor = CustomTheme.COLOR_ACCESS_LEVEL_MODERATOR;
+        case IUserValues[IUserKeys.accessLevel].course_leader:
+            hexColor = CustomTheme.COLOR_ACCESS_LEVEL_COURSE_LEADER;
+            break;
+        case IUserValues[IUserKeys.accessLevel].course_instructor:
+            hexColor = CustomTheme.COLOR_ACCESS_LEVEL_COURSE_INSTRUCTOR;
             break;
         case IUserValues[IUserKeys.accessLevel].editor:
             hexColor = CustomTheme.COLOR_ACCESS_LEVEL_EDITOR;

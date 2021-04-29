@@ -7,7 +7,7 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 
-	if ($ownAccessLevel < PERMISSION_EVENTS) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_EVENTS]) {
 		return;
 	}
 	

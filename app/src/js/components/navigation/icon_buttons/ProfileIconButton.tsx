@@ -52,7 +52,7 @@ class ProfileIconButton extends React.Component<RouteComponentProps<any, StaticC
 
         CookieService.get<number>(IUserKeys.accessLevel)
             .then(accessLevel => {
-                const isDisplayed = accessLevel !== null && accessLevel > IUserValues[IUserKeys.accessLevel].guest;
+                const isDisplayed = accessLevel !== null && accessLevel !== IUserValues[IUserKeys.accessLevel].guest;
 
                 this.shouldCheckLoginState = false;
                 this.setState(prevState => {

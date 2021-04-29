@@ -9,7 +9,8 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 	
-	if ($ownAccessLevel < PERMISSION_USER || isset($_GET["eventId"]) === false) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_MAIL_EVENT_INFO_SEND] 
+			|| isset($_GET["eventId"]) === false) {
 		header("Location: ../index.php");
 		exit;
 	}

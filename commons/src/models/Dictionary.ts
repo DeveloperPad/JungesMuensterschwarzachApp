@@ -1,10 +1,11 @@
 export class Dictionary {
 public static "account_accessLevel" = "Berechtigungsstufe"; 
+public static "account_accessLevel_courseInstructor" = "Kursleiter"; 
+public static "account_accessLevel_courseLeader" = "Kursleitung"; 
 public static "account_accessLevel_developer" = "Entwickler"; 
 public static "account_accessLevel_editor" = "Redakteur"; 
 public static "account_accessLevel_guest" = "Gast"; 
 public static "account_accessLevel_invalid" = "Die ausgewählte Berechtigungsstufe ist ungültig."; 
-public static "account_accessLevel_moderator" = "Moderator"; 
 public static "account_accessLevel_updated" = "Die Berechtigungsstufe wurde erfolgreich aktualisiert."; 
 public static "account_accessLevel_user" = "Benutzer"; 
 public static "account_add" = "Neuen Account anlegen"; 
@@ -651,7 +652,7 @@ public static "privacy_policy_paragraph" = "Wir freuen uns darüber, dass Sie si
 public static "privacy_policy_technical" = "Technische Aspekte"; 
 public static "privacy_policy_technical_security" = "Sicherheit"; 
 public static "privacy_policy_technical_security_access_heading" = "Datenzugang"; 
-public static "privacy_policy_technical_security_access_paragraph" = "Zugang zu den gespeicherten personenbezogenen Daten haben nur sehr wenige Personen.\r\nDies sind lediglich die Entwickler und Administratoren/Moderatoren.\r\n\r\nDie Passwörter der Benutzer-Accounts werden zudem bereits vor dem Speichern in die Datenbank verschlüsselt und können deshalb von niemandem eingesehen werden.\r\n\r\nDie Datenbank selbst ist mit sehr sicheren Anmeldedaten geschützt, sodass Unbefugten der Zugang versagt ist."; 
+public static "privacy_policy_technical_security_access_paragraph" = "Zugang zu den gespeicherten personenbezogenen Daten haben nur sehr wenige Personen.\r\nDies sind in vollem Umfang die Entwickler und die Kursleitung sowie in begrenztem Umfang die Kursleiter.\r\n\r\nDie Passwörter der Benutzer-Accounts werden zudem bereits vor dem Speichern in die Datenbank verschlüsselt und können deshalb von niemandem eingesehen werden.\r\n\r\nDie Datenbank selbst ist mit sehr sicheren Anmeldedaten geschützt, sodass Unbefugten der Zugang versagt ist."; 
 public static "privacy_policy_technical_security_encryption" = "Verschlüsselung"; 
 public static "privacy_policy_technical_security_encryption_https_heading" = "Kommunikation mit der Website per HTTP(s)"; 
 public static "privacy_policy_technical_security_encryption_https_paragraph" = "Die Kommunikation zwischen Ihrem Internet-Browser und unserer Plattform wird mit dem gängigen SSL/TLS-Verfahren verschlüsselt.\r\nEine verschlüsselte Verbindung ist daran zu erkennen, dass die Adresszeile des Browsers mit „https://“ beginnt und ein grünes Schloss-Symbol neben der Adressleiste zu sehen ist.\r\nWenn die SSL/TLS-Verschlüsselung aktiviert ist, können die Daten, die Sie an uns beziehungsweise wir an Sie übermitteln, nicht von Dritten mitgelesen werden."; 

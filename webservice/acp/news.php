@@ -7,7 +7,8 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 
-	if ($ownAccessLevel < PERMISSION_IMAGES) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_IMAGES]
+			&& !PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_NEWS]) {
 		header("Location: ../index.php");
 		exit;
 	}
@@ -73,12 +74,12 @@
 				</div>
 				<div class="col-2">
 					<?php 
-					if ($ownAccessLevel >= PERMISSION_IMAGES) {
+					if (PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_IMAGES]) {
 					?>
 						<a href="images.php?newsId=<?php echo($news["newsId"]);?>"><i class="far fa-images fa-fw text-info mx-1"></i></a>
 					<?php
 					}
-					if ($ownAccessLevel >= PERMISSION_NEWS) {
+					if (PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_NEWS]) {
 					?>
 					<a href="news_edit.php?newsId=<?php echo($news["newsId"]);?>"><i class="far fa-edit fa-fw text-dark mx-1"></i></a>
 					<a href="#"><i class="far fa-trash-alt fa-fw text-danger mx-1" data-toggle="modal" data-target="#deleteNewsModal" 

@@ -1,3 +1,6 @@
+<?php
+	$accessLevel = $_COOKIE[CookieModule::getFullName("accessLevel")];
+?>
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
 	<div class="container">
 		
@@ -31,7 +34,7 @@
 			</li>
 
 			<?php 
-			if (isset($_COOKIE[CookieModule::getFullName("accessLevel")]) === true && intval($_COOKIE[CookieModule::getFullName("accessLevel")]) > ACCESS_LEVEL_USER) {
+			if (isset($accessLevel) === true && PERMISSIONS[intval($accessLevel)][PERMISSION_ADMIN_LOGIN]) {
 			?>
 			<li class="nav-item dropdown mx-1">
         		<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
@@ -39,7 +42,7 @@
 				</a>
 				<div class="dropdown-menu jma-navigation-dropdown-menu">
 			<?php
-				if (intval($_COOKIE[CookieModule::getFullName("accessLevel")]) >= PERMISSION_USER) {
+				if (PERMISSIONS[intval($accessLevel)][PERMISSION_ADMIN_USER_EDIT]) {
 					?>
 					<a href="<?php echo(ROOT_PUBLIC);?>/acp/users.php" class="jma-navigation-dropdown-item">
 						<i class="fa-inverse fas fa-users fa-fw"></i>
@@ -47,7 +50,8 @@
 					</a>
 			<?php
 				}
-				if (intval($_COOKIE[CookieModule::getFullName("accessLevel")]) >= PERMISSION_IMAGES) {
+				if (PERMISSIONS[intval($accessLevel)][PERMISSION_ADMIN_NEWS] 
+					|| PERMISSIONS[intval($accessLevel)[PERMISSION_ADMIN_IMAGES]]) {
 			?>
 					<a href="<?php echo(ROOT_PUBLIC);?>/acp/news.php" class="jma-navigation-dropdown-item">
 						<i class="fa-inverse far fa-newspaper fa-fw"></i>
@@ -55,7 +59,7 @@
 					</a>
 			<?php
 				}
-				if (intval($_COOKIE[CookieModule::getFullName("accessLevel")]) >= PERMISSION_NEWSLETTER) {
+				if (PERMISSIONS[intval($accessLevel)][PERMISSION_MAIL_NEWSLETTER_SEND]) {
 			?>
 					<a href="<?php echo(ROOT_PUBLIC);?>/acp/newsletter_registrations.php" class="jma-navigation-dropdown-item">
 						<i class="fa-inverse far fa-envelope fa-fw"></i>
@@ -63,7 +67,8 @@
 					</a>
 			<?php
 				}
-				if (intval($_COOKIE[CookieModule::getFullName("accessLevel")]) >= PERMISSION_EVENTS) {
+				if (PERMISSIONS[intval($accessLevel)][PERMISSION_ADMIN_EVENTS]
+					|| PERMISSIONS[intval($accessLevel)][PERMISSION_ADMIN_IMAGES]) {
 			?>
 					<a href="<?php echo(ROOT_PUBLIC);?>/acp/events.php" class="jma-navigation-dropdown-item">
 						<i class="fa-inverse far fa-calendar-alt fa-fw"></i>
@@ -71,7 +76,7 @@
 					</a>
 			<?php
 				}
-				if (intval($_COOKIE[CookieModule::getFullName("accessLevel")]) >= PERMISSION_PN) {
+				if (PERMISSIONS[intval($accessLevel)][PERMISSION_ADMIN_PNS]) {
 			?>
 					<a href="<?php echo(ROOT_PUBLIC);?>/acp/pn.php" class="jma-navigation-dropdown-item">
 						<i class="fa-inverse fas fa-mobile fa-fw"></i>
@@ -79,7 +84,7 @@
 					</a>
 			<?php
 				}
-				if (intval($_COOKIE[CookieModule::getFullName("accessLevel")]) >= PERMISSION_USER) {
+				if (PERMISSIONS[intval($accessLevel)][PERMISSION_ADMIN_USER_EDIT]) {
 			?>
 					<a href="<?php echo(ROOT_PUBLIC);?>/acp/tokens.php" class="jma-navigation-dropdown-item">
 						<i class="fa-inverse fas fa-lock fa-fw"></i>

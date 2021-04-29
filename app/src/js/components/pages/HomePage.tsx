@@ -51,7 +51,7 @@ class HomePage extends React.Component<IHomePageProps, IHomePageState> {
                     this.setState(prevState => {
                         return {
                             ...prevState,
-                            isNoGuestSession: (accessLevel > IUserValues[IUserKeys.accessLevel].guest ? true : false)
+                            isNoGuestSession: (accessLevel !== IUserValues[IUserKeys.accessLevel].guest ? true : false)
                         };
                     });
                 }

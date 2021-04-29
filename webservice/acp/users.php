@@ -6,7 +6,7 @@
 
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 	
-	if ($ownAccessLevel < PERMISSION_USER) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_USER_EDIT]) {
 		header("Location: ../index.php");
 		exit;
 	}

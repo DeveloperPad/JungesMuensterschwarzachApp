@@ -4,7 +4,7 @@
 	if (isset($_COOKIE[CookieModule::getFullName("accessLevel")]) === false) {
 		header("Location: ./login.php");
 		exit;
-	} else if (intval($_COOKIE[CookieModule::getFullName("accessLevel")]) < ACCESS_LEVEL_EDITOR) {
+	} else if (!PERMISSIONS[intval($_COOKIE[CookieModule::getFullName("accessLevel")])][PERMISSION_ADMIN_LOGIN]) {
 		CookieModule::set("alert", new Alert(
 			"danger",
 			$GLOBALS["dict"]["error_message_NEP"]
