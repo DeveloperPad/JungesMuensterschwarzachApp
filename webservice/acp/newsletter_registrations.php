@@ -6,7 +6,7 @@
 	
 	$ownAccessLevel = SessionModule::getOwnAccessLevel();
 
-	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_MAIL_NEWSLETTER_SEND]) {
+	if (!PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_USER_EDIT]) {
 		header("Location: ../index.php");
 		exit;
 	}

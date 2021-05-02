@@ -72,8 +72,12 @@
 					<span class="badge badge-pill <?php echo(GlobalFunctions::getAccessBadge($event["requiredAccessLevel"]));?>"><?php echo($GLOBALS["dict"][$event["accessIdentifier"]]);?>+</span>
 				</div>
 				<div class="col-2">
+					<?php
+					if (PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_USER_VIEW]) {
+					?>
 					<a href="events_participants.php?eventId=<?php echo($event["eventId"]);?>"><i class="fas fa-users fa-fw text-success mx-1"></i></a>
 					<?php
+					}
 					if (PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_IMAGES]) {
 					?>
 						<a href="images.php?eventId=<?php echo($event["eventId"]);?>"><i class="far fa-images fa-fw text-info mx-1"></i></a>

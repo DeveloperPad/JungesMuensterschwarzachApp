@@ -99,7 +99,9 @@
 				<h1><?php echo($GLOBALS["dict"]["navigation_newsletters"]);?></h1>
 				<hr>
 				<h3 class="float-left"><?php echo($GLOBALS["dict"]["newsletter_add"]);?></h3>
-				<a href="newsletter_registrations.php" class="btn btn-primary float-right"><?php echo($GLOBALS["dict"]["newsletter_registrations_back"]);?></a>
+				<?php if (PERMISSIONS[$ownAccessLevel][PERMISSION_ADMIN_USER_EDIT]) { ?>
+					<a href="newsletter_registrations.php" class="btn btn-primary float-right"><?php echo($GLOBALS["dict"]["newsletter_registrations_back"]);?></a>
+				<?php } ?>
 				<div class="clearfix"></div>
 				<hr>
 				<form name="newsletterCreateForm" method="POST" enctype="multipart/form-data" class="form-horizontal">

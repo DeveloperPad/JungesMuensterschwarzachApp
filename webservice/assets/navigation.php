@@ -59,9 +59,16 @@
 					</a>
 			<?php
 				}
-				if (PERMISSIONS[intval($accessLevel)][PERMISSION_MAIL_NEWSLETTER_SEND]) {
+				if (PERMISSIONS[intval($accessLevel)][PERMISSION_ADMIN_USER_EDIT]) {
 			?>
 					<a href="<?php echo(ROOT_PUBLIC);?>/acp/newsletter_registrations.php" class="jma-navigation-dropdown-item">
+						<i class="fa-inverse far fa-envelope fa-fw"></i>
+						<span><?php echo($GLOBALS["dict"]["navigation_newsletters"]);?></span>
+					</a>
+			<?php
+				} else if (PERMISSIONS[intval($accessLevel)][PERMISSION_MAIL_NEWSLETTER_SEND]) {
+			?>
+					<a href="<?php echo(ROOT_PUBLIC);?>/acp/newsletter_create.php" class="jma-navigation-dropdown-item">
 						<i class="fa-inverse far fa-envelope fa-fw"></i>
 						<span><?php echo($GLOBALS["dict"]["navigation_newsletters"]);?></span>
 					</a>

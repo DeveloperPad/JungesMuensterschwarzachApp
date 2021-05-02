@@ -19,6 +19,7 @@
         }
 
         public static function getAccessBadge($accessLevel) {
+            $accessLevel = intval($accessLevel);
             if ($accessLevel === ACCESS_LEVEL_DEVELOPER) {
                 return "badge-primary";
             } else if ($accessLevel === ACCESS_LEVEL_COURSE_LEADER) {

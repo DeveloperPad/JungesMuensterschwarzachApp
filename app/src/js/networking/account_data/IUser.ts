@@ -27,20 +27,20 @@ export enum IUserKeys {
 // this constant defines specific values of some user object keys
 export const IUserValues = {
     [IUserKeys.accessLevel]: {
-        course_instructor: 3,
-        course_leader: 4,
-        developer: 5,
-        editor: 2,
-        guest: 0,
-        user: 1
+        course_instructor: 35,
+        course_leader: 40,
+        developer: 50,
+        editor: 30,
+        guest: 10,
+        user: 20
     },
     [IUserKeys.accessIdentifier]: {
-        5: Dict.account_accessLevel_developer,
-        4: Dict.account_accessLevel_courseLeader,
-        3: Dict.account_accessLevel_courseInstructor,
-        2: Dict.account_accessLevel_editor,
-        1: Dict.account_accessLevel_user,
-        0: Dict.account_accessLevel_guest
+        50: Dict.account_accessLevel_developer,
+        40: Dict.account_accessLevel_courseLeader,
+        35: Dict.account_accessLevel_courseInstructor,
+        30: Dict.account_accessLevel_editor,
+        20: Dict.account_accessLevel_user,
+        10: Dict.account_accessLevel_guest
     }
 }
 
