@@ -464,12 +464,7 @@ export class AccountDataController {
     }
 
     private static async validatePhoneNumber(phoneNumber: string, eventEnrollmentsLength: number): Promise<void> {
-        if (eventEnrollmentsLength > 0 && !phoneNumber) {
-            return Promise.reject(new Error(
-                DictionaryKeys.error_type_storage,
-                DictionaryKeys.account_phoneNumber_required
-            ));
-        } else if (phoneNumber && phoneNumber.length > AccountDataController.PHONE_NUMBER_LENGTH_MAX) {
+        if (phoneNumber && phoneNumber.length > AccountDataController.PHONE_NUMBER_LENGTH_MAX) {
             return Promise.reject(new Error(
                 DictionaryKeys.error_type_storage,
                 DictionaryKeys.account_phoneNumber_invalid
@@ -501,12 +496,7 @@ export class AccountDataController {
     }
 
     private static async validateEatingHabits(eatingHabits: string, eventEnrollmentsLength: number): Promise<void> {
-        if (eventEnrollmentsLength > 0 && !eatingHabits) {
-            return Promise.reject(new Error(
-                DictionaryKeys.error_type_storage,
-                DictionaryKeys.account_eatingHabits_required
-            ));
-        } else if (eatingHabits && eatingHabits.length > AccountDataController.EATING_HABITS_LENGTH_MAX) {
+        if (eatingHabits && eatingHabits.length > AccountDataController.EATING_HABITS_LENGTH_MAX) {
             return Promise.reject(new Error(
                 DictionaryKeys.error_type_storage,
                 DictionaryKeys.account_eatingHabits_invalid

@@ -29,6 +29,12 @@ services:
   jma-webservice:
     volumes:
       - ./webservice:/var/www/html
+  jma-api:
+    volumes:
+      - ./api:/api/api
+      - ./commons:/api/commons
+      - /api/node_modules
+    entrypoint: "npm run start-api-dev"
   jma-cron:
     volumes:
       - ./webservice:/var/www/html
