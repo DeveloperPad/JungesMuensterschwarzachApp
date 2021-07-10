@@ -1,5 +1,6 @@
 <?php
 	require_once("../assets/global_requirements.php");
+	require_once(ROOT_LOCAL."/modules/AlexaNotificationModule.php");
 	require_once(ROOT_LOCAL."/modules/EventModule.php");
 	require_once(ROOT_LOCAL."/modules/PushNotificationModule.php");
 	require_once(ROOT_LOCAL."/modules/SessionModule.php");
@@ -90,6 +91,7 @@
 	function announceEvent($ownAccessLevel) {
 		try {
 			$report = PushNotificationModule::sendEventNotification($_POST["eventId"], $ownAccessLevel);
+			AlexaNotificationModule::sendEventAnnouncementNotification($_POST["eventId"]);
 			CookieModule::set("alert", new Alert("success", $report));
 		} catch (Exception $exc) {
 			if (isset($GLOBALS["dict"][$exc->getMessage()]) === true) {

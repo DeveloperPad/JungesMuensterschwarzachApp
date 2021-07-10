@@ -2,6 +2,7 @@
 	if (ROOT_LOCAL === null) {
 		require_once("../assets/global_requirements.php");
 	}
+	require_once(ROOT_LOCAL."/modules/AlexaNotificationModule.php");
 	require_once(ROOT_LOCAL."/modules/DatabaseModule.php");
 	require_once(ROOT_LOCAL."/modules/NewsletterModule.php");
 	require_once(ROOT_LOCAL."/modules/SessionModule.php");
@@ -573,6 +574,10 @@
 			NewsletterModule::deleteRegistration(
 				self::loadUser($userId, ACCESS_LEVEL_DEVELOPER)["eMailAddress"]
 			);
+
+			if (intval($isActivated) === 1) {
+				AlexaNotificationModule::sendUserActivationNotification($userId);
+			}
 		}
 
 		public static function requestAccountDeletion($userId) {

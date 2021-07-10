@@ -1,5 +1,6 @@
 <?php
 	require_once("../assets/global_requirements.php");
+	require_once(ROOT_LOCAL."/modules/AlexaNotificationModule.php");
 	require_once(ROOT_LOCAL."/modules/NewsModule.php");
 	require_once(ROOT_LOCAL."/modules/PushNotificationModule.php");
 	require_once(ROOT_LOCAL."/modules/SessionModule.php");
@@ -15,6 +16,7 @@
 
 	function announceNews($ownAccessLevel) {
 		try {
+			AlexaNotificationModule::sendNewsAnnouncementNotification($_POST["newsId"]);
 			$report = PushNotificationModule::sendNewsNotification($_POST["newsId"], $ownAccessLevel);
 			CookieModule::set("alert", new Alert("success", $report));
 		} catch (Exception $exc) {

@@ -279,6 +279,16 @@
 		define("PN_BODY_MAX_LENGTH", 1024);
 		define("PN_LOADED", true);
 	}
+
+	if (defined("AN_LOADED") === false) {
+		$alexa_notification_config = json_decode(file_get_contents($secrets_directory."/alexa_notification.json"), true);
+
+		define("AN_URL_BASE", $alexa_notification_config["base_url"]);
+		define("AN_URL_USER_ACTIVATION", AN_URL_BASE.$alexa_notification_config["webhook_user_activation"]);
+		define("AN_URL_EVENT_ANNOUNCEMENT", AN_URL_BASE.$alexa_notification_config["webhook_event_announcement"]);
+		define("AN_URL_EVENT_ENROLLMENT", AN_URL_BASE.$alexa_notification_config["webhook_event_enrollment"]);
+		define("AN_URL_NEWS_ANNOUNCEMENT", AN_URL_BASE.$alexa_notification_config["webhook_news_announcement"]);
+	}
 	
 
 	/* Server */

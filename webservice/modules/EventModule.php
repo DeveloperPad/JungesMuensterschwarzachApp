@@ -2,6 +2,7 @@
 	if (ROOT_LOCAL === null) {
 		require_once("../assets/global_requirements.php");
 	}
+	require_once(ROOT_LOCAL."/modules/AlexaNotificationModule.php");
 	require_once(ROOT_LOCAL."/modules/DatabaseModule.php");
 	require_once(ROOT_LOCAL."/modules/UserModule.php");
 	require_once(ROOT_LOCAL."/modules/MailModule.php");
@@ -755,6 +756,7 @@
 			}
 
 			MailModule::sendEventEnrollmentNotificationMail($eventId, $userId);
+			AlexaNotificationModule::sendEventEnrollmentNotification($eventId, $userId);
 		}
 
 		public static function updateEventEnrollmentComment($userId, $eventId, $eventEnrollmentComment, $ownAccessLevel) {
@@ -799,6 +801,7 @@
 			}
 
 			MailModule::sendEventDisenrollmentNotificationMail($eventId, $userId);
+			AlexaNotificationModule::sendEventDisenrollmentNotification($eventId, $userId);
 		}
 
 		public static function deleteEvent($eventId, $ownAccessLevel) {
