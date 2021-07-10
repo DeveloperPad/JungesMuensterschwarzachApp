@@ -36,16 +36,16 @@ services:
     networks:
       jenkins:
         ipv4_address: 172.16.1.241
-  jma-api:
-    container_name: jma-api
-    image: jungesmuensterschwarzach/jma-api:${JMA_BUILD_TYPE}
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    restart: always
-    networks:
-      jenkins:
-        ipv4_address: 172.16.1.242
+  # jma-api:
+  #   container_name: jma-api
+  #   image: jungesmuensterschwarzach/jma-api:${JMA_BUILD_TYPE}
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.api
+  #   restart: always
+  #   networks:
+  #     jenkins:
+  #       ipv4_address: 172.16.1.242
   jma-cron:
     container_name: jma-cron
     image: jungesmuensterschwarzach/jma-cron:${JMA_BUILD_TYPE}
