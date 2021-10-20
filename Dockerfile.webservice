@@ -8,6 +8,8 @@ COPY ./webservice ./
 COPY ./webservice/deployment/php.ini "$PHP_INI_DIR/php.ini"
 RUN echo "Acquire::Check-Valid-Until \"false\";\nAcquire::Check-Date \"false\";" | cat > /etc/apt/apt.conf.d/10no--check-valid-until
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+ADD nginx/abtei-muensterschwarzach.de.crt /usr/local/share/ca-certificates/abtei-muensterschwarzach.de.crt
+RUN chmod 644 /usr/local/share/ca-certificates/abtei-muensterschwarzach.de.crt && update-ca-certificates
 RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions imap 
 RUN docker-php-ext-install mysqli
