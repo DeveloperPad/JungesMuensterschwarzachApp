@@ -1,0 +1,80 @@
+[developers]
+[endpoints]
+p, 50, admin, login
+p, 50, news, ALL
+p, 50, events, ALL
+p, 50, images, ALL
+p, 50, accounts, ALL
+p, 50, push_notifications, ALL
+[custom]
+p, 50, mail_event_enrollment, receive
+p, 50, mail_event_info, receive
+p, 50, mail_event_info, send
+p, 50, mail_newsletter, receive
+p, 50, mail_newsletter, send
+p, 50, mail_team, receive
+p, 50, mail_team, send
+p, 50, dev_errors, receive
+
+
+[course leader]
+[endpoints]
+p, 40, admin, login
+p, 40, news, ALL
+p, 40, events, ALL
+p, 40, images, ALL
+p, 40, accounts, ALL
+p, 40, push_notifications, ALL
+[custom]
+p, 40, mail_event_enrollment, receive
+p, 40, mail_event_info, receive
+p, 40, mail_event_info, send
+p, 40, mail_newsletter, receive
+p, 40, mail_newsletter, send
+p, 40, mail_team, receive
+p, 40, mail_team, send
+
+
+[course instructors]
+[endpoints]
+p, 30, admin, login
+p, 30, news, ALL
+p, 30, events, ALL
+p, 30, images, ALL
+p, 30, accounts, VIEW_ALL
+p, 30, push_notifications, ALL
+[custom]
+p, 30, mail_event_info, receive
+p, 30, mail_event_info, send
+p, 30, mail_newsletter, receive
+p, 30, mail_newsletter, send
+p, 30, mail_team, receive
+p, 30, mail_team, send
+
+
+[editor]
+[endpoints]
+p, 30, admin, login
+p, 30, news, ALL
+p, 30, events, ALL
+p, 30, images, ALL
+p, 30, accounts, VIEW_SELF
+p, 30, push_notifications, ALL
+[custom]
+
+
+[user]
+[endpoints]
+p, 30, news, VIEW
+p, 30, events, VIEW
+p, 30, images, VIEW
+p, 30, accounts, VIEW_SELF
+[custom]
+
+
+[guest]
+[endpoints]
+p, 30, news, VIEW
+p, 30, events, VIEW
+p, 30, images, VIEW
+[custom]

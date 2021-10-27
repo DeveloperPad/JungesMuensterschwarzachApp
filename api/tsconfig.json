@@ -1,20 +1,9 @@
 {
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "@loopback/build/config/tsconfig.common.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "module": "commonjs",
-    "outDir": "build/dist",
-    "sourceMap": true,
-    "target": "es2018",
-    "paths": {
-      "models/*": ["../commons/src/models/*"],
-      "utilities/*": ["../commons/src/utilities/*"]
-    },
-    "experimentalDecorators": true
+    "outDir": "dist",
+    "rootDir": "src"
   },
-  "exclude": [
-    "build"
-  ], 
-  "include": [
-    "**/*.ts"
-  ]
+  "include": ["src"]
 }
