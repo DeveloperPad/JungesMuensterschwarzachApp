@@ -40,7 +40,12 @@ export class CustomSequence implements SequenceHandler {
       const route = this.findRoute(request);
 
       // authenticate
-      await this.authenticateRequest(request);
+      try {
+        await this.authenticateRequest(request);
+      } catch (error) {
+        error.statusCode = 401;
+        throw error;
+      }
       // Invoke registered Express middleware
       const finished = await this.invokeMiddleware(context);
       if (finished) {
@@ -53,14 +58,6 @@ export class CustomSequence implements SequenceHandler {
 
       this.send(response, result);
     } catch (error) {
-      if (
-        error.code === AUTHENTICATION_STRATEGY_NOT_FOUND ||
-        error.code === USER_PROFILE_NOT_FOUND
-      ) {
-        Object.assign(error, {
-          statusCode: 401, // Unauthorized
-        });
-      }
       this.reject(context, error);
     }
   }

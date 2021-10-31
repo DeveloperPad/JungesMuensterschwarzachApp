@@ -12,8 +12,7 @@ import _ from 'lodash';
 import * as path from 'path';
 import {AccountProfile} from '../../models';
 
-export class SessionHashAuthorizationProviderProvider
-  implements Provider<Authorizer>
+export class SessionHashAuthorizationProvider implements Provider<Authorizer>
 {
   constructor(@inject('casbin.enforcer') private enforcer: casbin.Enforcer) {}
 

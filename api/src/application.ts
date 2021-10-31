@@ -1,5 +1,5 @@
 import {BootMixin} from '@loopback/boot';
-import {addExtension, ApplicationConfig, CoreTags} from '@loopback/core';
+import {addExtension, ApplicationConfig} from '@loopback/core';
 import {
   RestExplorerBindings,
   RestExplorerComponent,
@@ -18,7 +18,9 @@ import {
   AuthorizationBindings,
   AuthorizationComponent,
   AuthorizationDecision,
+  AuthorizationTags,
 } from '@loopback/authorization';
+import { createEnforcer, SessionHashAuthorizationProvider } from './services';
 
 export {ApplicationConfig};
 
@@ -28,9 +30,11 @@ export class Application extends BootMixin(
   constructor(options: ApplicationConfig = {}) {
     super(options);
 
+    // custom sequence
+    this.sequence(CustomSequence);
+
     // authentication
     this.component(AuthenticationComponent);
-    this.sequence(CustomSequence);
     addExtension(
       this,
       AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
@@ -41,11 +45,15 @@ export class Application extends BootMixin(
       },
     );
     // authorization
+    this.component(AuthorizationComponent);
+    this.bind('casbin.enforcer').toDynamicValue(createEnforcer);
+    this.bind('authorizationProviders.sessionHashAuthorizationProvider')
+      .toProvider(SessionHashAuthorizationProvider)
+      .tag(AuthorizationTags.AUTHORIZER);
     this.configure(AuthorizationBindings.COMPONENT).to({
       precedence: AuthorizationDecision.ALLOW,
       defaultDecision: AuthorizationDecision.DENY,
     });
-    this.component(AuthorizationComponent);
 
     // Set up default home page
     this.static('/', path.join(__dirname, '../public'));
