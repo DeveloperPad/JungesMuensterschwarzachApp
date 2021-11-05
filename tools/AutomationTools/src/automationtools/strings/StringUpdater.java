@@ -15,9 +15,6 @@ import org.json.simple.parser.JSONParser;
  */
 public abstract class StringUpdater {
 
-    protected static final String LANG = "de";
-    private static final String ENDPOINT_STRINGS = "http://localhost:3000/strings/"+LANG;
-
     private final String language;
     private final String[] destinations;
 
@@ -42,7 +39,7 @@ public abstract class StringUpdater {
 
     private JSONArray downloadDictionary() throws Exception {
         try (BufferedReader inR = new BufferedReader(new InputStreamReader(
-            new URL(ENDPOINT_STRINGS).openStream()
+            new URL(Main.ENDPOINT).openStream()
         ))) {
             StringBuilder builder = new StringBuilder();
 

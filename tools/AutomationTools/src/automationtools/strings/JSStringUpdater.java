@@ -12,8 +12,7 @@ public class JSStringUpdater extends StringUpdater {
         super(
             "JS",
             new String[]{
-                "dict.js"
-                // "/workspace/project/app/public/js/dict.js"
+                "/workspace/project/app/public/js/dict.js"
             }
         );
     }
@@ -25,7 +24,7 @@ public class JSStringUpdater extends StringUpdater {
         sb.append("const dict = {");
         for (int i = 0; i < jsonDict.size(); i++) {
             String identifier = ((JSONObject)jsonDict.get(i)).get("identifier").toString();
-            String trans = ((JSONObject)jsonDict.get(i)).get(LANG).toString();
+            String trans = ((JSONObject)jsonDict.get(i)).get(Main.LANG).toString();
 
             trans = trans.replaceAll("\r\n", "\\\\\r\n");
             sb.append("\r\n");

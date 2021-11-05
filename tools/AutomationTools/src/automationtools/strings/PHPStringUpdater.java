@@ -12,10 +12,9 @@ public class PHPStringUpdater extends StringUpdater {
         super(
             "PHP", 
             new String[]{
-                "dict.php"
+                "/workspace/project/webservice/assets/dict.php"
             }
         );
-        // super("/workspace/project/webservice/assets/dict.php");
     }
 
     @Override
@@ -25,7 +24,7 @@ public class PHPStringUpdater extends StringUpdater {
         sb.append("<?php $dict = array(");
         for (int i = 0; i < jsonDict.size(); i++) {
             String identifier = ((JSONObject)jsonDict.get(i)).get("identifier").toString();
-            String trans = ((JSONObject)jsonDict.get(i)).get(LANG).toString();
+            String trans = ((JSONObject)jsonDict.get(i)).get(Main.LANG).toString();
 
             trans = trans.replaceAll("\r\n", "<br/>");
             sb.append("\r\n");

@@ -12,8 +12,8 @@ public class TSStringUpdater extends StringUpdater {
         super(
             "TS",
             new String[]{
-                "dict.ts"
-                // "/workspace/project/app/src/js/constants/dict.ts"
+                "/workspace/project/api/src/models/dict.ts",
+                "/workspace/project/app/src/js/constants/dict.ts"
             }
         );
     }
@@ -32,7 +32,7 @@ public class TSStringUpdater extends StringUpdater {
 
         for (int i = 0; i < jsonDict.size(); i++) {
             String identifier = ((JSONObject)jsonDict.get(i)).get("identifier").toString();
-            String trans = ((JSONObject)jsonDict.get(i)).get(LANG).toString();
+            String trans = ((JSONObject)jsonDict.get(i)).get(Main.LANG).toString();
             trans = trans.replaceAll("\r\n", "\\r\\n");
 
             sbDict.append("\r\n");
