@@ -1,15 +1,18 @@
 import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
 import {juggler} from '@loopback/repository';
 
+const databaseConfigPath = (process.env.JMA_SECRETS ?
+  process.env.JMA_SECRETS + "/" + process.env.JMA_BUILD_TYPE : 
+  "/var/data/secrets/jma"
+  ) + "/database.json";
+const databaseConfig = require(databaseConfigPath);
 const config = {
   name: 'db',
   connector: 'mysql',
-  //url: 'mysql://root:root@database/junges_muensterschwarzach_app',
-  host: 'localhost',
-  port: 3306,
-  user: 'root',
-  password: 'root',
-  database: 'junges_muensterschwarzach_app'
+  host: databaseConfig.server,
+  user: databaseConfig.username,
+  password: databaseConfig.password,
+  database: databaseConfig.database
 };
 
 // Observe application's life cycle to disconnect the datasource when

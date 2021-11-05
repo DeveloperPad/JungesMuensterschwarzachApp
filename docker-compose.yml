@@ -43,6 +43,8 @@ services:
       context: .
       dockerfile: Dockerfile.api
     restart: always
+    volumes:
+      - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
     networks:
       jenkins:
         ipv4_address: 172.16.1.242
@@ -57,7 +59,6 @@ services:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
 networks:
   default:
-    external:
-      name: jenkins
+    name: jenkins
   jenkins:
     external: true
