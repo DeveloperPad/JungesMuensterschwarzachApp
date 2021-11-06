@@ -6,7 +6,7 @@ package automationtools.strings;
 public class Main {
 
     public static final String LANG = "de";
-    public static final String ENDPOINT = "http://172.16.1.242:3000/strings/"+LANG;
+    public static final String ENDPOINT = "http://host.docker.internal/api/strings/"+LANG;
     
     public static void main(String[] args) throws Exception {
         String[] updaters = {

@@ -17,6 +17,8 @@ services:
       MYSQL_ROOT_PASSWORD_FILE: /var/data/mysql/secrets/root_pass
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    ports:
+      - "3306:3306"
     volumes:
       - ${JMA_DATABASE}:/var/lib/mysql
       - ${MYSQL_SECRETS}:/var/data/mysql/secrets
@@ -33,10 +35,8 @@ services:
     volumes:
       - ./webservice:/var/www/html
   jma-api:
-    command: "npm run start:watch"
-    volumes:
-      - ./api:/api
-      - /api/node_modules
+    profiles:
+      - donotstart
   jma-dictionary-updater:
     container_name: jma-dictionary-updater
     image: jungesmuensterschwarzach/jma-dictionary-updater:latest
