@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model({
-  name: 'strings'
+  name: 'strings',
 })
 export class String extends Entity {
   @property({
@@ -23,7 +23,6 @@ export class String extends Entity {
     required: true,
   })
   de: string;
-
 
   constructor(data?: Partial<String>) {
     super(data);

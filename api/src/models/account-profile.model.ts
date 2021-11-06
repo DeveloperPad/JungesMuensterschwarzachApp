@@ -1,7 +1,6 @@
 import {securityId, UserProfile} from '@loopback/security';
 
 export class AccountProfile implements UserProfile {
-
   constructor(data?: Partial<AccountProfile>) {
     Object.assign(this, data);
   }
@@ -14,4 +13,5 @@ export interface AccountProfileRelations {
   // describe navigational properties here
 }
 
-export type AccountProfileWithRelations = AccountProfile & AccountProfileRelations;
+export type AccountProfileWithRelations = AccountProfile &
+  AccountProfileRelations;

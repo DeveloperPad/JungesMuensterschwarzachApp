@@ -1,4 +1,3 @@
-import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -24,7 +23,7 @@ import {AccountRepository} from '../repositories';
 export class AccountController {
   constructor(
     @repository(AccountRepository)
-    public AccountRepository: AccountRepository,
+    public accountRepository: AccountRepository,
   ) {}
 
   @post('/accounts')
@@ -43,9 +42,9 @@ export class AccountController {
         },
       },
     })
-    Account: Omit<Account, 'userId'>,
+    account: Omit<Account, 'userId'>,
   ): Promise<Account> {
-    return this.AccountRepository.create(Account);
+    return this.accountRepository.create(account);
   }
 
   @get('/accounts/count')
@@ -54,7 +53,7 @@ export class AccountController {
     content: {'application/json': {schema: CountSchema}},
   })
   async count(@param.where(Account) where?: Where<Account>): Promise<Count> {
-    return this.AccountRepository.count(where);
+    return this.accountRepository.count(where);
   }
 
   @get('/accounts')
@@ -72,7 +71,7 @@ export class AccountController {
   async find(
     @param.filter(Account) filter?: Filter<Account>,
   ): Promise<Account[]> {
-    return this.AccountRepository.find(filter);
+    return this.accountRepository.find(filter);
   }
 
   @patch('/accounts')
@@ -88,10 +87,10 @@ export class AccountController {
         },
       },
     })
-    Account: Account,
+    account: Account,
     @param.where(Account) where?: Where<Account>,
   ): Promise<Count> {
-    return this.AccountRepository.updateAll(Account, where);
+    return this.accountRepository.updateAll(account, where);
   }
 
   @get('/accounts/{id}')
@@ -108,7 +107,7 @@ export class AccountController {
     @param.filter(Account, {exclude: 'where'})
     filter?: FilterExcludingWhere<Account>,
   ): Promise<Account> {
-    return this.AccountRepository.findById(id, filter);
+    return this.accountRepository.findById(id, filter);
   }
 
   @patch('/accounts/{id}')
@@ -124,9 +123,9 @@ export class AccountController {
         },
       },
     })
-    Account: Account,
+    account: Account,
   ): Promise<void> {
-    await this.AccountRepository.updateById(id, Account);
+    await this.accountRepository.updateById(id, account);
   }
 
   @put('/accounts/{id}')
@@ -135,9 +134,9 @@ export class AccountController {
   })
   async replaceById(
     @param.path.number('id') id: number,
-    @requestBody() Account: Account,
+    @requestBody() account: Account,
   ): Promise<void> {
-    await this.AccountRepository.replaceById(id, Account);
+    await this.accountRepository.replaceById(id, account);
   }
 
   @del('/accounts/{id}')
@@ -145,6 +144,6 @@ export class AccountController {
     description: 'Account DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.AccountRepository.deleteById(id);
+    await this.accountRepository.deleteById(id);
   }
 }

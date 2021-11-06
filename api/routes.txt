@@ -26,7 +26,7 @@
 /newsletter-registrations
 /newsletter-registrations/<id>
 
-/strings
+[DONE] /strings
 
 /tokens
 /tokens/<id>

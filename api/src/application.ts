@@ -20,7 +20,7 @@ import {
   AuthorizationDecision,
   AuthorizationTags,
 } from '@loopback/authorization';
-import { createEnforcer, SessionHashAuthorizationProvider } from './services';
+import {createEnforcer, SessionHashAuthorizationProvider} from './services';
 
 export {ApplicationConfig};
 

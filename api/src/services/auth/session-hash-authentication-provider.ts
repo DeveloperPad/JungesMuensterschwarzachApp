@@ -58,7 +58,7 @@ export class SessionHashAuthenticationProvider
 
   accountToAccountProfile(user: AccountWithRelations): AccountProfile {
     return new AccountProfile({
-      [securityId]: <string>(<any>user.accessLevel),
+      [securityId]: user.accessLevel.toString(),
       userId: user.userId,
     });
   }

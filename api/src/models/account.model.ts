@@ -2,7 +2,7 @@ import {Entity, model, property, hasMany} from '@loopback/repository';
 import {SessionOtp, SessionOtpWithRelations} from './session-otp.model';
 
 @model({
-  name: 'account_data'
+  name: 'account_data',
 })
 export class Account extends Entity {
   @property({
@@ -93,7 +93,7 @@ export class Account extends Entity {
 
   @property({
     type: 'string',
-    hidden: true
+    hidden: true,
   })
   passwordHash?: string;
 
@@ -111,17 +111,17 @@ export class Account extends Entity {
 
   @property({
     type: 'date',
-    default: "$now"
+    default: '$now',
   })
   registrationDate: string;
 
   @property({
     type: 'date',
-    default: "$now"
+    default: '$now',
   })
   modificationDate: string;
 
-  @hasMany(() => SessionOtp, {keyTo: 'userId', name:'sessionOtps'})
+  @hasMany(() => SessionOtp, {keyTo: 'userId', name: 'sessionOtps'})
   sessionOtps: SessionOtp[];
 
   constructor(data?: Partial<Account>) {

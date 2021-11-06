@@ -8,9 +8,7 @@ export class StringRepository extends DefaultCrudRepository<
   typeof String.prototype.identifier,
   StringRelations
 > {
-  constructor(
-    @inject('datasources.db') dataSource: DbDataSource,
-  ) {
+  constructor(@inject('datasources.db') dataSource: DbDataSource) {
     super(String, dataSource);
   }
 }

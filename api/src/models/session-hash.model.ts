@@ -6,8 +6,8 @@ import {SessionOtp, SessionOtpWithRelations} from './session-otp.model';
   settings: {
     scope: {
       // include: ["sessionOtp"]
-    }
-  }
+    },
+  },
 })
 export class SessionHash extends Entity {
   @property({

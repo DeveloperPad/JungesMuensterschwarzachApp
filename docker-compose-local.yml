@@ -32,10 +32,11 @@ services:
   jma-cron:
     volumes:
       - ./webservice:/var/www/html
-  # jma-api:
-  #   command: "npm run start:watch"
-  #  volumes:
-  #    - ./api:/home/node/app
+  jma-api:
+    command: "npm run start:watch"
+    volumes:
+      - ./api:/api
+      - /api/node_modules
   jma-dictionary-updater:
     container_name: jma-dictionary-updater
     image: jungesmuensterschwarzach/jma-dictionary-updater:latest

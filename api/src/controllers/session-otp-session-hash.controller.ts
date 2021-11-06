@@ -15,16 +15,14 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
-import {
-  SessionOtp,
-  SessionHash,
-} from '../models';
+import {SessionOtp, SessionHash} from '../models';
 import {SessionOtpRepository} from '../repositories';
 
 export class SessionOtpSessionHashController {
   constructor(
-    @repository(SessionOtpRepository) protected sessionOtpRepository: SessionOtpRepository,
-  ) { }
+    @repository(SessionOtpRepository)
+    protected sessionOtpRepository: SessionOtpRepository,
+  ) {}
 
   @get('/session-otps/{id}/session-hashes', {
     responses: {
@@ -61,11 +59,12 @@ export class SessionOtpSessionHashController {
           schema: getModelSchemaRef(SessionHash, {
             title: 'NewSessionHashInSessionOtp',
             exclude: ['sessionHash'],
-            optional: ['OTP']
+            optional: ['OTP'],
           }),
         },
       },
-    }) sessionHash: Omit<SessionHash, 'sessionHash'>,
+    })
+    sessionHash: Omit<SessionHash, 'sessionHash'>,
   ): Promise<SessionHash> {
     return this.sessionOtpRepository.sessionHashes(id).create(sessionHash);
   }
@@ -88,9 +87,12 @@ export class SessionOtpSessionHashController {
       },
     })
     sessionHash: Partial<SessionHash>,
-    @param.query.object('where', getWhereSchemaFor(SessionHash)) where?: Where<SessionHash>,
+    @param.query.object('where', getWhereSchemaFor(SessionHash))
+    where?: Where<SessionHash>,
   ): Promise<Count> {
-    return this.sessionOtpRepository.sessionHashes(id).patch(sessionHash, where);
+    return this.sessionOtpRepository
+      .sessionHashes(id)
+      .patch(sessionHash, where);
   }
 
   @del('/session-otps/{id}/session-hashes', {
@@ -103,7 +105,8 @@ export class SessionOtpSessionHashController {
   })
   async delete(
     @param.path.string('id') id: string,
-    @param.query.object('where', getWhereSchemaFor(SessionHash)) where?: Where<SessionHash>,
+    @param.query.object('where', getWhereSchemaFor(SessionHash))
+    where?: Where<SessionHash>,
   ): Promise<Count> {
     return this.sessionOtpRepository.sessionHashes(id).delete(where);
   }

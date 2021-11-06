@@ -1,9 +1,4 @@
-import {
-  AuthenticateFn,
-  AuthenticationBindings,
-  AUTHENTICATION_STRATEGY_NOT_FOUND,
-  USER_PROFILE_NOT_FOUND,
-} from '@loopback/authentication';
+import {AuthenticateFn, AuthenticationBindings} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {
   FindRoute,
@@ -52,7 +47,7 @@ export class CustomSequence implements SequenceHandler {
         // The response been produced by the middleware chain
         return;
       }
-      
+
       const args = await this.parseParams(request, route);
       const result = await this.invoke(route, args);
 

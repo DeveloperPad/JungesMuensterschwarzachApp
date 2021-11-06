@@ -12,8 +12,7 @@ import _ from 'lodash';
 import * as path from 'path';
 import {AccountProfile} from '../../models';
 
-export class SessionHashAuthorizationProvider implements Provider<Authorizer>
-{
+export class SessionHashAuthorizationProvider implements Provider<Authorizer> {
   constructor(@inject('casbin.enforcer') private enforcer: casbin.Enforcer) {}
 
   value(): Authorizer {
@@ -26,8 +25,8 @@ export class SessionHashAuthorizationProvider implements Provider<Authorizer>
   ) {
     const request: AuthorizationRequest = {
       subject: authorizationCtx.principals[0][securityId],
-      object: metadata.resource || authorizationCtx.resource,
-      action: (metadata.scopes && metadata.scopes[0]) || 'execute',
+      object: metadata.resource ?? authorizationCtx.resource,
+      action: metadata.scopes?.[0] ?? 'execute',
     };
 
     const allow = await this.enforcer.enforce(

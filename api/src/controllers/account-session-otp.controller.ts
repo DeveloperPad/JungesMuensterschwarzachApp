@@ -15,16 +15,14 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
-import {
-  Account,
-  SessionOtp,
-} from '../models';
+import {Account, SessionOtp} from '../models';
 import {AccountRepository} from '../repositories';
 
 export class AccountSessionOtpController {
   constructor(
-    @repository(AccountRepository) protected accountRepository: AccountRepository,
-  ) { }
+    @repository(AccountRepository)
+    protected accountRepository: AccountRepository,
+  ) {}
 
   @get('/accounts/{id}/session-otps', {
     responses: {
@@ -61,11 +59,12 @@ export class AccountSessionOtpController {
           schema: getModelSchemaRef(SessionOtp, {
             title: 'NewSessionOtpInAccount',
             exclude: ['OTP'],
-            optional: ['userId']
+            optional: ['userId'],
           }),
         },
       },
-    }) sessionOtp: Omit<SessionOtp, 'OTP'>,
+    })
+    sessionOtp: Omit<SessionOtp, 'OTP'>,
   ): Promise<SessionOtp> {
     return this.accountRepository.sessionOtps(id).create(sessionOtp);
   }
@@ -88,7 +87,8 @@ export class AccountSessionOtpController {
       },
     })
     sessionOtp: Partial<SessionOtp>,
-    @param.query.object('where', getWhereSchemaFor(SessionOtp)) where?: Where<SessionOtp>,
+    @param.query.object('where', getWhereSchemaFor(SessionOtp))
+    where?: Where<SessionOtp>,
   ): Promise<Count> {
     return this.accountRepository.sessionOtps(id).patch(sessionOtp, where);
   }
@@ -103,9 +103,9 @@ export class AccountSessionOtpController {
   })
   async delete(
     @param.path.number('id') id: number,
-    @param.query.object('where', getWhereSchemaFor(SessionOtp)) where?: Where<SessionOtp>,
+    @param.query.object('where', getWhereSchemaFor(SessionOtp))
+    where?: Where<SessionOtp>,
   ): Promise<Count> {
     return this.accountRepository.sessionOtps(id).delete(where);
   }
-
 }
