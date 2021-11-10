@@ -21,6 +21,7 @@ import {
   AuthorizationTags,
 } from '@loopback/authorization';
 import {createEnforcer, SessionHashAuthorizationProvider} from './services';
+import {dbConfigProduction, dbConfigTest} from './datasources';
 
 export {ApplicationConfig};
 
@@ -29,6 +30,11 @@ export class Application extends BootMixin(
 ) {
   constructor(options: ApplicationConfig = {}) {
     super(options);
+
+    // set up env
+    this.bind('datasources.config.db').to(
+      (options.useRealDatabase ?? true) ? dbConfigProduction : dbConfigTest,
+    );
 
     // custom sequence
     this.sequence(CustomSequence);

@@ -5,8 +5,14 @@ import {
   HasManyRepositoryFactory,
 } from '@loopback/repository';
 import {DbDataSource} from '../datasources';
-import {Account, AccountRelations, SessionOtp} from '../models';
+import {
+  Account,
+  AccountRelations,
+  SessionOtp,
+  PushSubscription,
+} from '../models';
 import {SessionOtpRepository} from './session-otp.repository';
+import {PushSubscriptionRepository} from './push-subscription.repository';
 
 export class AccountRepository extends DefaultCrudRepository<
   Account,
@@ -18,12 +24,27 @@ export class AccountRepository extends DefaultCrudRepository<
     typeof Account.prototype.userId
   >;
 
+  public readonly pushSubscriptions: HasManyRepositoryFactory<
+    PushSubscription,
+    typeof Account.prototype.userId
+  >;
+
   constructor(
     @inject('datasources.db') dataSource: DbDataSource,
     @repository.getter('SessionOtpRepository')
     protected sessionOtpRepositoryGetter: Getter<SessionOtpRepository>,
+    @repository.getter('PushSubscriptionRepository')
+    protected pushSubscriptionRepositoryGetter: Getter<PushSubscriptionRepository>,
   ) {
     super(Account, dataSource);
+    this.pushSubscriptions = this.createHasManyRepositoryFactoryFor(
+      'pushSubscriptions',
+      pushSubscriptionRepositoryGetter,
+    );
+    this.registerInclusionResolver(
+      'pushSubscriptions',
+      this.pushSubscriptions.inclusionResolver,
+    );
     this.sessionOtps = this.createHasManyRepositoryFactoryFor(
       'sessionOtps',
       sessionOtpRepositoryGetter,

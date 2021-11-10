@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -19,7 +20,9 @@ import {
 } from '@loopback/rest';
 import {Account} from '../models';
 import {AccountRepository} from '../repositories';
+import {AUTHS} from '../services/auth/session-hash-authentication-provider';
 
+@authenticate(AUTHS)
 export class AccountController {
   constructor(
     @repository(AccountRepository)
@@ -45,15 +48,6 @@ export class AccountController {
     account: Omit<Account, 'userId'>,
   ): Promise<Account> {
     return this.accountRepository.create(account);
-  }
-
-  @get('/accounts/count')
-  @response(200, {
-    description: 'Account model count',
-    content: {'application/json': {schema: CountSchema}},
-  })
-  async count(@param.where(Account) where?: Where<Account>): Promise<Count> {
-    return this.accountRepository.count(where);
   }
 
   @get('/accounts')

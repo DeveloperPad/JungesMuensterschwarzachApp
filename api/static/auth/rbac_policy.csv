@@ -6,6 +6,9 @@ p, 50, events, ALL
 p, 50, images, ALL
 p, 50, accounts, ALL
 p, 50, push_notifications, ALL
+[push_subscriptions]
+p, 50, push_subscriptions, admin
+p, 50, push_subscriptions, user
 [custom]
 p, 50, mail_event_enrollment, receive
 p, 50, mail_event_info, receive
@@ -25,6 +28,8 @@ p, 40, events, ALL
 p, 40, images, ALL
 p, 40, accounts, ALL
 p, 40, push_notifications, ALL
+[push_subscriptions]
+p, 40, push_subscriptions, user
 [custom]
 p, 40, mail_event_enrollment, receive
 p, 40, mail_event_info, receive
@@ -43,6 +48,8 @@ p, 30, events, ALL
 p, 30, images, ALL
 p, 30, accounts, VIEW_ALL
 p, 30, push_notifications, ALL
+[push_subscriptions]
+p, 30, push_subscriptions, user
 [custom]
 p, 30, mail_event_info, receive
 p, 30, mail_event_info, send
@@ -54,27 +61,31 @@ p, 30, mail_team, send
 
 [editor]
 [endpoints]
-p, 30, admin, login
-p, 30, news, ALL
-p, 30, events, ALL
-p, 30, images, ALL
-p, 30, accounts, VIEW_SELF
-p, 30, push_notifications, ALL
+p, 20, admin, login
+p, 20, news, ALL
+p, 20, events, ALL
+p, 20, images, ALL
+p, 20, accounts, VIEW_SELF
+p, 20, push_notifications, ALL
+[push_subscriptions]
+p, 20, push_subscriptions, user
 [custom]
 
 
 [user]
 [endpoints]
-p, 30, news, VIEW
-p, 30, events, VIEW
-p, 30, images, VIEW
-p, 30, accounts, VIEW_SELF
+p, 10, news, VIEW
+p, 10, events, VIEW
+p, 10, images, VIEW
+p, 10, accounts, VIEW_SELF
+[push_subscriptions]
+p, 10, push_subscriptions, user
 [custom]
 
 
 [guest]
 [endpoints]
-p, 30, news, VIEW
-p, 30, events, VIEW
-p, 30, images, VIEW
+p, 0, news, VIEW
+p, 0, events, VIEW
+p, 0, images, VIEW
 [custom]

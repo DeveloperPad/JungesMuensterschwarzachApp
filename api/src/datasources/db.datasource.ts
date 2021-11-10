@@ -6,13 +6,18 @@ const databaseConfigPath =
     ? process.env.JMA_SECRETS + '/' + process.env.JMA_BUILD_TYPE
     : '/var/data/secrets/jma') + '/database.json';
 const databaseConfig = require(databaseConfigPath);
-const config = {
+
+export const dbConfigProduction = {
   name: 'db',
   connector: 'mysql',
   host: databaseConfig.server,
   user: databaseConfig.username,
   password: databaseConfig.password,
   database: databaseConfig.database,
+};
+export const dbConfigTest = {
+  name: 'db',
+  connector: 'memory',
 };
 
 // Observe application's life cycle to disconnect the datasource when
@@ -25,11 +30,10 @@ export class DbDataSource
   implements LifeCycleObserver
 {
   static dataSourceName = 'db';
-  static readonly defaultConfig = config;
 
   constructor(
     @inject('datasources.config.db', {optional: true})
-    dsConfig: object = config,
+    dsConfig: object,
   ) {
     super(dsConfig);
   }

@@ -1,6 +1,6 @@
 import {AuthenticationStrategy} from '@loopback/authentication';
 import {StrategyAdapter} from '@loopback/authentication-passport';
-import {Provider} from '@loopback/core';
+import {CoreBindings, inject, Provider} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {Strategy, VerifyFunctions} from 'passport-http-bearer';
 import {
@@ -8,8 +8,9 @@ import {
   AccountWithRelations,
   SessionHashWithRelations,
 } from '../../models';
-import {AccountRepository, SessionHashRepository} from '../../repositories';
+import {SessionHashRepository} from '../../repositories';
 import {securityId} from '@loopback/security';
+import {Application} from '../..';
 
 export const AUTHS = 'sessionHashBearer';
 
@@ -17,10 +18,10 @@ export class SessionHashAuthenticationProvider
   implements Provider<AuthenticationStrategy>
 {
   constructor(
+    @inject(CoreBindings.APPLICATION_INSTANCE)
+    private application: Application,
     @repository(SessionHashRepository)
-    public sessionHashRepository: SessionHashRepository,
-    @repository(AccountRepository)
-    public accountRepository: AccountRepository,
+    private sessionHashRepository: SessionHashRepository,
   ) {}
 
   value(): AuthenticationStrategy {

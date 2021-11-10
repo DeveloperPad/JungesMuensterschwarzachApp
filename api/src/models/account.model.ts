@@ -1,5 +1,6 @@
 import {Entity, model, property, hasMany} from '@loopback/repository';
 import {SessionOtp, SessionOtpWithRelations} from './session-otp.model';
+import {PushSubscription} from './push-subscription.model';
 
 @model({
   name: 'account_data',
@@ -124,6 +125,9 @@ export class Account extends Entity {
   @hasMany(() => SessionOtp, {keyTo: 'userId', name: 'sessionOtps'})
   sessionOtps: SessionOtp[];
 
+  @hasMany(() => PushSubscription, {keyTo: 'userId', name: 'pushSubscriptions'})
+  pushSubscriptions: PushSubscription[];
+
   constructor(data?: Partial<Account>) {
     super(data);
   }
@@ -131,6 +135,7 @@ export class Account extends Entity {
 
 export interface AccountRelations {
   sessionOtps: SessionOtpWithRelations[];
+  pushSubscriptions: PushSubscription[];
 }
 
 export type AccountWithRelations = Account & AccountRelations;
