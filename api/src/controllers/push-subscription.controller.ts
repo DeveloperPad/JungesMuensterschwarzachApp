@@ -2,18 +2,19 @@ import {authenticate} from '@loopback/authentication';
 import {authorize} from '@loopback/authorization';
 import {Filter, repository} from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
-  del,
+  HttpErrors,
+  param,
+  post,
   requestBody,
   response,
-  HttpErrors,
 } from '@loopback/rest';
 import {Account, PushSubscription} from '../models';
 import {PushSubscriptionRepository} from '../repositories';
 import {AUTHS} from '../services/auth/session-hash-authentication-provider';
+import {ownAccount} from '../services/auth/voters/own-account';
 
 export class PushSubscriptionController {
   constructor(
@@ -68,8 +69,9 @@ export class PushSubscriptionController {
     pushSubscription: PushSubscription,
   ): Promise<PushSubscription> {
     // guests may not set a userId
-    pushSubscription.userId = undefined;
-    return this.pushSubscriptionRepository.create(pushSubscription);
+    delete pushSubscription.userId;
+    const pn = await this.pushSubscriptionRepository.create(pushSubscription);
+    return Promise.resolve(pn);
   }
 
   @del('/push-subscriptions/{endpoint}')
@@ -102,6 +104,11 @@ export class PushSubscriptionController {
         },
       },
     },
+  })
+  @authenticate(AUTHS)
+  @authorize({
+    voters: [ownAccount],
+    resource: 'push_subscriptions',
   })
   async createUser(
     @param.path.number('userId') userId: typeof Account.prototype.userId,
