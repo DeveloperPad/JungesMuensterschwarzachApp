@@ -8,9 +8,7 @@ import {
 import {inject, Provider} from '@loopback/core';
 import {securityId} from '@loopback/security/dist/types';
 import * as casbin from 'casbin';
-import _ from 'lodash';
 import * as path from 'path';
-import {AccountProfile} from '../../models';
 
 export class SessionHashAuthorizationProvider implements Provider<Authorizer> {
   constructor(@inject('casbin.enforcer') private enforcer: casbin.Enforcer) {}
@@ -50,34 +48,4 @@ export async function createEnforcer() {
     path.resolve(__dirname, '../../../static/auth/rbac_model.conf'),
     path.resolve(__dirname, '../../../static/auth/rbac_policy.csv'),
   );
-}
-
-interface SessionHashAuthorizationMetadata extends AuthorizationMetadata {
-  currentAccount: AccountProfile;
-  decision: AuthorizationDecision;
-}
-
-export async function accessSelf(
-  authorizationCtx: AuthorizationContext,
-  metadata: SessionHashAuthorizationMetadata,
-) {
-  let currentAccount: AccountProfile;
-
-  if (authorizationCtx.principals.length > 0) {
-    const account = _.pick(authorizationCtx.principals[0], [
-      securityId,
-      'userId',
-    ]);
-    currentAccount = {
-      [securityId]: account[securityId],
-      userId: account.userId,
-    };
-  } else {
-    return AuthorizationDecision.DENY;
-  }
-
-  const accessLevel = authorizationCtx.invocationContext.args[0];
-  return accessLevel === currentAccount[securityId]
-    ? AuthorizationDecision.ALLOW
-    : AuthorizationDecision.DENY;
 }
