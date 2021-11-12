@@ -81,11 +81,3 @@ p, 10, accounts, VIEW_SELF
 [push_subscriptions]
 p, 10, push_subscriptions, user
 [custom]
-
-
-[guest]
-[endpoints]
-p, 0, news, VIEW
-p, 0, events, VIEW
-p, 0, images, VIEW
-[custom]

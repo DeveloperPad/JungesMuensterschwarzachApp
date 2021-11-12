@@ -2,18 +2,17 @@ import {
   AuthorizationContext,
   AuthorizationDecision,
   AuthorizationMetadata,
+  AuthorizationRequest,
 } from '@loopback/authorization';
-import _ from 'lodash';
-import {AccountProfile} from '../../../models';
 import {securityId} from '@loopback/security/dist/types';
+import _ from 'lodash';
+import {createEnforcer} from '../session-hash-authorization-provider.service';
 
-export async function ownAccount(
+export async function ownAccountVoter(
   authorizationCtx: AuthorizationContext,
   metadata: AuthorizationMetadata,
 ) {
-  let currentAccount: AccountProfile;
-
-  if (authorizationCtx.principals.length == 0) {
+  if (authorizationCtx.principals.length === 0) {
     return AuthorizationDecision.DENY;
   }
 
@@ -21,15 +20,29 @@ export async function ownAccount(
     securityId,
     'userId',
   ]);
-  currentAccount = {
+  const currentAccount = {
     [securityId]: account[securityId],
     userId: account.userId,
   };
 
-  // use resource and check for 'admin' scope with enforcer
+  const request: AuthorizationRequest = {
+    subject: currentAccount[securityId],
+    object: metadata.resource ?? authorizationCtx.resource,
+    action: 'admin',
+  };
 
-  const userId = authorizationCtx.invocationContext.args[0];
-  if (userId !== currentAccount.userId) {
+  const enforcer = await createEnforcer();
+  const adminByPass = await enforcer.enforce(
+    request.subject,
+    request.object,
+    request.action,
+  );
+  if (adminByPass === true) {
+    return AuthorizationDecision.ALLOW;
+  }
+
+  const ctxUserId = authorizationCtx.invocationContext.args[0];
+  if (ctxUserId !== currentAccount.userId) {
     return AuthorizationDecision.DENY;
   }
   return AuthorizationDecision.ALLOW;

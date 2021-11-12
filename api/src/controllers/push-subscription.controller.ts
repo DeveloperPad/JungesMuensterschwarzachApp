@@ -14,7 +14,7 @@ import {
 import {Account, PushSubscription} from '../models';
 import {PushSubscriptionRepository} from '../repositories';
 import {AUTHS} from '../services/auth/session-hash-authentication-provider';
-import {ownAccount} from '../services/auth/voters/own-account';
+import {ownAccountVoter} from '../services/auth/voters/own-account';
 
 export class PushSubscriptionController {
   constructor(
@@ -70,8 +70,7 @@ export class PushSubscriptionController {
   ): Promise<PushSubscription> {
     // guests may not set a userId
     delete pushSubscription.userId;
-    const pn = await this.pushSubscriptionRepository.create(pushSubscription);
-    return Promise.resolve(pn);
+    return this.pushSubscriptionRepository.create(pushSubscription);
   }
 
   @del('/push-subscriptions/{endpoint}')
@@ -95,20 +94,18 @@ export class PushSubscriptionController {
 
   // registered users
 
-  @post('/accounts/{userId}/push-subscriptions', {
-    responses: {
-      '200': {
-        description: 'Account model instance',
-        content: {
-          'application/json': {schema: getModelSchemaRef(PushSubscription)},
-        },
-      },
+  @post('/accounts/{userId}/push-subscriptions')
+  @response(200, {
+    description: 'PushSubscription model instance',
+    content: {
+      'application/json': {schema: getModelSchemaRef(PushSubscription)},
     },
   })
   @authenticate(AUTHS)
   @authorize({
-    voters: [ownAccount],
     resource: 'push_subscriptions',
+    scopes: ['user'],
+    voters: [ownAccountVoter],
   })
   async createUser(
     @param.path.number('userId') userId: typeof Account.prototype.userId,
@@ -116,15 +113,18 @@ export class PushSubscriptionController {
       content: {
         'application/json': {
           schema: getModelSchemaRef(PushSubscription, {
-            title: 'NewPushSubscriptionInAccount',
-            exclude: ['endpoint'],
+            title: 'NewPushSubscription',
           }),
         },
       },
     })
-    pushSubscription: Omit<PushSubscription, 'endpoint'>,
+    pushSubscription: PushSubscription,
   ): Promise<PushSubscription> {
-    pushSubscription.userId = userId;
+    if (userId !== pushSubscription.userId) {
+      throw new HttpErrors.Forbidden(
+        'Cannot create push subscription with foreign userId!',
+      );
+    }
     return this.pushSubscriptionRepository.create(pushSubscription);
   }
 
