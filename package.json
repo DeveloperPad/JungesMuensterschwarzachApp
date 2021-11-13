@@ -70,10 +70,6 @@
     "ext": "ts"
   },
   "scripts": {
-    "start-api": "cd api && node -r ts-node/register -r tsconfig-paths/register ./server.ts",
-    "start-api-dev": "cd api && node --inspect=5858 -r ts-node/register -r tsconfig-paths/register ./server.ts",
-    "start-api-local:watch": "nodemon",
-    "build-api": "tsc -p api",
     "start-app-local": "react-scripts start",
     "build-app-dev": "cross-env-shell PUBLIC_URL=\"/app\" \"react-scripts build\"",
     "build-app-prod": "cross-env-shell PUBLIC_URL=\"\" \"react-scripts build\""
