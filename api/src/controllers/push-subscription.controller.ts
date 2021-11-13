@@ -77,7 +77,7 @@ export class PushSubscriptionController {
   @response(204, {
     description: 'PushSubscription DELETE success',
   })
-  async deleteGuestById(
+  async deleteGuest(
     @param.path.string('endpoint')
     endpoint: typeof PushSubscription.prototype.endpoint,
   ): Promise<void> {
@@ -128,17 +128,20 @@ export class PushSubscriptionController {
     return this.pushSubscriptionRepository.create(pushSubscription);
   }
 
-  @get('/accounts/{userId}/push-subscriptions', {
-    responses: {
-      '200': {
-        description: 'Array of Account has many PushSubscription',
-        content: {
-          'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(PushSubscription)},
-          },
-        },
+  @get('/accounts/{userId}/push-subscriptions')
+  @response(200, {
+    description: 'Array of Account has many PushSubscription',
+    content: {
+      'application/json': {
+        schema: {type: 'array', items: getModelSchemaRef(PushSubscription)},
       },
     },
+  })
+  @authenticate(AUTHS)
+  @authorize({
+    resource: 'push_subscriptions',
+    scopes: ['user'],
+    voters: [ownAccountVoter],
   })
   async findUser(
     @param.path.number('userId') userId: typeof Account.prototype.userId,
@@ -155,6 +158,12 @@ export class PushSubscriptionController {
   @del('/accounts/{userId}/push-subscriptions/{endpoint}')
   @response(204, {
     description: 'PushSubscription DELETE success',
+  })
+  @authenticate(AUTHS)
+  @authorize({
+    resource: 'push_subscriptions',
+    scopes: ['user'],
+    voters: [ownAccountVoter],
   })
   async deleteUser(
     @param.path.number('userId') userId: typeof Account.prototype.userId,

@@ -31,7 +31,9 @@ describe('PushSubscriptionController', () => {
     return app.stop();
   });
 
-  // admin
+  // ADMIN
+
+  // findAll
 
   it('[admin] can find all push subscriptions', async () => {
     const pushSubscription = await givenPushSubscription(app, accounts.leader);
@@ -53,7 +55,9 @@ describe('PushSubscriptionController', () => {
       .expect(403);
   });
 
-  // guests
+  // GUESTS
+
+  // createGuest
 
   it('[guest] can create new push subscription', async () => {
     const pushSubscription = rawPushSubscription(accounts.developer);
@@ -78,6 +82,8 @@ describe('PushSubscriptionController', () => {
       .expect(409);
   });
 
+  // deleteGuest
+
   it('[guest] can delete guest push subscription', async () => {
     const pushSubscription = await givenPushSubscription(app);
     return await client
@@ -96,7 +102,18 @@ describe('PushSubscriptionController', () => {
     return await client.delete('/push-subscriptions/non-existing').expect(404);
   });
 
-  // users
+  // USERS
+
+  // createUser
+
+  it('[guest] cannot create user push subscription', async () => {
+    const pushSubscription = rawPushSubscription(accounts.user);
+    return client
+      .post('/accounts/' + pushSubscription.userId + '/push-subscriptions')
+      .set('accept', 'json')
+      .send(pushSubscription)
+      .expect(401);
+  });
 
   it('[user] can create new push subscription', async () => {
     const pushSubscription = rawPushSubscription(accounts.user);
@@ -152,5 +169,113 @@ describe('PushSubscriptionController', () => {
       .send(pushSubscription)
       .expect(200);
     return expect(res.body).to.containEql(pushSubscription);
+  });
+
+  // findUser
+
+  it("[guest] cannot find other user's push subscriptions", async () => {
+    const pushSubscription = await givenPushSubscription(app, accounts.editor);
+    return client
+      .get('/accounts/' + pushSubscription.userId + '/push-subscriptions')
+      .expect(401);
+  });
+
+  it('[user] can find its own push subscriptions', async () => {
+    const pushSubscription = await givenPushSubscription(app, accounts.user);
+    const res = await client
+      .get('/accounts/' + pushSubscription.userId + '/push-subscriptions')
+      .set('Authorization', 'Bearer ' + getSessionHash(accounts.user))
+      .expect(200);
+    const pushSubscriptions = res.body;
+    expect(pushSubscriptions).to.be.a.Array();
+    return expect(pushSubscriptions).to.containEql(
+      Object.assign({}, pushSubscription),
+    );
+  });
+
+  it("[user] cannot find other user's push subscriptions", async () => {
+    const pushSubscription = await givenPushSubscription(app, accounts.editor);
+    return client
+      .get('/accounts/' + pushSubscription.userId + '/push-subscriptions')
+      .set('Authorization', 'Bearer ' + getSessionHash(accounts.user))
+      .expect(403);
+  });
+
+  it("[admin] can find other user's push subscriptions", async () => {
+    const pushSubscription = await givenPushSubscription(app, accounts.user);
+    const res = await client
+      .get('/accounts/' + pushSubscription.userId + '/push-subscriptions')
+      .set('Authorization', 'Bearer ' + getSessionHash(accounts.developer))
+      .expect(200);
+    const pushSubscriptions = res.body;
+    expect(pushSubscriptions).to.be.a.Array();
+    return expect(pushSubscriptions).to.containEql(
+      Object.assign({}, pushSubscription),
+    );
+  });
+
+  // deleteUser
+  it('[guest] cannot delete user push subscription', async () => {
+    const pushSubscription = await givenPushSubscription(app, accounts.user);
+    return client
+      .delete(
+        '/accounts/' +
+          pushSubscription.userId +
+          '/push-subscriptions/' +
+          pushSubscription.endpoint,
+      )
+      .expect(401);
+  });
+
+  it('[user] can delete its own push subscription', async () => {
+    const pushSubscription = await givenPushSubscription(app, accounts.user);
+    return client
+      .delete(
+        '/accounts/' +
+          pushSubscription.userId +
+          '/push-subscriptions/' +
+          pushSubscription.endpoint,
+      )
+      .set('Authorization', 'Bearer ' + getSessionHash(accounts.user))
+      .expect(204);
+  });
+
+  it('[user] cannot delete push subscription with foreign userId', async () => {
+    const pushSubscription = await givenPushSubscription(app, accounts.editor);
+    return client
+      .delete(
+        '/accounts/' +
+          accounts.user.userId +
+          '/push-subscriptions/' +
+          pushSubscription.endpoint,
+      )
+      .set('Authorization', 'Bearer ' + getSessionHash(accounts.user))
+      .expect(403);
+  });
+
+  it('[user] cannot delete push subscription with foreign endpoint', async () => {
+    const pushSubscription = await givenPushSubscription(app, accounts.editor);
+    return client
+      .delete(
+        '/accounts/' +
+          pushSubscription.userId +
+          '/push-subscriptions/' +
+          pushSubscription.endpoint,
+      )
+      .set('Authorization', 'Bearer ' + getSessionHash(accounts.user))
+      .expect(403);
+  });
+
+  it('[admin] can delete push subscription of other user', async () => {
+    const pushSubscription = await givenPushSubscription(app, accounts.user);
+    return client
+      .delete(
+        '/accounts/' +
+          pushSubscription.userId +
+          '/push-subscriptions/' +
+          pushSubscription.endpoint,
+      )
+      .set('Authorization', 'Bearer ' + getSessionHash(accounts.developer))
+      .expect(204);
   });
 });
