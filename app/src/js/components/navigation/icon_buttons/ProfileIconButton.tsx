@@ -4,7 +4,7 @@ import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { Person } from '@material-ui/icons';
 
-import Dict from '../../../constants/dict';
+import { Dict } from '../../../constants/dict';
 import { AppUrls } from '../../../constants/specific-urls';
 import { IUserKeys, IUserValues } from '../../../networking/account_data/IUser';
 import { CookieService } from '../../../services/CookieService';
@@ -52,7 +52,7 @@ class ProfileIconButton extends React.Component<RouteComponentProps<any, StaticC
 
         CookieService.get<number>(IUserKeys.accessLevel)
             .then(accessLevel => {
-                const isDisplayed = accessLevel !== null && accessLevel != IUserValues[IUserKeys.accessLevel].guest;
+                const isDisplayed = accessLevel !== null && accessLevel !== IUserValues[IUserKeys.accessLevel].guest;
                 
                 this.shouldCheckLoginState = false;
                 this.setState(prevState => {

@@ -4,7 +4,7 @@ import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 import { MenuItem, Tooltip } from '@material-ui/core';
 
 import BlackLogo from '../../../../assets/images/logo_black.png';
-import Dict from '../../../constants/dict';
+import { Dict } from '../../../constants/dict';
 import { AppUrls } from '../../../constants/specific-urls';
 
 type BlackLogoMenuItemProps = RouteComponentProps<any, StaticContext> & {

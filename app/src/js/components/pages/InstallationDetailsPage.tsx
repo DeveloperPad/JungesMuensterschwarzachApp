@@ -4,7 +4,7 @@ import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 import { Card, CardContent, CardHeader, Typography, withTheme, WithTheme } from '@material-ui/core';
 
 import { Browsers } from '../../constants/browsers';
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { OperatingSystems } from '../../constants/operating-systems';
 import { AppUrls } from '../../constants/specific-urls';
 import { grid2Style, grid5Style, gridHorizontalStyle } from '../../constants/theme';

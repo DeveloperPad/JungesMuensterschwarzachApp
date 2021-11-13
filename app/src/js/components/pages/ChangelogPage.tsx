@@ -6,7 +6,7 @@ import {
     withTheme, WithTheme
 } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import Background from '../utilities/Background';
 
 type IChangelogPageProps = RouteComponentProps<any, StaticContext> & WithTheme;

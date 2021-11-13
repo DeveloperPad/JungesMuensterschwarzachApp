@@ -3,7 +3,7 @@ import * as React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 
 let showNotificationFn: (message: string) => void;
 

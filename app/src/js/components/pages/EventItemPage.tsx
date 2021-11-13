@@ -3,7 +3,7 @@ import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 
 import { BottomNavigationAction, Icon, withTheme, WithTheme } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { AppUrls } from '../../constants/specific-urls';
 import {
     FetchEventItemDataRequest, IFetchEventItemDataResponse

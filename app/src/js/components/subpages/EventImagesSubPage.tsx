@@ -3,7 +3,7 @@ import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 
 import { Card, CardContent, Typography, withTheme, WithTheme } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import Formats from '../../constants/formats';
 import { formatDate } from '../../constants/global-functions';
 import { CustomTheme } from '../../constants/theme';

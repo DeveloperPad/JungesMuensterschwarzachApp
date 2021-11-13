@@ -4,7 +4,7 @@ import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 import { RootRef, Toolbar, Tooltip, Typography } from '@material-ui/core';
 import MuiAppBar from '@material-ui/core/AppBar';
 
-import Dict from '../../../constants/dict';
+import { Dict } from '../../../constants/dict';
 import { AppUrls } from '../../../constants/specific-urls';
 import { grid1Style } from '../../../constants/theme';
 import LoginIconButton from '../../navigation/icon_buttons/LoginIconButton';

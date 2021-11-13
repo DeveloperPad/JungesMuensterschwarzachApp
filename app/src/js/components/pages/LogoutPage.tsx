@@ -2,7 +2,7 @@ import * as log from 'loglevel';
 import * as React from 'react';
 import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { unregisterPushManager } from '../../constants/global-functions';
 import { LogTags } from '../../constants/log-tags';
 import { AppUrls } from '../../constants/specific-urls';

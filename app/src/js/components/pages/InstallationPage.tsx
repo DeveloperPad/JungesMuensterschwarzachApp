@@ -6,7 +6,7 @@ import {
     withTheme, WithTheme
 } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { OperatingSystems } from '../../constants/operating-systems';
 import OperatingSystemBrowserList from '../lists/OperatingSystemBrowserList';
 import Background from '../utilities/Background';

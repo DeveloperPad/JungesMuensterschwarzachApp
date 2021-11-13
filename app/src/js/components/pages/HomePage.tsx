@@ -10,7 +10,7 @@ import InstallationIcon from '../../../assets/images/installation.png';
 import LegalTextIcon from '../../../assets/images/legal_texts.png';
 import NewsIcon from '../../../assets/images/news.png';
 import ProfileIcon from '../../../assets/images/profile.png';
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { AppUrls } from '../../constants/specific-urls';
 import { IUserKeys, IUserValues } from '../../networking/account_data/IUser';
 import { CookieService } from '../../services/CookieService';
@@ -51,7 +51,7 @@ class HomePage extends React.Component<IHomePageProps, IHomePageState> {
                     this.setState(prevState => {
                         return {
                             ...prevState,
-                            isNoGuestSession: (accessLevel != IUserValues[IUserKeys.accessLevel].guest ? true : false)
+                            isNoGuestSession: (accessLevel !== IUserValues[IUserKeys.accessLevel].guest ? true : false)
                         };
                     });
                 }

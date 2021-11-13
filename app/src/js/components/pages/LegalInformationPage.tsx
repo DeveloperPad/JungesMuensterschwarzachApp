@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import { TypographyProps } from '@material-ui/core/Typography';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { CustomTheme } from '../../constants/theme';
 import Background from '../utilities/Background';
 

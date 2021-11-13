@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Checkbox, Typography } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { CustomTheme, grid1Style, linkMsgTypographyStyle } from '../../constants/theme';
 import ErrorMessageTypography from '../form_elements/ErrorMessageTypography';
 

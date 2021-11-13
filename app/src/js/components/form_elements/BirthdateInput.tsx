@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { DatePicker } from '@material-ui/pickers';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import Formats from '../../constants/formats';
 import { formatDate } from '../../constants/global-functions';
 import { grid1Style, textFieldInputProps } from '../../constants/theme';

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { Refresh } from '@material-ui/icons';
 
-import Dict from '../../../constants/dict';
+import { Dict } from '../../../constants/dict';
 
 export default class ReloadIconButton extends React.Component {
 

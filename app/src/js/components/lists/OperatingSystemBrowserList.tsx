@@ -6,7 +6,7 @@ import {
 } from '@material-ui/core';
 
 import { Browsers } from '../../constants/browsers';
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { OperatingSystems } from '../../constants/operating-systems';
 import BrowserListItem from '../list_items/BrowserListItem';
 import Grid from '../utilities/Grid';

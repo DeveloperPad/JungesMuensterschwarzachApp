@@ -5,7 +5,7 @@ import { Carousel } from 'react-responsive-carousel';
 
 import { withTheme, WithTheme } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import IImage from '../../networking/images/IImage';
 import { ConfigService } from '../../services/ConfigService';
 

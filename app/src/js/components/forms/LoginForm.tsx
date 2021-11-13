@@ -7,7 +7,7 @@ import {
     withTheme, WithTheme
 } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { registerPushManager } from '../../constants/global-functions';
 import { LogTags } from '../../constants/log-tags';
 import { AppUrls } from '../../constants/specific-urls';

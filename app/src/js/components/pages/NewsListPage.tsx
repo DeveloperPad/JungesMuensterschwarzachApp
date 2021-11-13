@@ -3,7 +3,7 @@ import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 
 import { withTheme, WithTheme } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import Formats from '../../constants/formats';
 import { AppUrls } from '../../constants/specific-urls';
 import { IUserKeys } from '../../networking/account_data/IUser';

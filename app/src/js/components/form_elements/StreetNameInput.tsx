@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { TextField } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import Formats from '../../constants/formats';
 import {
     grid1Style, textFieldInputProps

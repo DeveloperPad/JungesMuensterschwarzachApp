@@ -5,7 +5,7 @@ import {
     Accordion, AccordionDetails, AccordionSummary, Icon, Typography, withTheme, WithTheme
 } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { AppUrls } from '../../constants/specific-urls';
 import { IUserKeys } from '../../networking/account_data/IUser';
 import {

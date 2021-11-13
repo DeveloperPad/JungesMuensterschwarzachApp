@@ -3,7 +3,7 @@ import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 
 import { Card, CardContent, CardHeader, Typography, withTheme, WithTheme } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import {
     grid1Style, grid6Style, linkMsgTypographyStyle, successMsgTypographyStyle, ThemeTypes
 } from '../../constants/theme';

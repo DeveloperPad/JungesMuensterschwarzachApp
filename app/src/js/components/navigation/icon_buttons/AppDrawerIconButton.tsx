@@ -3,7 +3,7 @@ import * as React from 'react';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { Menu } from '@material-ui/icons';
 
-import Dict from '../../../constants/dict';
+import { Dict } from '../../../constants/dict';
 
 interface IAppDrawerIconButton {
     toggleAppDrawerVisibility: () => void;

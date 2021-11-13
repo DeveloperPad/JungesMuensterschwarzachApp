@@ -8,7 +8,7 @@ import {
     WithTheme
 } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import Formats from '../../constants/formats';
 import { getDate } from '../../constants/global-functions';
 import { LogTags } from '../../constants/log-tags';
@@ -21,7 +21,7 @@ import { DeleteAccountDataRequest } from '../../networking/account_data/DeleteAc
 import {
     FetchAccountDataRequest, IFetchAccountDataResponse
 } from '../../networking/account_data/FetchAccountDataRequest';
-import IUser, { IUserKeys } from '../../networking/account_data/IUser';
+import { IUserKeys } from '../../networking/account_data/IUser';
 import { UpdateAccountDataRequest } from '../../networking/account_data/UpdateAccountDataRequest';
 import INotice from '../../networking/INotice';
 import { IResponse } from '../../networking/Request';

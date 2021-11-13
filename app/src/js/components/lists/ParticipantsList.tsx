@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableContainer, TableRow, Typography, withTheme, WithTheme } from '@material-ui/core';
 import * as React from 'react';
 import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import IUser, { IUserKeys } from '../../networking/account_data/IUser';
 import Badge from '../utilities/Badge';
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Button, Icon, withTheme, WithTheme } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 
 type ISubmitButtonProps = WithTheme & {
     color?: "inherit" | "primary" | "secondary" | "default" | undefined,

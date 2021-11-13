@@ -1,7 +1,7 @@
 import { Card, CardContent, Typography, withTheme, WithTheme } from '@material-ui/core';
 import * as React from 'react';
 import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import Formats from '../../constants/formats';
 import { formatDate, getDate } from '../../constants/global-functions';
 import { AppUrls } from '../../constants/specific-urls';

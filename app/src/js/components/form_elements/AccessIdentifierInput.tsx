@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { TextField } from '@material-ui/core';
 
-import Dict from '../../constants/dict';
+import { Dict } from '../../constants/dict';
 import { textFieldInputProps } from '../../constants/theme';
 import { IUserKeys } from '../../networking/account_data/IUser';
 

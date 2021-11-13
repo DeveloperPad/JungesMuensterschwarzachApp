@@ -4,7 +4,7 @@ import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { Input } from '@material-ui/icons';
 
-import Dict from '../../../constants/dict';
+import { Dict } from '../../../constants/dict';
 import { AppUrls } from '../../../constants/specific-urls';
 import { IUserKeys } from '../../../networking/account_data/IUser';
 import { CookieService } from '../../../services/CookieService';
