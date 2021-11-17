@@ -1,7 +1,7 @@
-import * as log from 'loglevel';
+import log from 'loglevel';
 import * as React from 'react';
-import { RouteComponentProps, StaticContext } from 'react-router';
-import { Route, Switch, withRouter } from 'react-router-dom';
+import { Routes } from 'react-router';
+import { Route } from 'react-router-dom';
 
 import HeaderNavigation from './js/components/navigation/HeaderNavigation';
 import ChangelogPage from './js/components/pages/ChangelogPage';
@@ -36,8 +36,8 @@ import {
 } from './js/networking/account_session/AccountSessionSignOnRequest';
 import { CookieService } from './js/services/CookieService';
 
-type IAppProps = RouteComponentProps<any, StaticContext>;
-
+interface IAppProps {
+}
 interface IAppState {
   isLoggedIn: boolean;
   sessionObservationSchedule: NodeJS.Timer|null;
@@ -96,44 +96,80 @@ class App extends React.Component<IAppProps, IAppState> {
         <HeaderNavigation rerenderApp={this.rerenderApp} isLoggedIn={this.state.isLoggedIn} />
 
         <div>
-          <Switch>
-            <Route path={AppUrls.CHANGELOG} component={ChangelogPage} />
-            <Route exact={true} path={AppUrls.EVENTS} component={EventListPage} />
-            <Route path={AppUrls.EVENTS} component={EventItemPage} />
-            <Route path={AppUrls.HELP_NEWSLETTER_REDEEM} component={NewsletterRedemptionPage} />
-            <Route path={AppUrls.HELP_NEWSLETTER_SUBSCRIBE} component={NewsletterSubscriptionPage} />
-            <Route path={AppUrls.HELP_REDEEM_TOKEN_RESET_PASSWORD} component={TokenRedemptionPasswordResetPage} />
-            <Route path={AppUrls.HELP_REDEEM_TOKEN} component={TokenRedemptionPage} />
-            <Route path={AppUrls.HELP_REQUEST_ACCOUNT_TRANSFER_MAIL} component={RequestAccountTransferMailPage} />
-            <Route path={AppUrls.HELP_REQUEST_ACTIVATION_MAIL} component={RequestActivationMailPage} />
-            <Route path={AppUrls.HELP_RESET_PASSWORD} component={RequestPasswordResetPage} />
-            <Route path={AppUrls.HELP} component={HelpPage} />
-            <Route exact={true} path={AppUrls.INSTALLATION} component={InstallationPage} />
-            <Route path={AppUrls.INSTALLATION} component={InstallationDetailsPage} />
-            <Route path={AppUrls.LEGAL_INFORMATION} component={LegalInformationPage} />
-            <Route path={AppUrls.LOGIN} render={this.renderLoginPage} />
-            <Route path={AppUrls.LOGOUT} render={this.renderLogoutPage} />
-            <Route exact={true} path={AppUrls.NEWS} component={NewsListPage} />
-            <Route path={AppUrls.NEWS} component={NewsItemPage} />
-            <Route path={AppUrls.PROFILE_CHANGE_PASSWORD} component={ProfilePasswordChangePage} />
-            <Route path={AppUrls.PROFILE} component={ProfilePage} />
-            <Route path={AppUrls.REGISTER} component={RegistrationPage} />
-            <Route path={AppUrls.HOME} component={HomePage} />
+          <Routes>
+            <Route path={AppUrls.CHANGELOG}>
+              <ChangelogPage/>
+            </Route>
+            <Route path={AppUrls.EVENTS_LIST}>
+              <EventListPage/>
+            </Route>
+            <Route path={AppUrls.EVENTS_ITEM}>
+              <EventItemPage/>
+            </Route>
+            <Route path={AppUrls.HELP_NEWSLETTER_REDEEM}>
+              <NewsletterRedemptionPage/>
+            </Route>
+            <Route path={AppUrls.HELP_NEWSLETTER_SUBSCRIBE}>
+              <NewsletterSubscriptionPage/>
+            </Route>
+            <Route path={AppUrls.HELP_REDEEM_TOKEN_RESET_PASSWORD}>
+              <TokenRedemptionPasswordResetPage/>
+            </Route>
+            <Route path={AppUrls.HELP_REDEEM_TOKEN}>
+              <TokenRedemptionPage/>
+            </Route>
+            <Route path={AppUrls.HELP_REQUEST_ACCOUNT_TRANSFER_MAIL}>
+              <RequestAccountTransferMailPage/>
+            </Route>
+            <Route path={AppUrls.HELP_REQUEST_ACTIVATION_MAIL}>
+              <RequestActivationMailPage/>
+            </Route>
+            <Route path={AppUrls.HELP_RESET_PASSWORD}>
+              <RequestPasswordResetPage/>
+            </Route>
+            <Route path={AppUrls.HELP}>
+              <HelpPage/>
+            </Route>
+            <Route path={AppUrls.INSTALLATION}>
+              <InstallationPage/>
+            </Route>
+            <Route path={AppUrls.INSTALLATION_DETAILS}>
+              <InstallationDetailsPage/>
+            </Route>
+            <Route path={AppUrls.LEGAL_INFORMATION}>
+              <LegalInformationPage/>
+            </Route>
+            <Route path={AppUrls.LOGIN}>
+              <LoginPage setIsLoggedIn={this.setIsLoggedIn}/>
+            </Route>
+            <Route path={AppUrls.LOGOUT}>
+              <LogoutPage setIsLoggedIn={this.setIsLoggedIn}/>
+            </Route>
+            <Route path={AppUrls.NEWS_LIST}>
+              <NewsListPage/>
+            </Route>
+            <Route path={AppUrls.NEWS_ITEM}>
+              <NewsItemPage/>
+            </Route>
+            <Route path={AppUrls.PROFILE_CHANGE_PASSWORD}>
+              <ProfilePasswordChangePage/>
+            </Route>
+            <Route path={AppUrls.PROFILE}>
+              <ProfilePage/>
+            </Route>
+            <Route path={AppUrls.REGISTER}>
+              <RegistrationPage/>
+            </Route>
+            <Route path={AppUrls.HOME}>
+              <HomePage/>
+            </Route>
             {/* may add a 404 page here */}
-          </Switch>
+          </Routes>
         </div>
 
         <Notifier />
       </div>
     );
-  }
-
-  private renderLoginPage = (): React.ReactNode => {
-    return <LoginPage setIsLoggedIn={this.setIsLoggedIn}/>;
-  }
-
-  private renderLogoutPage = (): React.ReactNode => {
-    return <LogoutPage setIsLoggedIn={this.setIsLoggedIn}/>;
   }
 
   public rerenderApp = (): void => {
@@ -277,7 +313,7 @@ class App extends React.Component<IAppProps, IAppState> {
 
 }
 
-export default withRouter(App);
+export default App;
 
 const appRouteStyle: React.CSSProperties = {
   margin: "auto",
