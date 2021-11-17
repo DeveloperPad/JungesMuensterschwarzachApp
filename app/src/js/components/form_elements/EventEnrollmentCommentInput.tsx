@@ -1,12 +1,14 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { TextField } from '@material-ui/core';
+import { TextField } from "@material-ui/core";
 
-import { Dict } from '../../constants/dict';
-import Formats from '../../constants/formats';
-import { textFieldInputProps } from '../../constants/theme';
-import { IEventEnrollmentKeys } from '../../networking/events/IEventEnrollment';
-import { IEventItemKeys } from '../../networking/events/IEventItem';
+import { Dict } from "../../constants/dict";
+import Formats from "../../constants/formats";
+import { textFieldInputProps } from "../../constants/theme";
+import { IEventEnrollmentKeys } from "../../networking/events/IEventEnrollment";
+import { IEventItemKeys } from "../../networking/events/IEventItem";
+import { useState } from "react";
+import { useEffect } from "react";
 
 interface IEventEnrollmentCommentInputProps {
     errorMessage: string | null;
@@ -17,102 +19,70 @@ interface IEventEnrollmentCommentInputProps {
     value: string;
 }
 
-interface IEventEnrollmentCommentInputState {
-    submit: boolean;
-}
+const EventEnrollmentCommentInput = (
+    props: IEventEnrollmentCommentInputProps
+) => {
+    const { errorMessage, onBlur, onError, onUpdateValue, style, value } =
+        props;
+    const [submit, setSubmit] = useState(false);
 
-export default class EventEnrollmentCommentInput 
-    extends React.Component<IEventEnrollmentCommentInputProps, IEventEnrollmentCommentInputState> {
-
-    constructor(props: IEventEnrollmentCommentInputProps) {
-        super(props);
-        this.state = {
-            submit: false
-        };
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <TextField
-                error={this.props.errorMessage !== null}
-                helperText={this.props.errorMessage}
-                inputProps={eventEnrollmentCommentInputProps}
-                label={Dict.event_eventEnrollmentComment}
-                margin="dense"
-                multiline={true}
-                name={IEventItemKeys.eventEnrollmentComment}
-                onBlur={this.onBlur}
-                onChange={this.onChange}
-                rows={Formats.ROWS.STANDARD.EVENT_ENROLLMENT_COMMENT}
-                style={this.props.style}
-                value={this.props.value}
-                variant="outlined"
-            />
-        );
-    }
-
-    public componentDidMount() {
-        this.validate();
-    }
-
-    public shouldComponentUpdate(nextProps: IEventEnrollmentCommentInputProps, 
-            nextState: IEventEnrollmentCommentInputState, nextContext: any): boolean {
-        return this.props.errorMessage !== nextProps.errorMessage
-            || this.props.value !== nextProps.value
-            || this.state.submit !== nextState.submit;
-    }
-
-    public componentDidUpdate(prevProps: IEventEnrollmentCommentInputProps, prevState: IEventEnrollmentCommentInputState): void {
-        this.validate();
-
-        if (this.state.submit) {
-            if (this.props.onBlur) {
-                this.props.onBlur(
-                    IEventEnrollmentKeys.eventEnrollmentComment,
-                    this.props.value
-                );
-            }
-            this.setState({
-                ...prevState,
-                submit: false
-            });
-        }
-    }
-
-    private onChange = (event: any): void => {
-        this.props.onUpdateValue(
-            IEventEnrollmentKeys.eventEnrollmentComment, 
+    const onChange = (event: any): void => {
+        onUpdateValue(
+            IEventEnrollmentKeys.eventEnrollmentComment,
             event.target.value
         );
-    }
-
-    private onBlur = (event: React.FocusEvent<HTMLTextAreaElement>): void => {
+    };
+    const onLocalBlur = (
+        event: React.FocusEvent<HTMLTextAreaElement>
+    ): void => {
         event.preventDefault();
         event.stopPropagation();
 
-        this.validate();
-        
-        if (this.props.onBlur) {
-            this.setState(prevState => {
-                return {
-                    ...prevState,
-                    submit: true
-                }
-            });
+        if (onBlur) {
+            setSubmit(true);
         }
-    }
+    };
 
-    public validate = (): void => {
-        this.props.onError(
+    useEffect(() => {
+        onError(
             IEventEnrollmentKeys.eventEnrollmentComment,
-            this.props.value != null && this.props.value.length <= Formats.LENGTH.MAX.EVENT_ENROLLMENT_COMMENT ?
-                null : Dict.event_eventEnrollmentComment_invalid
+            value != null &&
+                value.length <= Formats.LENGTH.MAX.EVENT_ENROLLMENT_COMMENT
+                ? null
+                : Dict.event_eventEnrollmentComment_invalid
         );
-    }
 
-}
+        if (!submit) {
+            return;
+        }
 
-const eventEnrollmentCommentInputProps = {
-    ...textFieldInputProps,
-    maxLength: Formats.LENGTH.MAX.EVENT_ENROLLMENT_COMMENT
-}
+        if (onBlur) {
+            onBlur(IEventEnrollmentKeys.eventEnrollmentComment, value);
+        }
+
+        setSubmit(false);
+    }, [onBlur, onError, submit, value]);
+
+    return (
+        <TextField
+            error={errorMessage !== null}
+            helperText={errorMessage}
+            inputProps={{
+                ...textFieldInputProps,
+                maxLength: Formats.LENGTH.MAX.EVENT_ENROLLMENT_COMMENT,
+            }}
+            label={Dict.event_eventEnrollmentComment}
+            margin="dense"
+            multiline={true}
+            name={IEventItemKeys.eventEnrollmentComment}
+            onBlur={onLocalBlur}
+            onChange={onChange}
+            rows={Formats.ROWS.STANDARD.EVENT_ENROLLMENT_COMMENT}
+            style={style}
+            value={value}
+            variant="outlined"
+        />
+    );
+};
+
+export default EventEnrollmentCommentInput;

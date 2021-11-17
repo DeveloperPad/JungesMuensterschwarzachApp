@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 
 import { Button, Icon, withTheme, WithTheme } from '@material-ui/core';
 
-type IDeleteButtonProps = RouteComponentProps<any, StaticContext> & WithTheme & {
+type IDeleteButtonProps = WithTheme & {
     color?: "inherit" | "primary" | "secondary" | "default" | undefined,
     icon?: string,
     label: string,
@@ -12,28 +11,22 @@ type IDeleteButtonProps = RouteComponentProps<any, StaticContext> & WithTheme & 
     variant?: "text" | "outlined" | "contained" | undefined,
 }
 
-class DeleteButton extends React.PureComponent<IDeleteButtonProps> {
-
-    private deleteIconStyle: React.CSSProperties = {
-        marginLeft: this.props.theme.spacing()
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <Button
-                color={this.props.color ? this.props.color : "primary"}
-                onClick={this.props.onClick}
-                style={this.props.style}
-                variant={this.props.variant ? this.props.variant : "contained"}
-            >
-                {this.props.label}
-                <Icon style={this.deleteIconStyle}>
-                    {this.props.icon ? this.props.icon : "delete_forever"}
-                </Icon>
-            </Button>
-        );
-    }
-
+const DeleteButton = (props: IDeleteButtonProps) => {
+    return (
+        <Button
+            color={props.color ?? "primary"}
+            onClick={props.onClick}
+            style={props.style}
+            variant={props.variant ?? "contained"}
+        >
+            {props.label}
+            <Icon style={{
+                marginLeft: props.theme.spacing()
+            }}>
+                {props.icon ?? "delete_forever"}
+            </Icon>
+        </Button>
+    );
 }
 
-export default withTheme(withRouter(DeleteButton));
+export default withTheme(DeleteButton);

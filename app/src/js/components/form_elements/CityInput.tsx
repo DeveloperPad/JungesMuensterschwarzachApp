@@ -1,134 +1,95 @@
-import * as React from 'react';
+import * as React from "react";
+import { useState } from "react";
 
-import { TextField } from '@material-ui/core';
+import { TextField } from "@material-ui/core";
 
-import { Dict } from '../../constants/dict';
-import Formats from '../../constants/formats';
-import { grid1Style, textFieldInputProps } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
+import { Dict } from "../../constants/dict";
+import Formats from "../../constants/formats";
+import { grid1Style, textFieldInputProps } from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import { useEffect } from "react";
 
 interface ICityInputProps {
     errorMessage: string | null;
+    onBlur: (key: IUserKeys.city, value: string | null) => void;
     onError: (key: IUserKeys.city, value: string | null) => void;
     onUpdateValue: (key: IUserKeys.city, value: string) => void;
-    onBlur: (key: IUserKeys.city, value: string | null) => void;
     value: string;
 }
 
-interface ICityInputState {
-    submit: boolean;
-}
+const CityInput = (props: ICityInputProps) => {
+    const LOCAL_ERROR_MESSAGE = Dict.account_city_invalid;
 
-export default class CityInput extends React.Component<ICityInputProps, ICityInputState> {
+    const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
+    const [submit, setSubmit] = useState(false);
 
-    public static LOCAL_ERROR_MESSAGE = Dict.account_city_invalid;
-
-    constructor(props: ICityInputProps) {
-        super(props);
-
-        this.state = {
-            submit: false
-        };
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <TextField
-                error={this.props.errorMessage != null}
-                helperText={this.props.errorMessage}
-                inputProps={cityInputProps}
-                label={Dict.account_city}
-                margin="dense"
-                name={IUserKeys.city}
-                onBlur={this.onBlur}
-                onChange={this.onChange}
-                style={grid1Style}
-                type="text"
-                value={this.props.value}
-                variant="outlined"
-            />
-        );
-    }
-
-    public componentDidMount() {
-        this.validate();
-    }
-
-    public shouldComponentUpdate(nextProps: ICityInputProps, nextState: any, nextContext: any): boolean {
-        return this.props.errorMessage !== nextProps.errorMessage
-            || this.props.value !== nextProps.value
-            || this.state.submit !== nextState.submit;
-    }
-
-    public componentDidUpdate(prevProps: ICityInputProps, prevState: ICityInputState): void {
-        this.validate();
-
-        if (this.state.submit) {
-            if (this.props.onBlur) {
-                this.props.onBlur(
-                    IUserKeys.city,
-                    this.props.value || null
-                );
-            }
-            this.setState({
-                ...prevState,
-                submit: false
-            });
+    const onChange = (event: any): void => {
+        onError(IUserKeys.city, null);
+        onUpdateValue(IUserKeys.city, event.target.value);
+    };
+    const localOnBlur = (_: any): void => {
+        if (value) {
+            onUpdateValue(IUserKeys.city, value.trim());
         }
-    }
 
-    private onChange = (event: any): void => {
-        this.props.onError(
-            IUserKeys.city,
-            null
-        );
-        this.props.onUpdateValue(
-            IUserKeys.city,
-            event.target.value
-        );
-    }
+        setSubmit(true);
+    };
 
-    private onBlur = (_: any): void => {
-        this.trimValue();
-        this.validate();
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                submit: true
-            }
-        });
-    }
+    useEffect(() => {
+        const localErrorMessage =
+            !value ||
+            (value.length > 0 && value.length <= Formats.LENGTH.MAX.CITY)
+                ? null
+                : LOCAL_ERROR_MESSAGE;
 
-    private trimValue = (): void => {
-        if (this.props.value) {
-            this.props.onUpdateValue(
-                IUserKeys.city,
-                this.props.value.trim()
-            );
-        }
-    }
-
-    public validate = (): void => {
-        const city = this.props.value;
-        const localErrorMessage = !city
-            || (city.length > 0 && city.length <= Formats.LENGTH.MAX.CITY) ?
-            null : CityInput.LOCAL_ERROR_MESSAGE;
-        
         // do not overwrite server side error messages
-        if (this.props.errorMessage && !localErrorMessage
-            && this.props.errorMessage !== CityInput.LOCAL_ERROR_MESSAGE) {
+        if (
+            errorMessage &&
+            !localErrorMessage &&
+            errorMessage !== LOCAL_ERROR_MESSAGE
+        ) {
             return;
         }
 
-        this.props.onError(
-            IUserKeys.city,
-            localErrorMessage
-        );
-    }
+        onError(IUserKeys.city, localErrorMessage);
 
-}
+        if (!submit) {
+            return;
+        }
 
-const cityInputProps = {
-    ...textFieldInputProps,
-    maxLength: Formats.LENGTH.MAX.CITY
-}
+        if (onBlur) {
+            onBlur(IUserKeys.city, value || null);
+        }
+
+        setSubmit(false);
+    }, [
+        errorMessage,
+        LOCAL_ERROR_MESSAGE,
+        onBlur,
+        onError,
+        submit,
+        value,
+    ]);
+
+    return (
+        <TextField
+            error={errorMessage != null}
+            helperText={errorMessage}
+            inputProps={{
+                ...textFieldInputProps,
+                maxLength: Formats.LENGTH.MAX.CITY,
+            }}
+            label={Dict.account_city}
+            margin="dense"
+            name={IUserKeys.city}
+            onBlur={localOnBlur}
+            onChange={onChange}
+            style={grid1Style}
+            type="text"
+            value={value}
+            variant="outlined"
+        />
+    );
+};
+
+export default CityInput;

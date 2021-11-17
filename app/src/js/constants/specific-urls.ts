@@ -2,7 +2,8 @@ export enum AppUrls {
     // will be prepended with the current address
     CHANGELOG = "/changelog",
     CONTACT = "/contact",
-    EVENTS = "/events",
+    EVENTS_LIST = "/events",
+    EVENTS_ITEM = "/events/:id",
     HELP = "/help",
     HELP_NEWSLETTER_SUBSCRIBE = "/help/newsletter/subscribe",
     HELP_NEWSLETTER_REDEEM = "/help/newsletter/redeem",
@@ -13,10 +14,12 @@ export enum AppUrls {
     HELP_RESET_PASSWORD = "/help/reset_password",
     HOME = "/",
     INSTALLATION = "/installation",
+    INSTALLATION_DETAILS = "/installation/*",
     LEGAL_INFORMATION = "/legal_information",
     LOGIN = "/login",
     LOGOUT = "/logout",
-    NEWS = "/news",
+    NEWS_LIST = "/news",
+    NEWS_ITEM = "/news/:id",
     PROFILE = "/profile",
     PROFILE_CHANGE_PASSWORD = "/profile/change_password",
     REGISTER = "/register"

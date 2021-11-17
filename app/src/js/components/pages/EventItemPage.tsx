@@ -162,7 +162,7 @@ class EventItemPage extends React.Component<IEventItemPageProps, IEventItemPageS
     }
 
     private getCurrentEventId = (): number => {
-        return parseInt(this.props.location.pathname.slice((AppUrls.EVENTS + "/").length), 10);
+        return parseInt(this.props.location.pathname.slice((AppUrls.EVENTS_LIST + "/").length), 10);
     }
 
     private changeTab = (event: React.ChangeEvent, value: number): void => {

@@ -82,7 +82,7 @@ class NewsListItem extends React.Component<INewsListItemProps> {
     private openNewsItem = (newsId: number): void => {
         if (newsId >= 0) {
             this.props.history.push(
-                AppUrls.NEWS + "/" + newsId
+                AppUrls.NEWS_LIST + "/" + newsId
             );
         }
     }

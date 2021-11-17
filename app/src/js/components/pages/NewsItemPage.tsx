@@ -201,7 +201,7 @@ class NewsItemPage extends React.Component<INewsItemPageProps, INewsItemPageStat
     }
 
     private getCurrentNewsId = (): number => {
-        return parseInt(this.props.location.pathname.slice((AppUrls.NEWS + "/").length), 10);
+        return parseInt(this.props.location.pathname.slice((AppUrls.NEWS_LIST + "/").length), 10);
     }
 
     private getAuthorDetails = (): React.ReactNode => {

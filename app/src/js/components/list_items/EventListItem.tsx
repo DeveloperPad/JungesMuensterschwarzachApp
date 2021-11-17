@@ -87,7 +87,7 @@ class EventListItem extends React.Component<IEventListItemProps> {
     private openEventItem = (eventId: number): void => {
         if (eventId >= 0) {
             this.props.history.push(
-                AppUrls.EVENTS + "/" + eventId
+                AppUrls.EVENTS_LIST + "/" + eventId
             );
         }
     }

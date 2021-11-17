@@ -25,7 +25,7 @@ class NewsMenuItem extends React.Component<NewsMenuItemProps> {
 
     private forward = (): void => {
         this.props.history.push(
-            AppUrls.NEWS
+            AppUrls.NEWS_LIST
         );
     }
 

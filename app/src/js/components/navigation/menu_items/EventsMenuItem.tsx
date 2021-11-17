@@ -25,7 +25,7 @@ class EventsMenuItem extends React.Component<EventsMenuItemProps> {
 
     private forward = (): void => {
         this.props.history.push(
-            AppUrls.EVENTS
+            AppUrls.EVENTS_LIST
         );
     }
 

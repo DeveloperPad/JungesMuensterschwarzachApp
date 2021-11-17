@@ -73,12 +73,12 @@ class HomePage extends React.Component<IHomePageProps, IHomePageState> {
                             <HomePageListItem
                                 icon={NewsIcon}
                                 title={Dict.navigation_app_news}
-                                target={AppUrls.NEWS}
+                                target={AppUrls.NEWS_LIST}
                             />
                             <HomePageListItem
                                 icon={EventIcon}
                                 title={Dict.navigation_events}
-                                target={AppUrls.EVENTS}
+                                target={AppUrls.EVENTS_LIST}
                             />
                             {this.state.isNoGuestSession &&
                                 <HomePageListItem

@@ -1,11 +1,17 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { MuiThemeProvider, TextField } from '@material-ui/core';
+import { MuiThemeProvider, TextField } from "@material-ui/core";
 
-import { Dict } from '../../constants/dict';
-import Formats from '../../constants/formats';
-import { getTextFieldTheme, textFieldInputProps, ThemeTypes } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
+import { Dict } from "../../constants/dict";
+import Formats from "../../constants/formats";
+import {
+    getTextFieldTheme,
+    textFieldInputProps,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import { useState } from "react";
+import { useEffect } from "react";
 
 interface IDisplayNameInputProps {
     errorMessage: string | null;
@@ -18,134 +24,100 @@ interface IDisplayNameInputProps {
     value: string;
 }
 
-interface IDisplayNameInputState {
-    showErrorMessage: boolean;
-    submit: boolean;
-}
+const DisplayNameInput = (props: IDisplayNameInputProps) => {
+    const LOCAL_ERROR_MESSAGE: string = Dict.account_displayName_invalid;
 
-export default class DisplayNameInput extends React.Component<IDisplayNameInputProps, IDisplayNameInputState> {
+    const {
+        errorMessage,
+        onError,
+        onUpdateValue,
+        onBlur,
+        showErrorMessageOnLoad,
+        style,
+        themeType,
+        value,
+    } = props;
+    const [submit, setSubmit] = useState(false);
+    const [showErrorMessage, setShowErrorMessage] = useState(
+        showErrorMessageOnLoad === undefined || showErrorMessageOnLoad
+    );
 
-    public static LOCAL_ERROR_MESSAGE: string = Dict.account_displayName_invalid;
-
-    constructor(props: IDisplayNameInputProps) {
-        super(props);
-
-        this.state = {
-            showErrorMessage: props.showErrorMessageOnLoad === undefined || props.showErrorMessageOnLoad,
-            submit: false
-        };
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <MuiThemeProvider theme={getTextFieldTheme(this.props.themeType)}>
-                <TextField
-                    error={this.state.showErrorMessage && this.props.errorMessage != null}
-                    fullWidth={true}
-                    helperText={this.state.showErrorMessage ? this.props.errorMessage : null}
-                    inputProps={displayNameInputProps}
-                    label={Dict.account_displayName}
-                    margin="dense"
-                    name={IUserKeys.displayName}
-                    onBlur={this.onBlur}
-                    onChange={this.onChange}
-                    style={this.props.style}
-                    type="text"
-                    value={this.props.value}
-                    variant="outlined"
-                />
-            </MuiThemeProvider>
-        );
-    }
-
-    public componentDidMount() {
-        this.validate();
-    }
-
-    public shouldComponentUpdate(nextProps: IDisplayNameInputProps, nextState: IDisplayNameInputState, nextContext: any): boolean {
-        return this.props.errorMessage !== nextProps.errorMessage
-            || this.props.value !== nextProps.value
-            || this.state.submit !== nextState.submit;
-    }
-
-    public componentDidUpdate(prevProps: IDisplayNameInputProps, prevState: IDisplayNameInputState): void {
-        this.validate();
-
-        if (!this.state.showErrorMessage) {
-            this.setState({
-                ...prevState,
-                showErrorMessage: true
-            });
+    const onChange = (event: any): void => {
+        onError(IUserKeys.displayName, null);
+        onUpdateValue(IUserKeys.displayName, event.target.value);
+    };
+    const onLocalBlur = (_: any): void => {
+        if (value) {
+            onUpdateValue(IUserKeys.displayName, value.trim());
         }
 
-        if (this.state.submit) {
-            if (this.props.onBlur) {
-                this.props.onBlur(
-                    IUserKeys.displayName,
-                    this.props.value
-                );
-            }
-            
-            this.setState({
-                    ...prevState,
-                    submit: false
-                }
-            );
-        }
-    }
+        setSubmit(true);
+    };
 
-    private onChange = (event: any): void => {
-        this.props.onError(
-            IUserKeys.displayName,
-            null
-        );
-        this.props.onUpdateValue(
-            IUserKeys.displayName, 
-            event.target.value
-        );
-    }
-
-    private onBlur = (_: any): void => {
-        this.trimValue();
-        this.validate();
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                submit: true
-            }
-        });
-    }
-
-    private trimValue = ():void => {
-        if (this.props.value) {
-            this.props.onUpdateValue(
-                IUserKeys.displayName,
-                this.props.value.trim()
-            );
-        }
-    }
-
-    public validate = (): void => {
-        const displayName = this.props.value;
-        const localErrorMessage = displayName != null && displayName.length > 0 
-            && displayName.length <= Formats.LENGTH.MAX.DISPLAY_NAME ?
-            null : DisplayNameInput.LOCAL_ERROR_MESSAGE;
+    useEffect(() => {
+        const localErrorMessage =
+            value != null &&
+            value.length > 0 &&
+            value.length <= Formats.LENGTH.MAX.DISPLAY_NAME
+                ? null
+                : LOCAL_ERROR_MESSAGE;
 
         // do not overwrite server side error messages
-        if (this.props.errorMessage && !localErrorMessage
-            && this.props.errorMessage !== DisplayNameInput.LOCAL_ERROR_MESSAGE) {
+        if (
+            errorMessage &&
+            !localErrorMessage &&
+            errorMessage !== LOCAL_ERROR_MESSAGE
+        ) {
             return;
         }
 
-        this.props.onError(
-            IUserKeys.displayName,
-            localErrorMessage
-        );
-    }
+        onError(IUserKeys.displayName, localErrorMessage);
 
-}
+        if (!showErrorMessage) {
+            setShowErrorMessage(true);
+        }
 
-const displayNameInputProps = {
-    ...textFieldInputProps,
-    maxLength: Formats.LENGTH.MAX.DISPLAY_NAME
-}
+        if (!submit) {
+            return;
+        }
+
+        if (onBlur) {
+            onBlur(IUserKeys.displayName, value);
+        }
+
+        setSubmit(false);
+    }, [
+        errorMessage,
+        LOCAL_ERROR_MESSAGE,
+        onBlur,
+        onError,
+        showErrorMessage,
+        submit,
+        value,
+    ]);
+
+    return (
+        <MuiThemeProvider theme={getTextFieldTheme(themeType)}>
+            <TextField
+                error={showErrorMessage && errorMessage != null}
+                fullWidth={true}
+                helperText={showErrorMessage ? errorMessage : null}
+                inputProps={{
+                    ...textFieldInputProps,
+                    maxLength: Formats.LENGTH.MAX.DISPLAY_NAME,
+                }}
+                label={Dict.account_displayName}
+                margin="dense"
+                name={IUserKeys.displayName}
+                onBlur={onLocalBlur}
+                onChange={onChange}
+                style={style}
+                type="text"
+                value={value}
+                variant="outlined"
+            />
+        </MuiThemeProvider>
+    );
+};
+
+export default DisplayNameInput;

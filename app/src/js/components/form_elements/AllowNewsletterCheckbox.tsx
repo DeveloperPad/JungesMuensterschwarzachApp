@@ -1,125 +1,110 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Checkbox, Switch, Typography } from '@material-ui/core';
+import { Checkbox, Switch, Typography } from "@material-ui/core";
 
-import { Dict } from '../../constants/dict';
-import { CustomTheme, grid1Style, ThemeTypes } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
-import ErrorMessageTypography from './ErrorMessageTypography';
+import { Dict } from "../../constants/dict";
+import { CustomTheme, grid1Style, ThemeTypes } from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import ErrorMessageTypography from "./ErrorMessageTypography";
+import { useState } from "react";
+import { useEffect } from "react";
 
 interface IAllowNewsletterCheckboxProps {
     checked: boolean;
     errorMessage: string | null;
-    onUpdateValue: (key: IUserKeys.allowNewsletter, value: number) => void;
     onBlur?: (key: IUserKeys.allowNewsletter, value: number) => void;
+    onUpdateValue: (key: IUserKeys.allowNewsletter, value: number) => void;
     showErrorMessageOnLoad?: boolean; // default: true
     style?: React.CSSProperties;
     themeType?: ThemeTypes;
 }
 
-interface IAllowNewsletterCheckboxState {
-    showErrorMessage: boolean;
-    submit: boolean;
-}
+const AllowNewsLetterCheckbox = (props: IAllowNewsletterCheckboxProps) => {
+    const {
+        checked,
+        errorMessage,
+        onBlur,
+        onUpdateValue,
+        showErrorMessageOnLoad,
+        style,
+        themeType,
+    } = props;
+    const [submit, setSubmit] = useState(false);
 
-export default class AllowNewsletterCheckbox 
-    extends React.Component<IAllowNewsletterCheckboxProps, IAllowNewsletterCheckboxState> {
-
-    private contentDivStyle: React.CSSProperties = {
-        ...this.props.style,
+    const contentDivStyle: React.CSSProperties = {
+        ...style,
         alignItems: "center",
         display: "flex",
-    }
-    private lightTypographyStyle: React.CSSProperties = {
-        color: CustomTheme.COLOR_WHITE
-    }
+    };
+    const lightTypographyStyle: React.CSSProperties = {
+        color: CustomTheme.COLOR_WHITE,
+    };
 
-    constructor(props: IAllowNewsletterCheckboxProps) {
-        super(props);
-
-        this.state = {
-            showErrorMessage: props.showErrorMessageOnLoad === undefined || props.showErrorMessageOnLoad,
-            submit: false
-        };
-    }
-
-    public render(): React.ReactNode {
-        return this.props.themeType && this.props.themeType === ThemeTypes.LIGHT ? (
-            <>
-                <div style={this.contentDivStyle}>
-                    <Checkbox
-                        checked={this.props.checked}
-                        color="primary"
-                        name={IUserKeys.allowNewsletter}
-                        onChange={this.onChange}
-                        style={this.lightTypographyStyle}
-                    />
-                    <div style={grid1Style} />
-                    <Typography style={this.lightTypographyStyle}>
-                        {Dict.account_allowNewsletter_registration}
-                    </Typography>
-                </div>
-                <ErrorMessageTypography value={this.state.showErrorMessage ? this.props.errorMessage : null} />
-            </>
-            ) : (
-            <>
-                <div style={this.contentDivStyle}>
-                    <Typography variant="caption">
-                        {Dict.account_allowNewsletter}
-                    </Typography>
-                    <div style={contentDivSpacerStyle} />
-                    <Switch
-                        checked={this.props.checked}
-                        color="primary"
-                        name={IUserKeys.allowNewsletter}
-                        onChange={this.onChange}
-                    />
-                </div>
-                <ErrorMessageTypography value={this.state.showErrorMessage ? this.props.errorMessage : null} />
-            </>
-        );
-    }
-
-    public shouldComponentUpdate(
-        nextProps: IAllowNewsletterCheckboxProps,
-        nextState: IAllowNewsletterCheckboxState, nextContext: any): boolean {
-        return this.props.checked !== nextProps.checked
-            || this.props.errorMessage !== nextProps.errorMessage
-            || this.state.submit !== nextState.submit;
-    }
-
-    public componentDidUpdate(
-        prevProps: IAllowNewsletterCheckboxProps, 
-        prevState: IAllowNewsletterCheckboxState): void {
-        if (this.state.submit) {
-            if (this.props.onBlur) {
-                this.props.onBlur(
-                    IUserKeys.allowNewsletter,
-                    this.props.checked ? 1 : 0
-                );
-            }
-            this.setState({
-                ...prevState,
-                submit: false
-            });
-        }
-    }
-
-    public onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-        this.props.onUpdateValue(
+    const showErrorMessage = (): boolean => {
+        return showErrorMessageOnLoad === undefined || showErrorMessageOnLoad;
+    };
+    const onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+        onUpdateValue(
             IUserKeys.allowNewsletter,
             (event.currentTarget as HTMLInputElement).checked ? 1 : 0
         );
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                submit: true
-            }
-        });
-    }
+        setSubmit(true);
+    };
 
-}
+    useEffect(() => {
+        if (!submit) {
+            return;
+        }
 
-const contentDivSpacerStyle: React.CSSProperties = {
-    flex: 1
-}
+        if (onBlur) {
+            onBlur(IUserKeys.allowNewsletter, checked ? 1 : 0);
+        }
+
+        setSubmit(false);
+    }, [checked, onBlur, submit]);
+
+    return themeType && themeType === ThemeTypes.LIGHT ? (
+        <>
+            <div style={contentDivStyle}>
+                <Checkbox
+                    checked={checked}
+                    color="primary"
+                    name={IUserKeys.allowNewsletter}
+                    onChange={onChange}
+                    style={lightTypographyStyle}
+                />
+                <div style={grid1Style} />
+                <Typography style={lightTypographyStyle}>
+                    {Dict.account_allowNewsletter_registration}
+                </Typography>
+            </div>
+            <ErrorMessageTypography
+                value={showErrorMessage() ? errorMessage : null}
+            />
+        </>
+    ) : (
+        <>
+            <div style={contentDivStyle}>
+                <Typography variant="caption">
+                    {Dict.account_allowNewsletter}
+                </Typography>
+                <div
+                    style={{
+                        flex: 1,
+                    }}
+                />
+                <Switch
+                    checked={checked}
+                    color="primary"
+                    name={IUserKeys.allowNewsletter}
+                    onChange={onChange}
+                />
+            </div>
+            <ErrorMessageTypography
+                value={showErrorMessage() ? errorMessage : null}
+            />
+        </>
+    );
+};
+
+export default AllowNewsLetterCheckbox;
