@@ -1,54 +1,50 @@
-import * as React from 'react';
+import * as React from "react";
+import { useState } from "react";
 
-import AppBar from './menus/AppBar';
-import AppDrawer from './menus/AppDrawer';
-import AppMenu from './menus/AppMenu';
+import AppBar from "./menus/AppBar";
+import AppDrawer from "./menus/AppDrawer";
+import AppMenu from "./menus/AppMenu";
 
 interface IHeaderNavigationProps {
     isLoggedIn: boolean;
     rerenderApp: () => void;
 }
 
-interface IHeaderNavigationState {
-    drawerVisibility: boolean;
-    menuVisibility: boolean;
-}
+const HeaderNavigation = (props: IHeaderNavigationProps) => {
+    const { isLoggedIn, rerenderApp } = props;
+    const [drawerVisible, setDrawerVisible] = useState(false);
+    const [menuVisible, setMenuVisible] = useState(false);
 
-export default class HeaderNavigation extends React.Component<IHeaderNavigationProps, IHeaderNavigationState> {
+    return (
+        <>
+            <AppBar
+                rerenderApp={rerenderApp}
+                toggleAppDrawerVisibility={setDrawerVisible.bind(
+                    this,
+                    (v: boolean) => !v
+                )}
+                toggleAppMenuVisibility={setMenuVisible.bind(
+                    this,
+                    (v: boolean) => !v
+                )}
+            />
+            <AppDrawer
+                open={drawerVisible}
+                toggleAppDrawerVisibility={setDrawerVisible.bind(
+                    this,
+                    (v: boolean) => !v
+                )}
+            />
+            <AppMenu
+                isLoggedIn={isLoggedIn}
+                open={menuVisible}
+                toggleAppMenuVisibility={setMenuVisible.bind(
+                    this,
+                    (v: boolean) => !v
+                )}
+            />
+        </>
+    );
+};
 
-    public state: IHeaderNavigationState = {
-        drawerVisibility: false,
-        menuVisibility: false
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <>
-                <AppBar
-                    rerenderApp={this.props.rerenderApp}
-                    toggleAppDrawerVisibility={this.toggleAppDrawerVisibility}
-                    toggleAppMenuVisibility={this.toggleAppMenuVisibility} />
-                <AppDrawer
-                    open={this.state.drawerVisibility}
-                    toggleAppDrawerVisibility={this.toggleAppDrawerVisibility} />
-                <AppMenu
-                    isLoggedIn={this.props.isLoggedIn}
-                    open={this.state.menuVisibility}
-                    toggleAppMenuVisibility={this.toggleAppMenuVisibility} />
-            </>
-        );
-    }
-
-    public toggleAppDrawerVisibility = (): void => {
-        this.setState(prevState => ({
-            drawerVisibility: !prevState.drawerVisibility
-        }));
-    }
-
-    public toggleAppMenuVisibility = (): void => {
-        this.setState(prevState => ({
-            menuVisibility: !prevState.menuVisibility
-        }));
-    }
-
-}
+export default HeaderNavigation;

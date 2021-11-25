@@ -1,84 +1,56 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
 
-import { IconButton, Tooltip } from '@material-ui/core';
-import { Person } from '@material-ui/icons';
+import { IconButton, Tooltip } from "@material-ui/core";
+import { Person } from "@material-ui/icons";
 
-import { Dict } from '../../../constants/dict';
-import { AppUrls } from '../../../constants/specific-urls';
-import { IUserKeys, IUserValues } from '../../../networking/account_data/IUser';
-import { CookieService } from '../../../services/CookieService';
+import { Dict } from "../../../constants/dict";
+import { AppUrls } from "../../../constants/specific-urls";
+import { IUserKeys, IUserValues } from "../../../networking/account_data/IUser";
+import { CookieService } from "../../../services/CookieService";
+import { useEffect, useState } from "react";
+import { useRef } from "react";
+import { useNavigate } from "react-router";
 
-interface IProfileIconButtonState {
-    isDisplayed: boolean;
-}
+const ProfileIconButton = () => {
+    const [display, setDisplay] = useState(false);
+    const checkLoginState = useRef(true);
+    const navigate = useNavigate();
 
-class ProfileIconButton extends React.Component<RouteComponentProps<any, StaticContext>, IProfileIconButtonState> {
+    const forward = (): void => {
+        navigate(AppUrls.PROFILE);
+    };
 
-    public state: IProfileIconButtonState = {
-        isDisplayed: false
-    }
-
-    private shouldCheckLoginState: boolean = true;
-
-    public render(): React.ReactNode {
-        if (this.state.isDisplayed === true) {
-            return (
-                <Tooltip title={Dict.navigation_profile}>
-                    <IconButton
-                        onClick={this.forward}>
-                        <Person />
-                    </IconButton>
-                </Tooltip>
-            );
-        } else {
-            return null;
-        }
-    }
-
-    public componentDidMount(): void {
-        this.checkLoginState();
-    }
-
-    public componentDidUpdate(): void {
-        this.checkLoginState();
-    }
-
-    private checkLoginState = (): void => {
-        if (!this.shouldCheckLoginState) {
-            this.shouldCheckLoginState = true;
+    useEffect(() => {
+        if (!checkLoginState.current) {
+            checkLoginState.current = true;
             return;
         }
 
         CookieService.get<number>(IUserKeys.accessLevel)
-            .then(accessLevel => {
-                const isDisplayed = accessLevel !== null && accessLevel !== IUserValues[IUserKeys.accessLevel].guest;
-                
-                this.shouldCheckLoginState = false;
-                this.setState(prevState => {
-                    return {
-                        ...prevState,
-                        isDisplayed
-                    };
-                });
+            .then((accessLevel) => {
+                checkLoginState.current = false;
+                setDisplay(
+                    accessLevel !== null &&
+                        accessLevel !== IUserValues[IUserKeys.accessLevel].guest
+                );
             })
-            .catch(error => {
-                this.shouldCheckLoginState = false;
-                this.setState(prevState => {
-                    return {
-                        ...prevState,
-                        isDisplayed: false
-                    };
-                });
+            .catch((error) => {
+                checkLoginState.current = false;
+                setDisplay(false);
             });
+    });
+
+    if (!display) {
+        return null;
     }
 
-    private forward = (): void => {
-        this.props.history.push(
-            AppUrls.PROFILE
-        );
-    }
+    return (
+        <Tooltip title={Dict.navigation_profile}>
+            <IconButton onClick={forward}>
+                <Person />
+            </IconButton>
+        </Tooltip>
+    );
+};
 
-}
-
-export default withRouter(ProfileIconButton);
+export default ProfileIconButton;

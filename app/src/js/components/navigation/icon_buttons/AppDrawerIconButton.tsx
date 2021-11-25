@@ -1,25 +1,24 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { IconButton, Tooltip } from '@material-ui/core';
-import { Menu } from '@material-ui/icons';
+import { IconButton, Tooltip } from "@material-ui/core";
+import { Menu } from "@material-ui/icons";
 
-import { Dict } from '../../../constants/dict';
+import { Dict } from "../../../constants/dict";
 
-interface IAppDrawerIconButton {
+interface IAppDrawerIconButtonProps {
     toggleAppDrawerVisibility: () => void;
 }
 
-export default class AppDrawerIconButton extends React.Component<IAppDrawerIconButton> {
+const AppDrawerIconButton = (props: IAppDrawerIconButtonProps) => {
+    const { toggleAppDrawerVisibility } = props;
 
-    public render(): React.ReactNode {
-        return (
-            <Tooltip title={Dict.navigation_main}>
-                <IconButton
-                    onClick={this.props.toggleAppDrawerVisibility}>
-                    <Menu />
-                </IconButton>
-            </Tooltip>
-        );
-    }
+    return (
+        <Tooltip title={Dict.navigation_main}>
+            <IconButton onClick={toggleAppDrawerVisibility}>
+                <Menu />
+            </IconButton>
+        </Tooltip>
+    );
+};
 
-}
+export default AppDrawerIconButton;

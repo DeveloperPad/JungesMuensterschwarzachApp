@@ -1,81 +1,54 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
 
-import { IconButton, Tooltip } from '@material-ui/core';
-import { Input } from '@material-ui/icons';
+import { IconButton, Tooltip } from "@material-ui/core";
+import { Input } from "@material-ui/icons";
 
-import { Dict } from '../../../constants/dict';
-import { AppUrls } from '../../../constants/specific-urls';
-import { IUserKeys } from '../../../networking/account_data/IUser';
-import { CookieService } from '../../../services/CookieService';
+import { Dict } from "../../../constants/dict";
+import { AppUrls } from "../../../constants/specific-urls";
+import { IUserKeys } from "../../../networking/account_data/IUser";
+import { CookieService } from "../../../services/CookieService";
+import { useNavigate } from "react-router";
+import { useEffect } from "react";
+import { useState } from "react";
+import { useRef } from "react";
 
-interface ILoginIconButtonState {
-  isDisplayed: boolean
-}
+const LoginIconButton = () => {
+    const [display, setDisplay] = useState(false);
+    const checkLoginState = useRef(true);
+    const navigate = useNavigate();
 
-class LoginIconButton extends React.Component<RouteComponentProps<any, StaticContext>, ILoginIconButtonState> {
+    const forward = (): void => {
+        navigate(AppUrls.LOGIN);
+    };
 
-  public state: ILoginIconButtonState = {
-    isDisplayed: false
-  }
+    useEffect(() => {
+        if (!checkLoginState.current) {
+            checkLoginState.current = true;
+            return;
+        }
 
-  private shouldCheckLoginState: boolean = true;
+        CookieService.get<number>(IUserKeys.accessLevel)
+            .then((accessLevel) => {
+                checkLoginState.current = false;
+                setDisplay(accessLevel === null);
+            })
+            .catch((error) => {
+                checkLoginState.current = false;
+                setDisplay(true);
+            });
+    }, [display]);
 
-  public render(): React.ReactNode {
-    if (this.state.isDisplayed === true) {
-      return (
+    if (!display) {
+        return null;
+    }
+
+    return (
         <Tooltip title={Dict.navigation_app_sign_in}>
-          <IconButton
-            onClick={this.forward}>
-            <Input />
-          </IconButton>
+            <IconButton onClick={forward}>
+                <Input />
+            </IconButton>
         </Tooltip>
-      );
-    } else {
-      return null;
-    }
-  }
-
-  public componentDidMount(): void {
-    this.checkLoginState();
-  }
-
-  public componentDidUpdate(): void {
-    this.checkLoginState();
-  }
-
-  private checkLoginState = (): void => {
-    if (!this.shouldCheckLoginState) {
-      this.shouldCheckLoginState = true;
-      return;
-    }
-
-    CookieService.get<number>(IUserKeys.accessLevel)
-      .then(accessLevel => {
-        const isDisplayed = accessLevel === null;
-
-        this.shouldCheckLoginState = false;
-        this.setState({
-          isDisplayed
-        });
-      })
-      .catch(error => {
-        this.shouldCheckLoginState = false;
-        this.setState(prevState => {
-          return {
-            ...prevState,
-            isDisplayed: true
-          };
-        });
-      });
-  }
-
-  private forward = (): void => {
-    this.props.history.push(
-      AppUrls.LOGIN
     );
-  }
+};
 
-}
-
-export default withRouter(LoginIconButton);
+export default LoginIconButton;

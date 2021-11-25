@@ -1,34 +1,28 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
 
-import { MenuItem } from '@material-ui/core';
+import { MenuItem } from "@material-ui/core";
 
-import { Dict } from '../../../constants/dict';
-import { AppUrls } from '../../../constants/specific-urls';
+import { Dict } from "../../../constants/dict";
+import { AppUrls } from "../../../constants/specific-urls";
+import { useNavigate } from "react-router";
 
-type EventsMenuItemProps = RouteComponentProps<any, StaticContext> & {
-    divider?: boolean
+type EventsMenuItemProps = {
+    divider?: boolean;
 };
 
-class EventsMenuItem extends React.Component<EventsMenuItemProps> {
+const EventsMenuItem = (props: EventsMenuItemProps) => {
+    const { divider } = props;
+    const navigate = useNavigate();
 
-    public render(): React.ReactNode {
-        return (
-            <MenuItem
-                button={true}
-                divider={this.props.divider || false}
-                onClick={this.forward}>
-                <span>{Dict.navigation_events}</span>
-            </MenuItem>
-        );
-    }
+    const forward = (): void => {
+        navigate(AppUrls.EVENTS_LIST);
+    };
 
-    private forward = (): void => {
-        this.props.history.push(
-            AppUrls.EVENTS_LIST
-        );
-    }
+    return (
+        <MenuItem button={true} divider={divider ?? false} onClick={forward}>
+            <span>{Dict.navigation_events}</span>
+        </MenuItem>
+    );
+};
 
-}
-
-export default withRouter(EventsMenuItem);
+export default EventsMenuItem;
