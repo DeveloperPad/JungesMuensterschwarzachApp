@@ -12,8 +12,7 @@ import AppDrawerIconButton from "../icon_buttons/AppDrawerIconButton";
 import AppMenuIconButton from "../icon_buttons/AppMenuIconButton";
 import ReloadIconButton from "../icon_buttons/ReloadIconButton";
 import { useNavigate } from "react-router";
-import { useEffect } from "react";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 type IAppBarProps = {
     rerenderApp: () => void;
@@ -21,56 +20,52 @@ type IAppBarProps = {
     toggleAppMenuVisibility: () => void;
 };
 
-const AppBar = React.forwardRef(
-    (
-        props: IAppBarProps,
-        ref: React.ForwardedRef<{ clientHeight?: number | null }>
-    ) => {
-        const { toggleAppDrawerVisibility, toggleAppMenuVisibility } = props;
-        const navigate = useNavigate();
-        const rerenderApp = useCallback(() => {
-            return props.rerenderApp;
-        }, [props.rerenderApp]);
+const AppBar = (props: IAppBarProps) => {
+    const { toggleAppDrawerVisibility, toggleAppMenuVisibility } = props;
+    const ref = useRef();
+    const navigate = useNavigate();
+    const rerenderApp = useCallback(() => {
+        return props.rerenderApp;
+    }, [props.rerenderApp]);
 
-        useEffect(() => {
-            rerenderApp();
-        }, [rerenderApp]);
+    useEffect(() => {
+        rerenderApp();
+    }, [rerenderApp]);
 
-        return (
-            <MuiAppBar
-                id="jma-app-bar"
-                className="jma-app-bar"
-                position="sticky"
-                ref={ref}
-            >
-                <Toolbar>
-                    <AppDrawerIconButton
-                        toggleAppDrawerVisibility={toggleAppDrawerVisibility}
-                    />
-                    <Tooltip title={Dict.navigation_home}>
-                        <Typography
-                            variant="h5"
-                            noWrap={true}
-                            onClick={navigate.bind(this, AppUrls.HOME)}
-                            style={{
-                                ...grid1Style,
-                                cursor: "pointer",
-                                marginLeft: "1em",
-                            }}
-                        >
-                            {Dict.general_app_name}
-                        </Typography>
-                    </Tooltip>
-                    <ReloadIconButton />
-                    <ProfileIconButton />
-                    <LoginIconButton />
-                    <AppMenuIconButton
-                        toggleAppMenuVisibility={toggleAppMenuVisibility}
-                    />
-                </Toolbar>
-            </MuiAppBar>
-        );
-    }
-);
+    return (
+        <MuiAppBar
+            id="jma-app-bar"
+            className="jma-app-bar"
+            position="sticky"
+            ref={ref}
+        >
+            <Toolbar>
+                <AppDrawerIconButton
+                    toggleAppDrawerVisibility={toggleAppDrawerVisibility}
+                />
+                <Tooltip title={Dict.navigation_home}>
+                    <Typography
+                        variant="h5"
+                        noWrap={true}
+                        onClick={navigate.bind(this, AppUrls.HOME)}
+                        style={{
+                            ...grid1Style,
+                            cursor: "pointer",
+                            marginLeft: "1em",
+                        }}
+                    >
+                        {Dict.general_app_name}
+                    </Typography>
+                </Tooltip>
+                <ReloadIconButton />
+                <ProfileIconButton />
+                <LoginIconButton />
+                <AppMenuIconButton
+                    toggleAppMenuVisibility={toggleAppMenuVisibility}
+                />
+            </Toolbar>
+        </MuiAppBar>
+    );
+};
 
 export default AppBar;

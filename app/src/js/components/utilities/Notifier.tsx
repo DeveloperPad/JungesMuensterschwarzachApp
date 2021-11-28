@@ -1,9 +1,9 @@
-import * as React from 'react';
-
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 
 import { Dict } from '../../constants/dict';
+import { useEffect, useRef, useState } from 'react';
+import { useCallback } from 'react';
 
 let showNotificationFn: (message: string) => void;
 
@@ -20,93 +20,65 @@ export function showNotification(message: string) {
     }
 }
 
-interface INotifierState {
-    message: string;
-    open: boolean;
-}
+const Notifier = (props: any) => {
+    const [message, setMessage] = useState("");
+    const [open, setOpen] = useState(false);
+    const messageQueue = useRef<string[]>([]);
 
-export default class Notifier extends React.Component<any, INotifierState> {
+    const queueMessage = useCallback((message: string): void => {
+        messageQueue.current.push(Dict[message] ?? message);
 
-    private messageQueue: string[] = [];
-
-    constructor(props: any) {
-        super(props);
-
-        this.state = {
-            message: "",
-            open: false
+        if (open === false) {
+            onOpenSnackbar();
         }
-    }
+    }, [open]);
+    const onOpenSnackbar = (): void => {
+        setMessage(messageQueue.current[0]);
+        setOpen(true);
+        messageQueue.current.shift();
+    };
+    const closeSnackbar = (): void => {
+        setMessage("");
+        setOpen(false);
 
-    public componentDidMount(): void {
-        showNotificationFn = this.queueMessage;
-    }
-
-    public render(): React.ReactNode {
-        const message = (
-            <span
-                style={messageStyle}>
-                {this.state.message}
-            </span>
-        );
-
-        return (
-            <Snackbar
-                anchorOrigin={snackBarAnchorOrigin}
-                autoHideDuration={4000}
-                onClick={this.closeSnackbar}
-                onClose={this.closeSnackbar}
-                open={this.state.open}
-                style={snackBarStyle}>
-
-                <SnackbarContent
-                    message={message} />
-
-            </Snackbar>
-        );
-    }
-
-    private onOpenSnackbar = (): void => {
-        this.setState({
-            message: this.messageQueue[0],
-            open: true
-        });
-        this.messageQueue.shift();
-    }
-
-    private closeSnackbar = (): void => {
-        this.setState({
-            message: "",
-            open: false
-        });
-
-        if (this.messageQueue.length > 0) {
+        if (messageQueue.current.length > 0) {
             setTimeout(
-                this.onOpenSnackbar,
+                onOpenSnackbar,
                 1000
             );
         }
-    }
+    };
 
-    private queueMessage = (message: string): void => {
-        this.messageQueue.push(Dict.hasOwnProperty(message) ? Dict[message] : message);
+    useEffect(() => {
+        showNotificationFn = queueMessage;
+    }, [queueMessage]);
 
-        if (this.state.open === false) {
-            this.onOpenSnackbar();
-        }
-    }
+    return (
+        <Snackbar
+            anchorOrigin={{
+                horizontal: "center",
+                vertical: "bottom"
+            }}
+            autoHideDuration={4000}
+            onClick={closeSnackbar}
+            onClose={closeSnackbar}
+            open={open}
+            style={{
+                marginBottom: "5em"
+            }}>
 
-}
+            <SnackbarContent
+                message={
+                    <span
+                        style={{
+                            float: "left"
+                        }}>
+                        {message}
+                    </span>
+                } />
 
-const messageStyle: React.CSSProperties = {
-    float: "left"
+        </Snackbar>
+    );
 };
 
-const snackBarAnchorOrigin: any = {
-    horizontal: "center",
-    vertical: "bottom"
-};
-
-const snackBarStyle: React.CSSProperties = {
-    marginBottom: "5em"
-};
+export default Notifier;

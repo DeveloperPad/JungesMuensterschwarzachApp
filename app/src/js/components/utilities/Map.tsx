@@ -1,17 +1,17 @@
-import 'mapbox-gl/dist/mapbox-gl.css';
+import "mapbox-gl/dist/mapbox-gl.css";
 
-import * as React from 'react';
-import ReactMapGL from 'react-map-gl';
+import * as React from "react";
+import ReactMapGL from "react-map-gl";
 
-import { withTheme, WithTheme } from '@material-ui/core';
-import { ConfigService } from '../../services/ConfigService';
+import { withTheme, WithTheme } from "@material-ui/core";
+import { ConfigService } from "../../services/ConfigService";
 
 type IMapProps = WithTheme & {
     children?: React.ReactNode;
     latitude?: number;
     longitude?: number;
     style?: React.CSSProperties;
-}
+};
 
 const Map = (props: IMapProps) => {
     const [state, setState] = React.useState({
@@ -20,54 +20,55 @@ const Map = (props: IMapProps) => {
             latitude: Number(props.latitude),
             longitude: Number(props.longitude),
             width: 0,
-            zoom: 15
-        }
+            zoom: 15,
+        },
     });
 
-    const ref = React.useRef();
+    const ref = React.useRef(null);
 
-    React.useEffect(() => {
-        if (ref.current) {
-            setState({
-                ...state,
-                viewport: {
-                    ...state.viewport,
-                    // @ts-ignore
-                    height: ref.current.offsetHeight,
-                    // @ts-ignore
-                    width: ref.current.offsetWidth
+    React.useEffect(
+        () => {
+            if (ref.current) {
+                setState(s => {
+                    return {
+                        ...s,
+                        viewport: {
+                            ...s.viewport,
+                            height: ref.current.offsetHeight,
+                            width: ref.current.offsetWidth,
+                        }
+                    }
                 }
-            });
-        }
-    }, 
-    // eslint-disable-next-line
-    []);
+                );
+            }
+        },
+        []
+    );
 
     function onViewportChange(viewport) {
-        const {latitude, longitude, zoom} = viewport;
+        const { latitude, longitude, zoom } = viewport;
         setState({
             ...state,
             viewport: {
                 ...state.viewport,
                 latitude,
                 longitude,
-                zoom
-            }
-        });   
-    };
+                zoom,
+            },
+        });
+    }
 
     return (
-        <div ref={ref}>
-            <ReactMapGL
-                {...state.viewport}
-                mapboxApiAccessToken={ConfigService.getConfig().MapConfig.key}
-                mapStyle={"mapbox://styles/mapbox/satellite-streets-v11"}
-                onViewportChange={onViewportChange}
-            >
-                {props.children}
-            </ReactMapGL>
-        </div>
+        <ReactMapGL
+            {...state.viewport}
+            mapboxApiAccessToken={ConfigService.getConfig().MapConfig.key}
+            mapStyle={"mapbox://styles/mapbox/satellite-streets-v11"}
+            onViewportChange={onViewportChange}
+            ref={ref}
+        >
+            {props.children}
+        </ReactMapGL>
     );
-}
+};
 
 export default withTheme(Map);
