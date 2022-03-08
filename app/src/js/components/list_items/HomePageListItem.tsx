@@ -15,7 +15,7 @@ import { useNavigate } from "react-router";
 
 type IHomePageListItemProps = WithTheme & {
     icon?: string;
-    target: AppUrls;
+    target: AppUrls|string;
     title: string;
 };
 

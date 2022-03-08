@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import {
     Accordion, AccordionDetails, AccordionSummary, Icon, Typography, withTheme, WithTheme
@@ -18,152 +18,103 @@ import { CookieService } from '../../services/CookieService';
 import EventListError from '../list_items/EventListError';
 import EventListItem from '../list_items/EventListItem';
 import Background from '../utilities/Background';
+import { useEffect, useRef } from 'react';
+import { useState } from 'react';
 
-type IEventListPageProps = RouteComponentProps<any, StaticContext> & WithTheme;
+type IEventListPageProps = WithTheme;
 
-interface IEventListPageState {
-    fetchEventListDataRequest: FetchEventListDataRequest|null;
-    eventListError: IEventItem | null; // fake item to display errors
-    ongoingEventList: IEventItem[];
-    pastEventList: IEventItem[];
-    upcomingEventList: IEventItem[];
-}
+const EventListPage = (props: IEventListPageProps) => {
+    const { theme } = props;
 
-class EventListPage extends React.Component<IEventListPageProps, IEventListPageState> {
+    const fetchRequest = useRef<FetchEventListDataRequest|null>(null);
+    const [eventListError, setEventListError] = useState<IEventItem|null>({
+        [IEventItemKeys.eventStart]: new Date(),
+        [IEventItemKeys.eventTitle]: Dict.label_loading,
+        [IEventItemKeys.eventTopic]: Dict.label_wait
+    });
+    const [ongoingEventList, setOngoingEventList] = useState<IEventItem[]>([]);
+    const [pastEventList, setPastEventList] = useState<IEventItem[]>([]);
+    const [upcomingEventList, setUpcomingEventList] = useState<IEventItem[]>([]);
+    const navigate = useNavigate();
 
-    private expansionPanelDetailsStyle: React.CSSProperties = {
-        flexDirection: "column"
-    };
-    private expansionPanelDetailsInnerStyle: React.CSSProperties = {
-        paddingTop: this.props.theme.spacing()
-    };
-
-    constructor(props: IEventListPageProps) {
-        super(props);
-
-        this.state = {
-            fetchEventListDataRequest: null,
-            eventListError: {
-                [IEventItemKeys.eventStart]: new Date(),
-                [IEventItemKeys.eventTitle]: Dict.label_loading,
-                [IEventItemKeys.eventTopic]: Dict.label_wait
-            },
-            ongoingEventList: [],
-            pastEventList: [],
-            upcomingEventList: []
-        };
-
+    useEffect(() => {
         CookieService.get<number>(IUserKeys.accessLevel)
             .then(accessLevel => {
                 if (accessLevel === null) {
-                    this.props.history.push(
-                        AppUrls.LOGIN
-                    );
+                    navigate(AppUrls.LOGIN);
                 }
             })
             .catch(error => {
-                this.props.history.push(
-                    AppUrls.LOGIN
-                );
+                navigate(AppUrls.LOGIN);
             });
-    }
+    }, [navigate]);
+    useEffect(() => {
+        if (fetchRequest.current) {
+            fetchRequest.current.cancel();
+        }
 
-    public componentDidMount(): void {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                fetchEventListDataRequest: new FetchEventListDataRequest(
-                    (response: IFetchEventListDataResponse) => {
-                        const errorMsg = response.errorMsg;
+        fetchRequest.current = new FetchEventListDataRequest(
+            (response: IFetchEventListDataResponse) => {
+                fetchRequest.current = null;
 
-                        if (errorMsg) {
-                            this.setState({
-                                fetchEventListDataRequest: null,
-                                eventListError: {
-                                    eventStart: new Date(),
-                                    eventTitle: Dict.error_type_server,
-                                    eventTopic: Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg,
-                                },
-                                ongoingEventList: [],
-                                pastEventList: [],
-                                upcomingEventList: []
-                            });
+                const errorMsg = response.errorMsg;
+
+                if (errorMsg) {
+                    setEventListError({
+                        eventStart: new Date(),
+                        eventTitle: Dict.error_type_server,
+                        eventTopic: Dict[errorMsg] ?? errorMsg,
+                    });
+                    setOngoingEventList([]);
+                    setPastEventList([]);
+                    setUpcomingEventList([]);
+                } else {
+                    const eventList = response.eventList;
+                    const now = new Date();
+                    const ongoingEventList: IEventItem[] = [];
+                    const upcomingEventList: IEventItem[] = [];
+                    const pastEventList: IEventItem[] = [];
+
+                    for (const eventItem of eventList) {
+                        const deserializedEventItem = deserializeEventItem(eventItem);
+
+                        if (now < deserializedEventItem[IEventItemKeys.eventStart]!) {
+                            upcomingEventList.push(deserializedEventItem);
+                        } else if (deserializedEventItem[IEventItemKeys.eventEnd]! < now) {
+                            pastEventList.push(deserializedEventItem);
                         } else {
-                            const eventList = response.eventList;
-                            const now = new Date();
-                            const ongoingEventList: IEventItem[] = [];
-                            const upcomingEventList: IEventItem[] = [];
-                            const pastEventList: IEventItem[] = [];
-
-                            for (const eventItem of eventList) {
-                                const deserializedEventItem = deserializeEventItem(eventItem);
-
-                                if (now < deserializedEventItem[IEventItemKeys.eventStart]!) {
-                                    upcomingEventList.push(deserializedEventItem);
-                                } else if (deserializedEventItem[IEventItemKeys.eventEnd]! < now) {
-                                    pastEventList.push(deserializedEventItem);
-                                } else {
-                                    ongoingEventList.push(deserializedEventItem);
-                                }
-                            }
-
-                            this.setState({
-                                fetchEventListDataRequest: null,
-                                eventListError: null,
-                                ongoingEventList,
-                                pastEventList,
-                                upcomingEventList
-                            });
+                            ongoingEventList.push(deserializedEventItem);
                         }
-                    },
-                    () => {
-                        this.setState({
-                            fetchEventListDataRequest: null,
-                            eventListError: {
-                                [IEventItemKeys.eventStart]: new Date(),
-                                [IEventItemKeys.eventTitle]: Dict.error_type_network,
-                                [IEventItemKeys.eventTopic]: Dict.error_message_try_later
-                            },
-                            ongoingEventList: [],
-                            pastEventList: [],
-                            upcomingEventList: []
-                        });
                     }
-                )
-            };
-        });
-    }
 
-    public componentDidUpdate(prevProps: IEventListPageProps, prevState: IEventListPageState): void {
-        if (this.state.fetchEventListDataRequest) {
-            this.state.fetchEventListDataRequest.execute();
-        }
-    }
+                    setEventListError(null);
+                    setOngoingEventList(ongoingEventList);
+                    setPastEventList(pastEventList);
+                    setUpcomingEventList(upcomingEventList);
+                }
+            },
+            () => {
+                fetchRequest.current = null;
+                setEventListError({
+                    [IEventItemKeys.eventStart]: new Date(),
+                    [IEventItemKeys.eventTitle]: Dict.error_type_network,
+                    [IEventItemKeys.eventTopic]: Dict.error_message_try_later
+                });
+                setOngoingEventList([]);
+                setPastEventList([]);
+                setUpcomingEventList([]);
+            }
+        );
+        fetchRequest.current.execute();
+    }, []);
 
-    public componentWillUnmount(): void {
-        if (this.state.fetchEventListDataRequest) {
-            this.state.fetchEventListDataRequest.cancel();
-        }
-    }
-
-    public render(): React.ReactNode {
+    const showEventError = (): React.ReactElement => {
         return (
-            <Background theme={this.props.theme}>
-                {this.state.eventListError ? this.showEventError() : this.showEventLists()}
-            </Background>
+            <EventListError eventItemError={eventListError}/>
         );
     }
-
-    private showEventError = (): React.ReactNode => {
-        return (
-            <EventListError
-                eventItemError={this.state.eventListError!}
-            />
-        );
-    }
-
-    private showEventLists = (): React.ReactNode => {
-        const ongoingEventListNodes: React.ReactNode[] = this.state.ongoingEventList.map(eventItem => {
+    const showEventLists = (): React.ReactElement => {
+        const ongoingEventListNodes: React.ReactNode[] = ongoingEventList.map(eventItem => {
             return (
                 <EventListItem
                     eventItem={eventItem}
@@ -171,7 +122,7 @@ class EventListPage extends React.Component<IEventListPageProps, IEventListPageS
                 />
             );
         });
-        const upcomingEventListNodes: React.ReactNode[] = this.state.upcomingEventList.map(eventItem => {
+        const upcomingEventListNodes: React.ReactNode[] = upcomingEventList.map(eventItem => {
             return (
                 <EventListItem
                     eventItem={eventItem}
@@ -179,7 +130,7 @@ class EventListPage extends React.Component<IEventListPageProps, IEventListPageS
                 />
             );
         });
-        const pastEventListNodes: React.ReactNode[] = this.state.pastEventList.map(eventItem => {
+        const pastEventListNodes: React.ReactNode[] = pastEventList.map(eventItem => {
             return (
                 <EventListItem
                     eventItem={eventItem}
@@ -202,14 +153,18 @@ class EventListPage extends React.Component<IEventListPageProps, IEventListPageS
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails
-                            style={this.expansionPanelDetailsStyle}>
-                            <div style={this.expansionPanelDetailsInnerStyle}>
+                            style={{
+                                flexDirection: "column"
+                            }}>
+                            <div style={{
+                                paddingTop: theme.spacing()
+                            }}>
                                 {ongoingEventListNodes}
                             </div>
                         </AccordionDetails>
                     </Accordion>
                 )}
-
+    
                 {upcomingEventListNodes.length === 0 ? null : (
                     <Accordion
                         defaultExpanded={true}>
@@ -222,14 +177,18 @@ class EventListPage extends React.Component<IEventListPageProps, IEventListPageS
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails
-                            style={this.expansionPanelDetailsStyle}>
-                            <div style={this.expansionPanelDetailsInnerStyle}>
+                            style={{
+                                flexDirection: "column"
+                            }}>
+                            <div style={{
+                                paddingTop: theme.spacing()
+                            }}>
                                 {upcomingEventListNodes}
                             </div>
                         </AccordionDetails>
                     </Accordion>
                 )}
-
+    
                 {pastEventListNodes.length === 0 ? null : (
                     <Accordion>
                         <AccordionSummary
@@ -241,17 +200,26 @@ class EventListPage extends React.Component<IEventListPageProps, IEventListPageS
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails
-                            style={this.expansionPanelDetailsStyle}>
-                            <div style={this.expansionPanelDetailsInnerStyle}>
+                            style={{
+                                flexDirection: "column"
+                            }}>
+                            <div style={{
+                                paddingTop: theme.spacing()
+                            }}>
                                 {pastEventListNodes}
                             </div>
                         </AccordionDetails>
                     </Accordion>
                 )}
             </>
-        );
-    }
+        );  
+    };
 
+    return (
+        <Background theme={theme}>
+            {eventListError ? showEventError() : showEventLists()}
+        </Background>
+    );
 }
 
-export default withTheme(withRouter(EventListPage));
+export default withTheme(EventListPage);

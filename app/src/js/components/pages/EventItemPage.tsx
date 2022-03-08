@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 
 import { BottomNavigationAction, Icon, withTheme, WithTheme } from '@material-ui/core';
 
@@ -19,161 +18,115 @@ import EventImagesSubPage from '../subpages/EventImagesSubPage';
 import EventInfoSubPage from '../subpages/EventInfoSubPage';
 import EventLocationSubPage from '../subpages/EventLocationSubPage';
 import Background from '../utilities/Background';
+import { useCallback, useState } from 'react';
+import { useRef } from 'react';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router';
 
-type IEventItemPageProps = RouteComponentProps<any, StaticContext> & WithTheme;
+type IEventItemPageProps = WithTheme;
 
-interface IEventItemPageState {
-    fetchEventItemDataRequest: FetchEventItemDataRequest | null;
-    eventItem: IEventItem | null;
-    eventItemError: IEventItem | null;
-    tab: number;
-}
+const EventItemPage = (props: IEventItemPageProps) => {
+    const {theme} = props;
+    const fetchRequest = useRef<FetchEventItemDataRequest | null>(null);
+    const [eventItem, setEventItem] = useState<IEventItem | null>(null);
+    const [eventItemError, setEventItemError] = useState<IEventItem | null>({
+        [IEventItemKeys.eventStart]: new Date(),
+        [IEventItemKeys.eventTitle]: Dict.label_loading,
+        [IEventItemKeys.eventTopic]: Dict.label_wait
+    });
+    const [tab, setTab] = useState<number>(0);
+    const location = useLocation();
 
-class EventItemPage extends React.Component<IEventItemPageProps, IEventItemPageState> {
+    const getCurrentEventId = useCallback((): number => {
+        return parseInt(location.pathname.slice((AppUrls.EVENTS_LIST + "/").length), 10);
+    }, [location]);
+    const fetchEventItem = useCallback((): void => {
+        if (fetchRequest.current) {
+            fetchRequest.current.cancel();
+        }
 
-    constructor(props: IEventItemPageProps) {
-        super(props);
+        fetchRequest.current = new FetchEventItemDataRequest(
+            getCurrentEventId(),
+            (response: IFetchEventItemDataResponse) => {
+                fetchRequest.current = null;
+                
+                const errorMsg = response.errorMsg;
 
-        this.state = {
-            fetchEventItemDataRequest: null,
-            eventItem: null,
-            eventItemError: {
-                [IEventItemKeys.eventStart]: new Date(),
-                [IEventItemKeys.eventTitle]: Dict.label_loading,
-                [IEventItemKeys.eventTopic]: Dict.label_wait
+                if (errorMsg) {
+                    setEventItem(null);
+                    setEventItemError({
+                        [IEventItemKeys.eventStart]: new Date(),
+                        [IEventItemKeys.eventTitle]: Dict.error_type_server,
+                        [IEventItemKeys.eventTopic]: Dict[errorMsg] ?? errorMsg
+                    });
+                } else {
+                    const eventList = response.eventList;
+
+                    setEventItem(eventList.length > 0 ? deserializeEventItem(eventList[0]) : null);
+                    setEventItemError(eventList.length > 0 ? null : {
+                        [IEventItemKeys.eventStart]: new Date(),
+                        [IEventItemKeys.eventTitle]: Dict.error_type_parsing,
+                        [IEventItemKeys.eventTopic]: Dict.error_message_try_later
+                    });
+                }
+                
             },
-            tab: 0
-        };
-    }
-
-    public componentDidMount(): void {
-        this.fetchEventItem();
-    }
-
-    public componentDidUpdate(prevProps: IEventItemPageProps, prevState: IEventItemPageState): void {
-        if (this.state.fetchEventItemDataRequest) {
-            this.state.fetchEventItemDataRequest.execute();
-        }
-    }
-
-    public componentWillUnmount(): void {
-        if (this.state.fetchEventItemDataRequest) {
-            this.state.fetchEventItemDataRequest.cancel();
-        }
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <>
-                <Background theme={this.props.theme} withBottomNavigation={true}>
-                    {this.state.eventItemError ? this.showEventError() : this.showEventItem()}
-                </Background>
-
-                <AppBottomNavigation
-                    activeTab={this.state.tab}
-                    changeTab={this.changeTab}>
-                    <BottomNavigationAction icon={<Icon>info</Icon>} />
-                    <BottomNavigationAction icon={<Icon>people</Icon>} />
-                    <BottomNavigationAction icon={<Icon>panorama</Icon>} />
-                    <BottomNavigationAction icon={<Icon>location_on</Icon>} />
-                </AppBottomNavigation>
-            </>
+            () => {
+                fetchRequest.current = null;
+                setEventItem(null);
+                setEventItemError({
+                    [IEventItemKeys.eventStart]: new Date(),
+                    [IEventItemKeys.eventTitle]: Dict.error_type_network,
+                    [IEventItemKeys.eventTopic]: Dict.error_message_try_later
+                });
+            }
         );
-    }
+        fetchRequest.current.execute();
+    }, [getCurrentEventId]);
+    const changeTab = (event: React.ChangeEvent<{}>, value: number): void => {
+        setTab(value);
+    };
 
-    private showEventError = (): React.ReactNode => {
+    useEffect(() => {
+        fetchEventItem();
+    }, [fetchEventItem]);
+
+    const showEventItem = (): React.ReactElement => {
+        if (tab === 0) {
+            return <EventInfoSubPage eventItem={eventItem!} />
+        } else if (tab === 1) {
+            return <EventEnrollmentSubPage eventItem={eventItem!} refetchEventItem={fetchEventItem} />
+        } else if (tab === 2) {
+            return <EventImagesSubPage eventItem={eventItem} />
+        } else if (tab === 3) {
+            return <EventLocationSubPage eventItem={eventItem} />
+        } else {
+            return <EventListItem eventItem={eventItem} />
+        }
+    };
+    const showEventError = (): React.ReactElement => {
         return (
             <EventListError
-                eventItemError={this.state.eventItemError!}
+                eventItemError={eventItemError}
             />
         );
-    }
+    };
+    return (
+        <>
+            <Background theme={theme} withBottomNavigation={true}>
+                {eventItemError ? showEventError() : showEventItem()}
+            </Background>
 
-    private showEventItem = (): React.ReactNode => {
-        if (this.state.tab === 0) {
-            return <EventInfoSubPage eventItem={this.state.eventItem!} />
-        } else if (this.state.tab === 1) {
-            return <EventEnrollmentSubPage eventItem={this.state.eventItem!} refetchEventItem={this.fetchEventItem} />
-        } else if (this.state.tab === 2) {
-            return <EventImagesSubPage eventItem={this.state.eventItem!} />
-        } else if (this.state.tab === 3) {
-            return <EventLocationSubPage eventItem={this.state.eventItem!} />
-        } else {
-            return <EventListItem eventItem={this.state.eventItem!} />
-        }
-    }
-
-    private fetchEventItem = (): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                fetchEventItemDataRequest: new FetchEventItemDataRequest(
-                    this.getCurrentEventId(),
-                    (response: IFetchEventItemDataResponse) => {
-                        const errorMsg = response.errorMsg;
-        
-                        if (errorMsg) {
-                            this.setState(prevState => {
-                                return {
-                                    ...prevState,
-                                    fetchEventItemDataRequest: null,
-                                    eventItem: null,
-                                    eventItemError: {
-                                        [IEventItemKeys.eventStart]: new Date(),
-                                        [IEventItemKeys.eventTitle]: Dict.error_type_server,
-                                        [IEventItemKeys.eventTopic]: Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg
-                                    },
-                                };
-                            });
-                        } else {
-                            const eventList = response.eventList;
-        
-                            this.setState(prevState => {
-                                return {
-                                    ...prevState,
-                                    fetchEventItemDataRequest: null,
-                                    eventItem: eventList.length > 0 ? deserializeEventItem(eventList[0]) : null,
-                                    eventItemError: eventList.length > 0 ? null : {
-                                        [IEventItemKeys.eventStart]: new Date(),
-                                        [IEventItemKeys.eventTitle]: Dict.error_type_parsing,
-                                        [IEventItemKeys.eventTopic]: Dict.error_message_try_later
-                                    }
-                                };
-                            });
-                        }
-                    },
-                    () => {
-                        this.setState(prevState => {
-                            return {
-                                ...prevState,
-                                fetchEventItemDataRequest: null,
-                                eventItem: null,
-                                eventItemError: {
-                                    [IEventItemKeys.eventStart]: new Date(),
-                                    [IEventItemKeys.eventTitle]: Dict.error_type_network,
-                                    [IEventItemKeys.eventTopic]: Dict.error_message_try_later
-                                }
-                            }
-                        });
-                    }
-                )
-            }
-        });
-    }
-
-    private getCurrentEventId = (): number => {
-        return parseInt(this.props.location.pathname.slice((AppUrls.EVENTS_LIST + "/").length), 10);
-    }
-
-    private changeTab = (event: React.ChangeEvent, value: number): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                tab: value
-            }
-        });
-    }
-
+            <AppBottomNavigation
+                activeTab={tab}
+                changeTab={changeTab}>
+                <BottomNavigationAction icon={<Icon>info</Icon>} />
+                <BottomNavigationAction icon={<Icon>people</Icon>} />
+                <BottomNavigationAction icon={<Icon>panorama</Icon>} />
+                <BottomNavigationAction icon={<Icon>location_on</Icon>} />
+            </AppBottomNavigation>
+        </>
+    );
 }
 
-export default withTheme(withRouter(EventItemPage));
+export default withTheme(EventItemPage);
