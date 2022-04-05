@@ -13,6 +13,8 @@ services:
       - ${JMA_IMAGES}:/workspace/storedImages
       - ./tools/database_update_scripts:/workspace/database_update_scripts
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
+    networks:
+      - jenkins
   jma-app:
     container_name: jma-app
     image: jungesmuensterschwarzach/jma-app:${JMA_BUILD_TYPE}
@@ -57,8 +59,8 @@ services:
     restart: always
     volumes:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
+    networks:
+      - jenkins
 networks:
-  default:
-    name: jenkins
   jenkins:
     external: true

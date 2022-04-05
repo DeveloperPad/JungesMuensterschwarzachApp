@@ -10,6 +10,8 @@ services:
       - 80:80
       - 443:443
     restart: always
+    networks:
+      - jenkins
   database:
     container_name: database
     image: mysql:latest
@@ -22,6 +24,8 @@ services:
     volumes:
       - ${JMA_DATABASE}:/var/lib/mysql
       - ${MYSQL_SECRETS}:/var/data/mysql/secrets
+    networks:
+      - jenkins
   jma-app:
     environment:
       CHOKIDAR_USEPOLLING: "true"
@@ -52,8 +56,9 @@ services:
     networks:
       jenkins:
         ipv4_address: 172.16.1.30
+  jma-database-backup-updater:
+    profiles:
+      - donotstart
 networks:
-  default:
-    name: jenkins
   jenkins:
     external: true
