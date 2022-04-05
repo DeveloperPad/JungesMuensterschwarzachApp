@@ -10,7 +10,7 @@ import {
 } from "../../constants/global-functions";
 
 type IBackgroundProps = WithTheme & {
-    children: React.ReactElement<any>;
+    children: React.ReactElement<any> | React.ReactElement<any>[];
     withBottomNavigation?: boolean;
 };
 

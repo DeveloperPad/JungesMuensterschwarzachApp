@@ -3,14 +3,13 @@ import * as React from "react";
 import { Button, Icon, withTheme, WithTheme } from "@material-ui/core";
 
 import { AppUrls } from "../../constants/specific-urls";
-import { NavigateFunction, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 type IForwardButtonProps = WithTheme & {
     color?: "inherit" | "primary" | "secondary" | "default" | undefined;
     forwardTo: AppUrls;
     icon?: string;
     label: string;
-    navigate: NavigateFunction;
     style?: React.CSSProperties;
     variant?: "text" | "outlined" | "contained" | undefined;
 };

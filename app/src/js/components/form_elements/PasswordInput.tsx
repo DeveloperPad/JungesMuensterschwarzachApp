@@ -30,9 +30,9 @@ interface IPasswordInputProps {
     value: string;
 }
 
-const PasswordInput = (props: IPasswordInputProps) => {
-    const LOCAL_ERROR_MESSAGE = Dict.account_password_invalid;
+export const PASSWORD_INPUT_LOCAL_ERROR_MESSAGE = Dict.account_password_invalid;
 
+const PasswordInput = (props: IPasswordInputProps) => {
     const {
         errorMessage,
         name,
@@ -59,13 +59,13 @@ const PasswordInput = (props: IPasswordInputProps) => {
 
     useEffect(() => {
         const localErrorMessage =
-            value && value.length >= 4 ? null : LOCAL_ERROR_MESSAGE;
+            value && value.length >= 4 ? null : PASSWORD_INPUT_LOCAL_ERROR_MESSAGE;
 
         // do not overwrite combined and server side error messages
         if (
             errorMessage &&
             !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== PASSWORD_INPUT_LOCAL_ERROR_MESSAGE
         ) {
             return;
         }
@@ -75,14 +75,7 @@ const PasswordInput = (props: IPasswordInputProps) => {
         if (!showErrorMessage) {
             setShowErrorMessage(true);
         }
-    }, [
-        errorMessage,
-        LOCAL_ERROR_MESSAGE,
-        name,
-        onError,
-        showErrorMessage,
-        value,
-    ]);
+    }, [errorMessage, name, onError, showErrorMessage, value]);
 
     return (
         <MuiThemeProvider theme={getTextFieldTheme(themeType)}>

@@ -11,9 +11,9 @@ import { useEffect } from "react";
 
 interface ILastNameInputProps {
     errorMessage: string | null;
-    onBlur: (key: IUserKeys, value: string | null) => void;
-    onError: (key: IUserKeys, value: string | null) => void;
-    onUpdateValue: (key: IUserKeys, value: string) => void;
+    onBlur: (key: IUserKeys.lastName, value: string | null) => void;
+    onError: (key: IUserKeys.lastName, value: string | null) => void;
+    onUpdateValue: (key: IUserKeys.lastName, value: string) => void;
     value: string;
 }
 

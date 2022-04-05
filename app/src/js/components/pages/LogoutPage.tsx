@@ -1,86 +1,70 @@
-import * as log from 'loglevel';
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as log from "loglevel";
+import * as React from "react";
+import { useEffect } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 
-import { Dict } from '../../constants/dict';
-import { unregisterPushManager } from '../../constants/global-functions';
-import { LogTags } from '../../constants/log-tags';
-import { AppUrls } from '../../constants/specific-urls';
-import { IUserKeys } from '../../networking/account_data/IUser';
-import {
-    AccountSessionSignOutRequest
-} from '../../networking/account_session/AccountSessionSignOutRequest';
-import { CookieService } from '../../services/CookieService';
-import { showNotification } from '../utilities/Notifier';
+import { Dict } from "../../constants/dict";
+import { unregisterPushManager } from "../../constants/global-functions";
+import { LogTags } from "../../constants/log-tags";
+import { AppUrls } from "../../constants/specific-urls";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import { AccountSessionSignOutRequest } from "../../networking/account_session/AccountSessionSignOutRequest";
+import { CookieService } from "../../services/CookieService";
+import { showNotification } from "../utilities/Notifier";
 
-type ILogoutPageProps = RouteComponentProps<any, StaticContext> & {
+type ILogoutPageProps = {
     setIsLoggedIn(isLoggedIn: boolean): void;
 };
-interface ILogoutPageState {
-    signOutRequest: AccountSessionSignOutRequest|null;
-}
 
-class LogoutPage extends React.Component<ILogoutPageProps, ILogoutPageState> {
+const LogoutPage = (props: ILogoutPageProps) => {
+    const { setIsLoggedIn } = props;
+    const [signOutRequest, setSignOutRequest] = useState(null);
+    const navigate = useNavigate();
 
-    constructor(props: ILogoutPageProps) {
-        super(props);
-
-        CookieService.get<number>(IUserKeys.userId)
-            .then(userId => {
-                this.state = {
-                    signOutRequest: userId !== null ? this.newSignOutRequest() : null
-                };
-            })
-            .then(() => {
-                return Promise.all([
-                    this.state && this.state.signOutRequest ? 
-                        this.state.signOutRequest.execute() :
-                        CookieService.remove(IUserKeys.accessLevel)
-                            .then(() => CookieService.remove(IUserKeys.accessIdentifier)),
-                    unregisterPushManager()
-                ]);
-            })
-            .catch(error => {
-                log.warn(LogTags.STORAGE_MANAGER + error);
-            })
-            .then(() => {
-                this.props.setIsLoggedIn(false);
-                this.props.history.push(AppUrls.LOGIN);
-            });
-    }
-
-    public componentWillUnmount(): void {
-        if (this.state && this.state.signOutRequest) {
-            this.state.signOutRequest.cancel();
-        }
-    }
-
-    public render(): React.ReactNode {
-        return null;
-    }
-
-    private newSignOutRequest(): AccountSessionSignOutRequest {
+    const newSignOutRequest = (): AccountSessionSignOutRequest => {
         return new AccountSessionSignOutRequest(
-            response => {
-                this.setState(innerPrevState => {
-                    return {
-                        ...innerPrevState,
-                        signOutRequest: null
-                    }
-                });
+            (response) => {
+                setSignOutRequest(null);
             },
-            error => {
+            (error) => {
                 showNotification(Dict.error_message_timeout);
-                this.setState(innerPrevState => {
-                    return {
-                        ...innerPrevState,
-                        signOutRequest: null
-                    }
-                });
+                setSignOutRequest(null);
             }
         );
     };
 
-}
+    useEffect(() => {
+        return () => {
+            if (signOutRequest) {
+                signOutRequest.cancel();
+            }
+        };
+    });
 
-export default withRouter(LogoutPage);
+    CookieService.get<number>(IUserKeys.userId)
+        .then((userId) => {
+            setSignOutRequest(userId !== null ? newSignOutRequest() : null);
+        })
+        .then(() => {
+            return Promise.all([
+                signOutRequest
+                    ? signOutRequest.execute()
+                    : CookieService.remove(IUserKeys.accessLevel).then(() =>
+                          CookieService.remove(IUserKeys.accessIdentifier)
+                      ),
+                unregisterPushManager(),
+            ]);
+        })
+        .catch((error) => {
+            log.warn(LogTags.STORAGE_MANAGER + error);
+        })
+        .then(() => {
+            setIsLoggedIn(false);
+            navigate(AppUrls.LOGIN);
+        });
+
+    return null;
+};
+
+export default LogoutPage;

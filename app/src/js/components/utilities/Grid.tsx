@@ -1,7 +1,7 @@
 import * as React from "react";
 
 interface IGridProps {
-    children: React.ReactElement<any>[];
+    children: React.ReactElement<any> | React.ReactElement<any>[];
     style?: React.CSSProperties;
 }
 
