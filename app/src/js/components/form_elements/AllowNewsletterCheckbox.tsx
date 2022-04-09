@@ -1,20 +1,18 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { Checkbox, Switch, Typography } from "@material-ui/core";
+import { Checkbox, Switch, Typography } from '@material-ui/core';
 
-import { Dict } from "../../constants/dict";
-import { CustomTheme, grid1Style, ThemeTypes } from "../../constants/theme";
-import { IUserKeys } from "../../networking/account_data/IUser";
-import ErrorMessageTypography from "./ErrorMessageTypography";
-import { useState } from "react";
-import { useEffect } from "react";
+import { Dict } from '../../constants/dict';
+import { CustomTheme, grid1Style, ThemeTypes } from '../../constants/theme';
+import { IUserKeys } from '../../networking/account_data/IUser';
+import ErrorMessageTypography from './ErrorMessageTypography';
 
 interface IAllowNewsletterCheckboxProps {
     checked: boolean;
     errorMessage: string | null;
     onBlur?: (key: IUserKeys.allowNewsletter, value: number) => void;
     onUpdateValue: (key: IUserKeys.allowNewsletter, value: number) => void;
-    showErrorMessageOnLoad?: boolean; // default: true
+    suppressErrorMsg?: boolean;
     style?: React.CSSProperties;
     themeType?: ThemeTypes;
 }
@@ -25,43 +23,41 @@ const AllowNewsLetterCheckbox = (props: IAllowNewsletterCheckboxProps) => {
         errorMessage,
         onBlur,
         onUpdateValue,
-        showErrorMessageOnLoad,
+        suppressErrorMsg,
         style,
         themeType,
     } = props;
-    const [submit, setSubmit] = useState(false);
 
-    const contentDivStyle: React.CSSProperties = {
-        ...style,
-        alignItems: "center",
-        display: "flex",
-    };
-    const lightTypographyStyle: React.CSSProperties = {
-        color: CustomTheme.COLOR_WHITE,
-    };
+    const contentDivStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            ...style,
+            alignItems: "center",
+            display: "flex",
+        }),
+        [style]
+    );
+    const lightTypographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            color: CustomTheme.COLOR_WHITE,
+        }),
+        []
+    );
+    const switchFlexStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            flex: 1,
+        }),
+        []
+    );
 
-    const showErrorMessage = (): boolean => {
-        return showErrorMessageOnLoad === undefined || showErrorMessageOnLoad;
-    };
     const onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         onUpdateValue(
             IUserKeys.allowNewsletter,
             (event.currentTarget as HTMLInputElement).checked ? 1 : 0
         );
-        setSubmit(true);
-    };
-
-    useEffect(() => {
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
+        if (!errorMessage && onBlur) {
             onBlur(IUserKeys.allowNewsletter, checked ? 1 : 0);
         }
-
-        setSubmit(false);
-    }, [checked, onBlur, submit]);
+    };
 
     return themeType && themeType === ThemeTypes.LIGHT ? (
         <>
@@ -79,7 +75,7 @@ const AllowNewsLetterCheckbox = (props: IAllowNewsletterCheckboxProps) => {
                 </Typography>
             </div>
             <ErrorMessageTypography
-                value={showErrorMessage() ? errorMessage : null}
+                value={suppressErrorMsg ? null : errorMessage}
             />
         </>
     ) : (
@@ -88,11 +84,7 @@ const AllowNewsLetterCheckbox = (props: IAllowNewsletterCheckboxProps) => {
                 <Typography variant="caption">
                     {Dict.account_allowNewsletter}
                 </Typography>
-                <div
-                    style={{
-                        flex: 1,
-                    }}
-                />
+                <div style={switchFlexStyle} />
                 <Switch
                     checked={checked}
                     color="primary"
@@ -101,7 +93,7 @@ const AllowNewsLetterCheckbox = (props: IAllowNewsletterCheckboxProps) => {
                 />
             </div>
             <ErrorMessageTypography
-                value={showErrorMessage() ? errorMessage : null}
+                value={suppressErrorMsg ? null : errorMessage}
             />
         </>
     );

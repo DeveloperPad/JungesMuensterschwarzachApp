@@ -107,6 +107,7 @@ const NewsletterRedemptionForm = (props: INewsletterRedemptionFormProps) => {
                 redemptionRequest.current.cancel();
             }
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const showRequestGrid = (): React.ReactElement<any> => {

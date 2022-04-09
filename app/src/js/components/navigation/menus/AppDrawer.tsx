@@ -16,7 +16,6 @@ const AppDrawer = (props: AppDrawerProps) => {
     const { open, toggleAppDrawerVisibility } = props;
     return (
         <SwipeableDrawer
-            onBackdropClick={toggleAppDrawerVisibility}
             onClick={toggleAppDrawerVisibility}
             onClose={toggleAppDrawerVisibility}
             onOpen={() => {}}

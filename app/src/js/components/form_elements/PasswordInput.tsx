@@ -1,16 +1,10 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { MuiThemeProvider, TextField } from "@material-ui/core";
+import { MuiThemeProvider, TextField } from '@material-ui/core';
 
-import { Dict } from "../../constants/dict";
-import {
-    getTextFieldTheme,
-    textFieldInputProps,
-    ThemeTypes,
-} from "../../constants/theme";
-import { IUserKeys } from "../../networking/account_data/IUser";
-import { useState } from "react";
-import { useEffect } from "react";
+import { Dict } from '../../constants/dict';
+import { getTextFieldTheme, textFieldInputProps, ThemeTypes } from '../../constants/theme';
+import { IUserKeys } from '../../networking/account_data/IUser';
 
 interface IPasswordInputProps {
     errorMessage: string | null;
@@ -24,7 +18,7 @@ interface IPasswordInputProps {
         key: IUserKeys.password | IUserKeys.passwordRepetition,
         value: string
     ) => void;
-    showErrorMessageOnLoad?: boolean; // default: true
+    suppressErrorMsg?: boolean;
     style?: React.CSSProperties;
     themeType?: ThemeTypes;
     value: string;
@@ -39,14 +33,11 @@ const PasswordInput = (props: IPasswordInputProps) => {
         onError,
         onKeyPressEnter,
         onUpdateValue,
-        showErrorMessageOnLoad,
+        suppressErrorMsg,
         style,
         themeType,
         value,
     } = props;
-    const [showErrorMessage, setShowErrorMessage] = useState(
-        showErrorMessageOnLoad === undefined || showErrorMessageOnLoad
-    );
 
     const onKeyPress = (event: React.KeyboardEvent<HTMLDivElement>): void => {
         if (onKeyPressEnter && event.key === "Enter") {
@@ -57,32 +48,24 @@ const PasswordInput = (props: IPasswordInputProps) => {
         onUpdateValue(name ? name : IUserKeys.password, event.target.value);
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
         const localErrorMessage =
-            value && value.length >= 4 ? null : PASSWORD_INPUT_LOCAL_ERROR_MESSAGE;
+            value && value.length >= 4
+                ? null
+                : PASSWORD_INPUT_LOCAL_ERROR_MESSAGE;
 
         // do not overwrite combined and server side error messages
-        if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== PASSWORD_INPUT_LOCAL_ERROR_MESSAGE
-        ) {
-            return;
+        if (!errorMessage || errorMessage === PASSWORD_INPUT_LOCAL_ERROR_MESSAGE) {
+            onError(name ? name : IUserKeys.password, localErrorMessage);
         }
-
-        onError(name ? name : IUserKeys.password, localErrorMessage);
-
-        if (!showErrorMessage) {
-            setShowErrorMessage(true);
-        }
-    }, [errorMessage, name, onError, showErrorMessage, value]);
+    }, [errorMessage, name, onError, value]);
 
     return (
         <MuiThemeProvider theme={getTextFieldTheme(themeType)}>
             <TextField
-                error={showErrorMessage && errorMessage != null}
+                error={errorMessage != null && !suppressErrorMsg}
                 fullWidth={true}
-                helperText={showErrorMessage ? errorMessage : null}
+                helperText={suppressErrorMsg ? null : errorMessage}
                 inputProps={textFieldInputProps}
                 label={
                     name && name === IUserKeys.passwordRepetition

@@ -9,8 +9,6 @@ import {
     linkMsgTypographyStyle,
 } from "../../constants/theme";
 import ErrorMessageTypography from "../form_elements/ErrorMessageTypography";
-import { useState } from "react";
-import { useEffect } from "react";
 
 export enum ILegalInformationConsentCheckBoxKeys {
     LegalInformationConsent = "legalInformationConsent",
@@ -28,27 +26,24 @@ interface ILegalInformationConsentCheckboxProps {
         key: ILegalInformationConsentCheckBoxKeys.LegalInformationConsent,
         value: boolean
     ) => void;
-    showErrorMessageOnLoad?: boolean; // default: true
+    suppressErrorMsg?: boolean;
     style?: React.CSSProperties;
 }
+
+export const LEGAL_INFORMATION_CONSENT_CHECKBOX_LOCAL_ERROR_MESSAGE: string = Dict.legal_notice_consent_required;
 
 const LegalInformationConsentCheckbox = (
     props: ILegalInformationConsentCheckboxProps
 ) => {
-    const LOCAL_ERROR_MESSAGE: string = Dict.legal_notice_consent_required;
-
     const {
         checked,
         errorMessage,
         onError,
         onForwardToLegalInformation,
         onUpdateValue,
-        showErrorMessageOnLoad,
+        suppressErrorMsg,
         style,
     } = props;
-    const [showErrorMessage, setShowErrorMessage] = useState(
-        showErrorMessageOnLoad === undefined || showErrorMessageOnLoad
-    );
 
     const onChange = (event: any): void => {
         onUpdateValue(
@@ -57,16 +52,12 @@ const LegalInformationConsentCheckbox = (
         );
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
         onError(
             ILegalInformationConsentCheckBoxKeys.LegalInformationConsent,
-            checked ? null : LOCAL_ERROR_MESSAGE
+            checked ? null : LEGAL_INFORMATION_CONSENT_CHECKBOX_LOCAL_ERROR_MESSAGE
         );
-
-        if (!showErrorMessage) {
-            setShowErrorMessage(true);
-        }
-    }, [checked, LOCAL_ERROR_MESSAGE, onError, showErrorMessage]);
+    }, [checked, onError]);
 
     return (
         <>
@@ -105,7 +96,7 @@ const LegalInformationConsentCheckbox = (
                 </Typography>
             </div>
             <ErrorMessageTypography
-                value={showErrorMessage ? errorMessage : null}
+                value={suppressErrorMsg ? null : errorMessage}
             />
         </>
     );

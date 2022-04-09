@@ -1,5 +1,6 @@
 import * as log from "loglevel";
 import * as React from "react";
+import { useNavigate } from "react-router";
 
 import {
     Button,
@@ -25,6 +26,8 @@ import {
 } from "../../constants/theme";
 import { IUserKeys, IUserValues } from "../../networking/account_data/IUser";
 import { IAccountSessionResponse } from "../../networking/account_session/AccountSessionRequest";
+import { AccountSessionSignInRequest } from "../../networking/account_session/AccountSessionSignInRequest";
+import { CookieService } from "../../services/CookieService";
 import EMailAddressInput, {
     E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/EMailAddressInput";
@@ -33,13 +36,10 @@ import PasswordInput, {
     PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/PasswordInput";
 import SubmitButton from "../form_elements/SubmitButton";
+import { useStateWithCallback } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
-import { AccountSessionSignInRequest } from "../../networking/account_session/AccountSessionSignInRequest";
-import { CookieService } from "../../services/CookieService";
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
 
 type ILoginFormProps = WithTheme & {
     setIsLoggedIn(isLoggedIn: boolean): void;
@@ -62,111 +62,135 @@ interface IFormError {
 
 const LoginForm = (props: ILoginFormProps) => {
     const { setIsLoggedIn, theme } = props;
-    const [form, setForm] = useState<IForm>({
+    const [form, setForm] = React.useState<IForm>({
         [IUserKeys.eMailAddress]: "",
         [IUserKeys.password]: "",
     });
-    const [formError, setFormError] = useState<IFormError>({
+    const [formError, setFormError] = React.useState<IFormError>({
         [IUserKeys.eMailAddress]: null,
         [IUserKeys.password]: null,
     });
     const [showGuestSignInDialog, setShowGuestSignInDialog] =
-        useState<boolean>(false);
-    const signInRequest = useRef<AccountSessionSignInRequest>();
+        React.useState<boolean>(false);
+    const [signInRequest, setSignInRequest] =
+        useStateWithCallback<AccountSessionSignInRequest>(null, (request) => {
+            if (request) {
+                request.execute();
+            }
+        });
+    const suppressErrorMsgs = React.useRef<boolean>(true);
     const navigate = useNavigate();
 
-    const topMarginStyle: React.CSSProperties = {
-        marginTop: 2 * theme.spacing(),
-    };
-    const passwordResetTypographyStyle: React.CSSProperties = {
-        color: CustomTheme.COLOR_WHITE,
-        cursor: "pointer",
-        display: "inline-block",
-        marginTop: theme.spacing(),
-        textAlign: "center",
-    };
-    const legalNoticeTypographyStyle: React.CSSProperties = {
-        color: CustomTheme.COLOR_LINK,
-        cursor: "pointer",
-    };
+    const topMarginStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginTop: 2 * theme.spacing(),
+        }),
+        [theme]
+    );
+    const passwordResetTypographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            color: CustomTheme.COLOR_WHITE,
+            cursor: "pointer",
+            display: "inline-block",
+            marginTop: theme.spacing(),
+            textAlign: "center",
+        }),
+        [theme]
+    );
+    const legalNoticeTypographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            color: CustomTheme.COLOR_LINK,
+            cursor: "pointer",
+        }),
+        []
+    );
 
-    const updateForm = (key: IFormKeys, value: string): void => {
-        setForm((form) => {
-            form[key] = value;
-            return form;
-        });
-    };
-    const updateFormError = (key: IFormKeys, value: string | null): void => {
-        setFormError((formError) => {
-            formError[key] = value;
-            return formError;
-        });
-    };
-    const setGuestDialogVisible = (visible: boolean): void => {
-        setShowGuestSignInDialog(visible);
-    };
-    const forwardToResetPassword = (): void => {
-        navigate(AppUrls.HELP_RESET_PASSWORD);
-    };
-    const forwardToLegalInformation = (): void => {
-        navigate(AppUrls.LEGAL_INFORMATION);
-    };
-
-    const signIn = (): void => {
-        scheduleLocalRevalidation();
-
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string): void => {
+            setForm((form: IForm) => {
+                return {
+                    ...form,
+                    [key]: value,
+                };
+            });
+            suppressErrorMsgs.current = false;
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError: IFormError) => {
+                return {
+                    ...formError,
+                    [key]: value,
+                };
+            });
+        },
+        []
+    );
+    const validate = React.useCallback((): boolean => {
+        return (
+            formError[IUserKeys.eMailAddress] !==
+                E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE &&
+            formError[IUserKeys.password] !== PASSWORD_INPUT_LOCAL_ERROR_MESSAGE
+        );
+    }, [formError]);
+    const signIn = React.useCallback((): void => {
         if (!validate()) {
             return;
         }
 
-        if (signInRequest.current) {
-            signInRequest.current.cancel();
-        }
+        setFormError({
+            [IUserKeys.eMailAddress]: null,
+            [IUserKeys.password]: null,
+        });
+        setSignInRequest(
+            new AccountSessionSignInRequest(
+                form[IUserKeys.eMailAddress],
+                form[IUserKeys.password],
+                (response: IAccountSessionResponse) => {
+                    const errorMsg = response.errorMsg;
 
-        signInRequest.current = new AccountSessionSignInRequest(
-            form[IUserKeys.eMailAddress],
-            form[IUserKeys.password],
-            (response: IAccountSessionResponse) => {
-                const errorMsg = response.errorMsg;
+                    if (errorMsg) {
+                        let errorKey = null;
 
-                if (errorMsg) {
-                    let errorKey = null;
+                        if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
+                            errorKey = IUserKeys.eMailAddress;
+                        } else if (errorMsg.indexOf(IUserKeys.password) > -1) {
+                            errorKey = IUserKeys.password;
+                        }
 
-                    if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
-                        errorKey = IUserKeys.eMailAddress;
-                    } else if (errorMsg.indexOf(IUserKeys.password) > -1) {
-                        errorKey = IUserKeys.password;
-                    }
-
-                    if (errorKey) {
-                        setFormError((formError) => {
-                            formError[errorKey] = Dict[errorMsg] ?? errorMsg;
-                            return formError;
-                        });
+                        if (errorKey) {
+                            setFormError((formError) => {
+                                return {
+                                    ...formError,
+                                    [errorKey]: Dict[errorMsg] ?? errorMsg,
+                                };
+                            });
+                        } else {
+                            showNotification(errorMsg);
+                        }
                     } else {
-                        showNotification(errorMsg);
+                        registerPushManager()
+                            .catch((exc) => {
+                                log.warn(LogTags.PUSH_SUBSCRIPTION + exc);
+                            })
+                            .then(() => {
+                                setIsLoggedIn(true);
+                                navigate(AppUrls.HOME);
+                            });
                     }
-                } else {
-                    registerPushManager()
-                        .catch((exc) => {
-                            log.warn(LogTags.PUSH_SUBSCRIPTION + exc);
-                        })
-                        .then(() => {
-                            setIsLoggedIn(true);
-                            navigate(AppUrls.HOME);
-                        });
-                }
 
-                signInRequest.current = null;
-            },
-            (error: any) => {
-                showNotification(Dict.error_message_timeout);
-                signInRequest.current = null;
-            }
+                    setSignInRequest(null);
+                },
+                (error: any) => {
+                    showNotification(Dict.error_message_timeout);
+                    setSignInRequest(null);
+                }
+            )
         );
-        signInRequest.current.execute();
-    };
-    const signInAsGuest = (): void => {
+    }, [form, navigate, setIsLoggedIn, setSignInRequest, validate]);
+    const signInAsGuest = React.useCallback((): void => {
         Promise.all([
             CookieService.set(
                 IUserKeys.accessLevel,
@@ -187,28 +211,16 @@ const LoginForm = (props: ILoginFormProps) => {
                 setIsLoggedIn(true);
                 navigate(AppUrls.HOME);
             });
-    };
-    const scheduleLocalRevalidation = (): void => {
-        setFormError({
-            [IUserKeys.eMailAddress]: null,
-            [IUserKeys.password]: null,
-        });
-    };
-    const validate = (): boolean => {
-        return (
-            formError[IUserKeys.eMailAddress] !==
-                E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE &&
-            formError[IUserKeys.password] !== PASSWORD_INPUT_LOCAL_ERROR_MESSAGE
-        );
-    };
+    }, [navigate, setIsLoggedIn]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         return () => {
-            if (signInRequest.current) {
-                signInRequest.current.cancel();
+            if (signInRequest) {
+                signInRequest.cancel();
             }
         };
-    });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <>
@@ -219,7 +231,7 @@ const LoginForm = (props: ILoginFormProps) => {
                             errorMessage={formError[IUserKeys.eMailAddress]}
                             onError={updateFormError}
                             onUpdateValue={updateForm}
-                            showErrorMessageOnLoad={false}
+                            suppressErrorMsg={suppressErrorMsgs.current}
                             themeType={ThemeTypes.LIGHT}
                             value={form[IUserKeys.eMailAddress]}
                         />
@@ -229,14 +241,17 @@ const LoginForm = (props: ILoginFormProps) => {
                             onError={updateFormError}
                             onKeyPressEnter={signIn}
                             onUpdateValue={updateForm}
-                            showErrorMessageOnLoad={false}
+                            suppressErrorMsg={suppressErrorMsgs.current}
                             style={topMarginStyle}
                             themeType={ThemeTypes.LIGHT}
                             value={form[IUserKeys.password]}
                         />
 
                         <Typography
-                            onClick={forwardToResetPassword}
+                            onClick={navigate.bind(
+                                this,
+                                AppUrls.HELP_RESET_PASSWORD
+                            )}
                             style={passwordResetTypographyStyle}
                         >
                             <span>
@@ -245,7 +260,7 @@ const LoginForm = (props: ILoginFormProps) => {
                         </Typography>
 
                         <SubmitButton
-                            disabled={signInRequest !== null}
+                            disabled={!!signInRequest}
                             label={Dict.account_sign_in}
                             onClick={signIn}
                             style={topMarginStyle}
@@ -257,7 +272,7 @@ const LoginForm = (props: ILoginFormProps) => {
                     <div>
                         <SubmitButton
                             label={Dict.account_sign_in_guest}
-                            onClick={setGuestDialogVisible.bind(this, true)}
+                            onClick={setShowGuestSignInDialog.bind(this, true)}
                         />
                     </div>
                     <div style={topMarginStyle}>
@@ -270,7 +285,7 @@ const LoginForm = (props: ILoginFormProps) => {
             </Grid>
 
             <Dialog
-                onClose={setGuestDialogVisible.bind(this, false)}
+                onClose={setShowGuestSignInDialog.bind(this, false)}
                 open={showGuestSignInDialog}
             >
                 <DialogTitle>{Dict.legal_notice_consent_heading}</DialogTitle>
@@ -278,7 +293,10 @@ const LoginForm = (props: ILoginFormProps) => {
                     <DialogContentText>
                         {Dict.legal_notice_consent_paragraph_prefix}
                         <span
-                            onClick={forwardToLegalInformation}
+                            onClick={navigate.bind(
+                                this,
+                                AppUrls.LEGAL_INFORMATION
+                            )}
                             style={legalNoticeTypographyStyle}
                         >
                             {Dict.legal_notice_heading}
@@ -288,7 +306,7 @@ const LoginForm = (props: ILoginFormProps) => {
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        onClick={setGuestDialogVisible.bind(this, false)}
+                        onClick={setShowGuestSignInDialog.bind(this, false)}
                         color="primary"
                     >
                         {Dict.label_cancel}

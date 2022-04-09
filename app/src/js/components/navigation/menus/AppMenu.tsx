@@ -35,7 +35,6 @@ const AppMenu = (props: IAppMenuProps) => {
                 horizontal: "right",
                 vertical: "top"
             }}
-            onBackdropClick={toggleAppMenuVisibility}
             onClick={toggleAppMenuVisibility}
             onClose={toggleAppMenuVisibility}
             open={open}>

@@ -418,7 +418,7 @@ const ProfileForm = (props: IProfileFormProps) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const showNotice = (): React.ReactNode => {
+    if (notice) {
         const { message, type } = notice;
 
         return (
@@ -429,8 +429,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                 </CardContent>
             </Card>
         );
-    };
-    const showContent = (): React.ReactNode => {
+    } else {
         return (
             <>
                 <Accordion expanded={true}>
@@ -768,8 +767,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                 </Dialog>
             </>
         );
-    };
-    return notice ? showNotice() : showContent();
+    }
 };
 
 export default withTheme(ProfileForm);
