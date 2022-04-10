@@ -1,11 +1,15 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { MuiThemeProvider, TextField } from '@material-ui/core';
+import { MuiThemeProvider, TextField } from "@material-ui/core";
 
-import { Dict } from '../../constants/dict';
-import Formats from '../../constants/formats';
-import { getTextFieldTheme, textFieldInputProps, ThemeTypes } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
+import { Dict } from "../../constants/dict";
+import Formats from "../../constants/formats";
+import {
+    getTextFieldTheme,
+    textFieldInputProps,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
 
 interface IDisplayNameInputProps {
     errorMessage: string | null;
@@ -33,18 +37,25 @@ const DisplayNameInput = (props: IDisplayNameInputProps) => {
         value,
     } = props;
 
-    const onChange = (event: any): void => {
-        onUpdateValue(IUserKeys.displayName, event.target.value);
-    };
-    const onLocalBlur = (_: any): void => {
-        if (value) {
-            onUpdateValue(IUserKeys.displayName, value.trim());
-        }
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onError(IUserKeys.displayName, null);
+            onUpdateValue(IUserKeys.displayName, event.target.value);
+        },
+        [onError, onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.displayName, value.trim());
+            }
 
-        if (!errorMessage && onBlur) {
-            onBlur(IUserKeys.displayName, value);
-        }
-    };
+            if (onBlur) {
+                onBlur(IUserKeys.displayName, value);
+            }
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
     React.useEffect(() => {
         const localErrorMessage =
@@ -55,7 +66,11 @@ const DisplayNameInput = (props: IDisplayNameInputProps) => {
                 : DISPLAY_NAME_INPUT_LOCAL_ERROR_MESSAGE;
 
         // do not overwrite server side error messages
-        if (!errorMessage || errorMessage === DISPLAY_NAME_INPUT_LOCAL_ERROR_MESSAGE) {
+        if (
+            errorMessage !== localErrorMessage &&
+            (!errorMessage ||
+                errorMessage === DISPLAY_NAME_INPUT_LOCAL_ERROR_MESSAGE)
+        ) {
             onError(IUserKeys.displayName, localErrorMessage);
         }
     }, [errorMessage, onError, value]);

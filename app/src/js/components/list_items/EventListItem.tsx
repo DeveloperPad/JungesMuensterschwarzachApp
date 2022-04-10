@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router";
 
 import {
     Card,
@@ -17,23 +18,22 @@ import { AppUrls } from "../../constants/specific-urls";
 import { CustomTheme, grid7Style } from "../../constants/theme";
 import IEventItem, { IEventItemKeys } from "../../networking/events/IEventItem";
 import { ConfigService } from "../../services/ConfigService";
-import { useNavigate } from "react-router";
 
 type IEventListItemProps = WithTheme & {
     eventItem: IEventItem;
 };
 
 const EventListItem = (props: IEventListItemProps) => {
-    const { eventItem, theme } = props;
     const navigate = useNavigate();
+    const { eventItem, theme } = props;
 
-    const openEventItem = (): void => {
+    const openEventItem = React.useCallback((): void => {
         const eventId = eventItem[IEventItemKeys.eventId];
 
         if (eventId >= 0) {
             navigate(AppUrls.EVENTS_LIST + "/" + eventId);
         }
-    };
+    }, [eventItem, navigate]);
 
     return (
         <Card

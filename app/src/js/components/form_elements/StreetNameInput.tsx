@@ -6,8 +6,6 @@ import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { grid1Style, textFieldInputProps } from "../../constants/theme";
 import { IUserKeys } from "../../networking/account_data/IUser";
-import { useState } from "react";
-import { useEffect } from "react";
 
 interface IStreetNameInputProps {
     errorMessage: string | null;
@@ -23,21 +21,25 @@ const StreetNameInput = (props: IStreetNameInputProps) => {
 
     const { errorMessage, onBlur, onError, onUpdateValue, style, value } =
         props;
-    const [submit, setSubmit] = useState(false);
 
-    const onChange = (event: any): void => {
-        onError(IUserKeys.streetName, null);
-        onUpdateValue(IUserKeys.streetName, event.target.value);
-    };
-    const localOnBlur = (_: any): void => {
-        if (value) {
-            onUpdateValue(IUserKeys.streetName, value.trim());
-        }
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.streetName, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.streetName, value.trim());
+            }
 
-        setSubmit(true);
-    };
+            onBlur(IUserKeys.streetName, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    useEffect(() => {
+    React.useEffect(() => {
         const localErrorMessage =
             !value ||
             (value.length > 0 && value.length <= Formats.LENGTH.MAX.STREET_NAME)
@@ -46,25 +48,12 @@ const StreetNameInput = (props: IStreetNameInputProps) => {
 
         // do not overwrite server side error messages
         if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
         ) {
-            return;
+            onError(IUserKeys.streetName, localErrorMessage);
         }
-
-        onError(IUserKeys.streetName, localErrorMessage);
-
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
-            onBlur(IUserKeys.streetName, value || null);
-        }
-
-        setSubmit(false);
-    }, [errorMessage, LOCAL_ERROR_MESSAGE, onBlur, onError, submit, value]);
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
     return (
         <TextField
@@ -77,7 +66,7 @@ const StreetNameInput = (props: IStreetNameInputProps) => {
             label={Dict.account_streetName}
             margin="dense"
             name={IUserKeys.streetName}
-            onBlur={localOnBlur}
+            onBlur={onLocalBlur}
             onChange={onChange}
             style={{
                 ...grid1Style,

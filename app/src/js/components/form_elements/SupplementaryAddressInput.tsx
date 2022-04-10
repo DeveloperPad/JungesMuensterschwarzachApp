@@ -6,8 +6,6 @@ import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { grid1Style, textFieldInputProps } from "../../constants/theme";
 import { IUserKeys } from "../../networking/account_data/IUser";
-import { useState } from "react";
-import { useEffect } from "react";
 
 interface ISupplementaryAddressInputProps {
     errorMessage: string | null;
@@ -24,21 +22,25 @@ const SupplementaryAddressInput = (props: ISupplementaryAddressInputProps) => {
     const LOCAL_ERROR_MESSAGE = Dict.account_supplementaryAddress_invalid;
 
     const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
-    const [submit, setSubmit] = useState(false);
 
-    const onChange = (event: any): void => {
-        onError(IUserKeys.supplementaryAddress, null);
-        onUpdateValue(IUserKeys.supplementaryAddress, event.target.value);
-    };
-    const onLocalBlur = (_: any): void => {
-        if (value) {
-            onUpdateValue(IUserKeys.supplementaryAddress, value.trim());
-        }
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.supplementaryAddress, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.supplementaryAddress, value.trim());
+            }
 
-        setSubmit(true);
-    };
+            onBlur(IUserKeys.supplementaryAddress, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    useEffect(() => {
+    React.useEffect(() => {
         const localErrorMessage =
             !value ||
             (value.length > 0 &&
@@ -48,25 +50,12 @@ const SupplementaryAddressInput = (props: ISupplementaryAddressInputProps) => {
 
         // do not overwrite server side error messages
         if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
         ) {
-            return;
+            onError(IUserKeys.supplementaryAddress, localErrorMessage);
         }
-
-        onError(IUserKeys.supplementaryAddress, localErrorMessage);
-
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
-            onBlur(IUserKeys.supplementaryAddress, value || null);
-        }
-
-        setSubmit(false);
-    }, [errorMessage, LOCAL_ERROR_MESSAGE, onBlur, onError, submit, value]);
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
     return (
         <TextField

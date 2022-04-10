@@ -568,9 +568,8 @@ Telefon: Tel. 09324 20204\
 E-Mail: p.maximilian@abtei-muensterschwarzach.de",
 "legal_notice_responsible_technics_heading": "Technisch verantwortlich",
 "legal_notice_responsible_technics_paragraph": "Lucas Kinne\
-Leo-Weismantel-Straße 1a\
-(Appartment-Nr. 1614b)\
-97074 Würzburg\
+Elsa-Brandström-Straße 14\
+97218 Gerbrunn\
 E-Mail: lucas.kinne@live.de",
 "mail_account_transfer_not_sent": "Die E-Mail zum Bestätigen des Account-Transfers konnte nicht versandt werden.",
 "mail_attachment_invalid": "Mail-Anhänge dürfen maximal 5 MB groß sein.",

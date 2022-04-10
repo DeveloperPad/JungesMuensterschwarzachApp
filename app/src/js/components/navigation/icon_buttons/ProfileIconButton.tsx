@@ -1,44 +1,35 @@
-import * as React from "react";
+import * as React from 'react';
+import { useNavigate } from 'react-router';
 
-import { IconButton, Tooltip } from "@material-ui/core";
-import { Person } from "@material-ui/icons";
+import { IconButton, Tooltip } from '@material-ui/core';
+import { Person } from '@material-ui/icons';
 
-import { Dict } from "../../../constants/dict";
-import { AppUrls } from "../../../constants/specific-urls";
-import { IUserKeys, IUserValues } from "../../../networking/account_data/IUser";
-import { CookieService } from "../../../services/CookieService";
-import { useEffect, useState } from "react";
-import { useRef } from "react";
-import { useNavigate } from "react-router";
+import { Dict } from '../../../constants/dict';
+import { AppUrls } from '../../../constants/specific-urls';
+import { IUserKeys, IUserValues } from '../../../networking/account_data/IUser';
+import { CookieService } from '../../../services/CookieService';
 
-const ProfileIconButton = () => {
-    const [display, setDisplay] = useState(false);
-    const checkLoginState = useRef(true);
+type IProfileIconButtonProps = {
+    isLoggedIn: boolean
+}
+
+const ProfileIconButton = (props: IProfileIconButtonProps) => {
     const navigate = useNavigate();
+    const { isLoggedIn } = props;
+    const [display, setDisplay] = React.useState(isLoggedIn);
 
-    const forward = (): void => {
-        navigate(AppUrls.PROFILE);
-    };
-
-    useEffect(() => {
-        if (!checkLoginState.current) {
-            checkLoginState.current = true;
-            return;
-        }
-
+    React.useEffect(() => {
         CookieService.get<number>(IUserKeys.accessLevel)
             .then((accessLevel) => {
-                checkLoginState.current = false;
                 setDisplay(
                     accessLevel !== null &&
                         accessLevel !== IUserValues[IUserKeys.accessLevel].guest
                 );
             })
             .catch((error) => {
-                checkLoginState.current = false;
                 setDisplay(false);
             });
-    });
+    }, [isLoggedIn]);
 
     if (!display) {
         return null;
@@ -46,7 +37,7 @@ const ProfileIconButton = () => {
 
     return (
         <Tooltip title={Dict.navigation_profile}>
-            <IconButton onClick={forward}>
+            <IconButton onClick={navigate.bind(this, AppUrls.PROFILE)}>
                 <Person />
             </IconButton>
         </Tooltip>

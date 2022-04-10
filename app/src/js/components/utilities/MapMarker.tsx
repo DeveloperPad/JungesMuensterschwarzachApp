@@ -11,10 +11,10 @@ type MapMarkerProps = WithTheme &
 const MapMarker = (props: MapMarkerProps) => {
     const { latitude, longitude } = props;
 
-    const onClick = (): void => {
+    const onClick = React.useCallback((): void => {
         window.location.href =
             "https://www.google.com/maps/?q=" + latitude + "," + longitude;
-    };
+    }, [latitude, longitude]);
 
     return (
         <Marker latitude={Number(latitude)} longitude={Number(longitude)}>

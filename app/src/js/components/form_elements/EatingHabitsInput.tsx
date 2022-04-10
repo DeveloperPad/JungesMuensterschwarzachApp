@@ -6,8 +6,6 @@ import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { grid1Style, textFieldInputProps } from "../../constants/theme";
 import { IUserKeys } from "../../networking/account_data/IUser";
-import { useState } from "react";
-import { useEffect } from "react";
 
 interface IEatingHabitsInputProps {
     errorMessage: string | null;
@@ -21,21 +19,25 @@ const EatingHabitsInput = (props: IEatingHabitsInputProps) => {
     const LOCAL_ERROR_MESSAGE = Dict.account_eatingHabits_invalid;
 
     const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
-    const [submit, setSubmit] = useState(false);
 
-    const onChange = (event: any): void => {
-        onError(IUserKeys.eatingHabits, null);
-        onUpdateValue(IUserKeys.eatingHabits, event.target.value);
-    };
-    const onLocalBlur = (_: any): void => {
-        if (value) {
-            onUpdateValue(IUserKeys.eatingHabits, value.trim());
-        }
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.eatingHabits, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.eatingHabits, value.trim());
+            }
 
-        setSubmit(true);
-    };
+            onBlur(IUserKeys.eatingHabits, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    useEffect(() => {
+    React.useEffect(() => {
         const localErrorMessage =
             !value || value.length <= Formats.LENGTH.MAX.EATING_HABITS
                 ? null
@@ -43,32 +45,12 @@ const EatingHabitsInput = (props: IEatingHabitsInputProps) => {
 
         // do not overwrite server side error messages
         if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
         ) {
-            return;
+            onError(IUserKeys.eatingHabits, localErrorMessage);
         }
-
-        onError(IUserKeys.eatingHabits, localErrorMessage);
-
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
-            onBlur(IUserKeys.eatingHabits, value || null);
-        }
-
-        setSubmit(false);
-    }, [
-        errorMessage,
-        LOCAL_ERROR_MESSAGE,
-        onBlur,
-        onError,
-        submit,
-        value,
-    ]);
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
     return (
         <TextField

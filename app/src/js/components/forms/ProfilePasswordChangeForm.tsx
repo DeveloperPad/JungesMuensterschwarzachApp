@@ -61,18 +61,24 @@ const ProfilePasswordChangeForm = (props: IProfilePasswordChangeFormProps) => {
         textAlign: "center",
     };
 
-    const updateForm = (key: IFormKeys, value: string): void => {
-        setForm((form) => {
-            form[key] = value;
-            return form;
-        });
-    };
-    const updateFormError = (key: IFormKeys, value: string | null): void => {
-        setFormError((formError) => {
-            formError[key] = value;
-            return formError;
-        });
-    };
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string): void => {
+            setForm((form) => ({
+                ...form,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
     const validate = (): boolean => {
         let valid = true;
 
@@ -196,8 +202,7 @@ const ProfilePasswordChangeForm = (props: IProfilePasswordChangeFormProps) => {
             <GridItem style={grid6Style}>
                 {infoMsg ? showResponseGrid() : showRequestGrid()}
             </GridItem>
-            <GridItem style={grid1Style}>
-            </GridItem>
+            <GridItem style={grid1Style}></GridItem>
         </Grid>
     );
 };

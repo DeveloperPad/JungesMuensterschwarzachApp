@@ -1,11 +1,11 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Checkbox, Switch, Typography } from '@material-ui/core';
+import { Checkbox, Switch, Typography } from "@material-ui/core";
 
-import { Dict } from '../../constants/dict';
-import { CustomTheme, grid1Style, ThemeTypes } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
-import ErrorMessageTypography from './ErrorMessageTypography';
+import { Dict } from "../../constants/dict";
+import { CustomTheme, grid1Style, ThemeTypes } from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import ErrorMessageTypography from "./ErrorMessageTypography";
 
 interface IAllowNewsletterCheckboxProps {
     checked: boolean;
@@ -49,15 +49,23 @@ const AllowNewsLetterCheckbox = (props: IAllowNewsletterCheckboxProps) => {
         []
     );
 
-    const onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-        onUpdateValue(
-            IUserKeys.allowNewsletter,
-            (event.currentTarget as HTMLInputElement).checked ? 1 : 0
-        );
-        if (!errorMessage && onBlur) {
-            onBlur(IUserKeys.allowNewsletter, checked ? 1 : 0);
-        }
-    };
+    const onChange = React.useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>): void => {
+            const newChecked = (event.currentTarget as HTMLInputElement).checked;
+            console.log("newchecked: " + newChecked);
+            onUpdateValue(
+                IUserKeys.allowNewsletter,
+                newChecked ? 1 : 0
+            );
+            if (onBlur) {
+                onBlur(
+                    IUserKeys.allowNewsletter,
+                    newChecked ? 1 : 0
+                );            
+            }
+        },
+        [onBlur, onUpdateValue]
+    );
 
     return themeType && themeType === ThemeTypes.LIGHT ? (
         <>

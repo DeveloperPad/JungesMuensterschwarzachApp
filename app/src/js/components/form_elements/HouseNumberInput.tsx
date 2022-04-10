@@ -6,7 +6,6 @@ import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { grid1Style, textFieldInputProps } from "../../constants/theme";
 import { IUserKeys } from "../../networking/account_data/IUser";
-import { useState } from "react";
 
 interface IHouseNumberInputProps {
     errorMessage: string | null;
@@ -20,21 +19,25 @@ const HouseNumberInput = (props: IHouseNumberInputProps) => {
     const LOCAL_ERROR_MESSAGE = Dict.account_houseNumber_invalid;
 
     const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
-    const [submit, setSubmit] = useState(false);
 
-    const onChange = (event: any): void => {
-        onError(IUserKeys.houseNumber, null);
-        onUpdateValue(IUserKeys.houseNumber, event.target.value);
-    };
-    const onLocalBlur = (_: any): void => {
-        if (value) {
-            onUpdateValue(IUserKeys.houseNumber, value.trim());
-        }
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.houseNumber, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.houseNumber, value.trim());
+            }
 
-        setSubmit(true);
-    };
+            onBlur(IUserKeys.houseNumber, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    useState(() => {
+    React.useEffect(() => {
         const localErrorMessage =
             !value ||
             (value.length > 0 &&
@@ -44,25 +47,12 @@ const HouseNumberInput = (props: IHouseNumberInputProps) => {
 
         // do not overwrite server side error messages
         if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
         ) {
-            return;
+            onError(IUserKeys.houseNumber, localErrorMessage);
         }
-
-        onError(IUserKeys.houseNumber, localErrorMessage);
-
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
-            onBlur(IUserKeys.houseNumber, value || null);
-        }
-
-        setSubmit(false);
-    });
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
     return (
         <TextField

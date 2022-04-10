@@ -22,11 +22,23 @@ const BirthdateInput = (props: IBirthdateInputProps) => {
 
     const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
 
-    const onChange = (date: any): void => {
-        onError(IUserKeys.birthdate, null);
-        onUpdateValue(IUserKeys.birthdate, date);
-    };
-    const localOnBlur = (_: any): void => {
+    const onChange = React.useCallback(
+        (date: any): void => {
+            onUpdateValue(IUserKeys.birthdate, date);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            onBlur(
+                IUserKeys.birthdate,
+                value ? formatDate(value, Formats.DATE.DATE_DATABASE) : null
+            );
+        },
+        [onBlur, value]
+    );
+
+    React.useEffect(() => {
         const localErrorMessage =
             value === null || moment().isAfter(moment(value))
                 ? null
@@ -34,22 +46,12 @@ const BirthdateInput = (props: IBirthdateInputProps) => {
 
         // do not overwrite server side error messages
         if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
         ) {
-            return;
+            onError(IUserKeys.birthdate, localErrorMessage);
         }
-
-        onError(IUserKeys.birthdate, localErrorMessage);
-
-        if (onBlur) {
-            onBlur(
-                IUserKeys.birthdate,
-                value ? formatDate(value, Formats.DATE.DATE_DATABASE) : null
-            );
-        }
-    };
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
     return (
         <DatePicker
@@ -67,7 +69,7 @@ const BirthdateInput = (props: IBirthdateInputProps) => {
             name={IUserKeys.birthdate}
             okLabel={Dict.label_confirm}
             onChange={onChange}
-            onBlur={localOnBlur}
+            onBlur={onLocalBlur}
             placeholder={Dict.account_birthdate_placeholder}
             style={grid1Style}
             value={value}

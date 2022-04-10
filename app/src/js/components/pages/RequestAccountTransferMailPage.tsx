@@ -16,9 +16,12 @@ const RequestAccountTransferMailPage = (
 ) => {
     const { theme } = props;
 
-    const gridStyle: React.CSSProperties = {
-        width: "70%",
-    };
+    const gridStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            width: "70%",
+        }),
+        []
+    );
 
     return (
         <Background theme={theme}>

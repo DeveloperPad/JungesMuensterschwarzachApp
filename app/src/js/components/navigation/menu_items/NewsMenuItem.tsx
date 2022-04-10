@@ -11,15 +11,15 @@ type NewsMenuItemProps = {
 };
 
 const NewsMenuItem = (props: NewsMenuItemProps) => {
-    const { divider } = props;
     const navigate = useNavigate();
-
-    const forward = (): void => {
-        navigate(AppUrls.NEWS_LIST);
-    };
+    const { divider } = props;
 
     return (
-        <MenuItem button={true} divider={divider || false} onClick={forward}>
+        <MenuItem
+            button={true}
+            divider={divider || false}
+            onClick={navigate.bind(this, AppUrls.NEWS_LIST)}
+        >
             <span>{Dict.navigation_app_news}</span>
         </MenuItem>
     );

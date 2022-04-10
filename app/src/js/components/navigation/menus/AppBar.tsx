@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router";
 
 import { Toolbar, Tooltip, Typography } from "@material-ui/core";
 import MuiAppBar from "@material-ui/core/AppBar";
@@ -11,26 +12,18 @@ import ProfileIconButton from "../../navigation/icon_buttons/ProfileIconButton";
 import AppDrawerIconButton from "../icon_buttons/AppDrawerIconButton";
 import AppMenuIconButton from "../icon_buttons/AppMenuIconButton";
 import ReloadIconButton from "../icon_buttons/ReloadIconButton";
-import { useNavigate } from "react-router";
-import { useCallback, useEffect, useRef } from "react";
 
 type IAppBarProps = {
-    rerenderApp: () => void;
+    isLoggedIn: boolean;
     toggleAppDrawerVisibility: () => void;
     toggleAppMenuVisibility: () => void;
 };
 
 const AppBar = (props: IAppBarProps) => {
-    const { toggleAppDrawerVisibility, toggleAppMenuVisibility } = props;
-    const ref = useRef();
     const navigate = useNavigate();
-    const rerenderApp = useCallback(() => {
-        return props.rerenderApp;
-    }, [props.rerenderApp]);
-
-    useEffect(() => {
-        rerenderApp();
-    }, [rerenderApp]);
+    const { isLoggedIn, toggleAppDrawerVisibility, toggleAppMenuVisibility } =
+        props;
+    const ref = React.useRef();
 
     return (
         <MuiAppBar
@@ -58,8 +51,8 @@ const AppBar = (props: IAppBarProps) => {
                     </Typography>
                 </Tooltip>
                 <ReloadIconButton />
-                <ProfileIconButton />
-                <LoginIconButton />
+                <ProfileIconButton isLoggedIn={isLoggedIn} />
+                <LoginIconButton isLoggedIn={isLoggedIn} />
                 <AppMenuIconButton
                     toggleAppMenuVisibility={toggleAppMenuVisibility}
                 />

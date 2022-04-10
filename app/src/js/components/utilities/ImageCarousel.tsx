@@ -17,23 +17,35 @@ type IImageCarouselProps = WithTheme & {
 const ImageCarousel = (props: IImageCarouselProps) => {
     const { images, style, theme } = props;
 
+    const getImagePath = React.useCallback((image: IImage): string => {
+        return ConfigService.getConfig().BaseUrls.WEBSERVICE + "/" + image.path;
+    }, []);
+    const statusFormatter = React.useCallback(
+        (current: any, total: any): string => {
+            return current + Dict.image_navigation_counter_infix + total;
+        },
+        []
+    );
+
+    const showIndicators: boolean = React.useMemo(
+        () => images && images.length > 1,
+        [images]
+    );
+    const imageDivs: React.ReactElement<any>[] = React.useMemo(
+        () =>
+            images
+                ? images.map((image) => (
+                      <div key={image.imageId}>
+                          <img src={getImagePath(image)} alt="" />
+                      </div>
+                  ))
+                : [],
+        [getImagePath, images]
+    );
+
     if (!images || images.length === 0) {
         return null;
     }
-
-    const getImagePath = (image: IImage): string => {
-        return ConfigService.getConfig().BaseUrls.WEBSERVICE + "/" + image.path;
-    };
-    const statusFormatter = (current: any, total: any): string => {
-        return current + Dict.image_navigation_counter_infix + total;
-    };
-
-    const showIndicators: boolean = images.length > 1;
-    const imageDivs: React.ReactElement<any>[] = images.map((image) => (
-        <div key={image.imageId}>
-            <img src={getImagePath(image)} alt="" />
-        </div>
-    ));
 
     return (
         <div

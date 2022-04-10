@@ -26,24 +26,33 @@ import GridItem from "../utilities/GridItem";
 type IInstallationDetailsPageProps = WithTheme;
 
 const InstallationDetailsPage = (props: IInstallationDetailsPageProps) => {
-    const { theme } = props;
     const navigate = useNavigate();
     const location = useLocation();
+    const { theme } = props;
 
-    const paragraphStyle: React.CSSProperties = {
-        marginBottom: theme.spacing(2),
-    };
-    const imgGridStyle: React.CSSProperties = {
-        ...grid2Style,
-        marginLeft: theme.spacing(2),
-    };
-    const imgStyle: React.CSSProperties = {
-        height: "100%",
-        objectFit: "contain",
-        width: "100%",
-    };
+    const paragraphStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginBottom: theme.spacing(2),
+        }),
+        [theme]
+    );
+    const imgGridStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            ...grid2Style,
+            marginLeft: theme.spacing(2),
+        }),
+        [theme]
+    );
+    const imgStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            height: "100%",
+            objectFit: "contain",
+            width: "100%",
+        }),
+        []
+    );
 
-    const getOS = (os: string): string => {
+    const getOS = React.useCallback((os: string): string => {
         for (const operatingSystem in OperatingSystems) {
             if (
                 OperatingSystems[operatingSystem].toLowerCase() ===
@@ -55,8 +64,8 @@ const InstallationDetailsPage = (props: IInstallationDetailsPageProps) => {
 
         navigate(AppUrls.INSTALLATION);
         return "";
-    };
-    const getBrowser = (br: string): string => {
+    }, [navigate]);
+    const getBrowser = React.useCallback((br: string): string => {
         for (const browser in Browsers) {
             if (Browsers[browser].toLowerCase() === br.toLowerCase()) {
                 return Browsers[browser];
@@ -65,8 +74,8 @@ const InstallationDetailsPage = (props: IInstallationDetailsPageProps) => {
 
         navigate(AppUrls.INSTALLATION);
         return "";
-    };
-    const getOSBrowser = () => {
+    }, [navigate]);
+    const getOSBrowser = React.useCallback(() => {
         const pathParts = location.pathname
             .slice((AppUrls.INSTALLATION + "/").length)
             .split("/");
@@ -80,12 +89,10 @@ const InstallationDetailsPage = (props: IInstallationDetailsPageProps) => {
             os: getOS(pathParts[0]),
             browser: getBrowser(pathParts[1]),
         };
-    };
+    }, [getBrowser, getOS, location.pathname, navigate]);
     const { os, browser } = getOSBrowser();
     const dictionaryEntry: string = "installation_" + os + "_" + browser;
-    const paragraph: string = Dict.hasOwnProperty(dictionaryEntry)
-        ? Dict[dictionaryEntry]
-        : Dict.installation_os_browser_incompatible;
+    const paragraph: string = Dict[dictionaryEntry] ?? Dict.installation_os_browser_incompatible;
 
     return (
         <Background theme={theme}>

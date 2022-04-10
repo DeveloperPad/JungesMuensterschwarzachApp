@@ -6,8 +6,6 @@ import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { grid1Style, textFieldInputProps } from "../../constants/theme";
 import { IUserKeys } from "../../networking/account_data/IUser";
-import { useState } from "react";
-import { useEffect } from "react";
 
 interface IZipCodeInputProps {
     errorMessage: string | null;
@@ -23,21 +21,25 @@ const ZipCodeInput = (props: IZipCodeInputProps) => {
 
     const { errorMessage, onBlur, onError, onUpdateValue, style, value } =
         props;
-    const [submit, setSubmit] = useState(false);
 
-    const onChange = (event: any): void => {
-        onError(IUserKeys.zipCode, null);
-        onUpdateValue(IUserKeys.zipCode, event.target.value);
-    };
-    const onLocalBlur = (_: any): void => {
-        if (value) {
-            onUpdateValue(IUserKeys.zipCode, value.trim());
-        }
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.zipCode, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.zipCode, value.trim());
+            }
 
-        setSubmit(true);
-    };
+            onBlur(IUserKeys.zipCode, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    useEffect(() => {
+    React.useEffect(() => {
         const localErrorMessage =
             !value ||
             (value.length > 0 && value.length <= Formats.LENGTH.MAX.ZIP_CODE)
@@ -46,25 +48,12 @@ const ZipCodeInput = (props: IZipCodeInputProps) => {
 
         // do not overwrite server side error messages
         if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
         ) {
-            return;
+            onError(IUserKeys.zipCode, localErrorMessage);
         }
-
-        onError(IUserKeys.zipCode, localErrorMessage);
-
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
-            onBlur(IUserKeys.zipCode, value.trim());
-        }
-
-        setSubmit(false);
-    }, [errorMessage, LOCAL_ERROR_MESSAGE, onBlur, onError, submit, value]);
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
     return (
         <TextField

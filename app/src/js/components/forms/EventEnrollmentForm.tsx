@@ -99,18 +99,18 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
         whiteSpace: "pre-wrap",
     };
 
-    const updateForm = (key: IFormKeys, value: string): void => {
-        setForm((form) => {
-            form[key] = value;
-            return form;
-        });
-    };
-    const updateFormError = (key: IFormKeys, value: string | null): void => {
-        setFormError((formError) => {
-            formError[key] = value;
-            return formError;
-        });
-    };
+    const updateForm = React.useCallback((key: IFormKeys, value: string): void => {
+        setForm((form) => ({
+            ...form,
+            [key]: value
+        }));
+    }, []);
+    const updateFormError = React.useCallback((key: IFormKeys, value: string | null): void => {
+        setFormError((formError) => ({
+            ...formError,
+            [key]: value
+        }));
+    }, []);
     const fetchEventEnrollment = (): void => {
         if (!isLoggedIn) {
             return;

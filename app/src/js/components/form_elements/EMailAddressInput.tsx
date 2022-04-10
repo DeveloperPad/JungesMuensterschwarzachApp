@@ -1,11 +1,15 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { MuiThemeProvider, TextField } from '@material-ui/core';
+import { MuiThemeProvider, TextField } from "@material-ui/core";
 
-import { Dict } from '../../constants/dict';
-import Formats from '../../constants/formats';
-import { getTextFieldTheme, textFieldInputProps, ThemeTypes } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
+import { Dict } from "../../constants/dict";
+import Formats from "../../constants/formats";
+import {
+    getTextFieldTheme,
+    textFieldInputProps,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
 
 interface IEMailAddressInputProps {
     disabled?: boolean;
@@ -35,21 +39,31 @@ const EMailAddressInput = (props: IEMailAddressInputProps) => {
         value,
     } = props;
 
-    const onChange = (event: any): void => {
-        onUpdateValue(IUserKeys.eMailAddress, event.target.value);
-    };
-    const onLocalBlur = (_: any): void => {
-        if (!errorMessage && onBlur) {
-            onBlur(IUserKeys.eMailAddress, value);
-        }
-    };
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.eMailAddress, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (onBlur) {
+                onBlur(IUserKeys.eMailAddress, value);
+            }
+        },
+        [onBlur, value]
+    );
 
     React.useEffect(() => {
         const localErrorMessage = Formats.REGEXPS.E_MAIL_ADDRESS.test(value)
             ? null
             : E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE;
 
-        if (!errorMessage || errorMessage === E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE) {
+        if (
+            errorMessage !== localErrorMessage &&
+            (!errorMessage ||
+                errorMessage === E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE)
+        ) {
             onError(IUserKeys.eMailAddress, localErrorMessage);
         }
     }, [errorMessage, onError, value]);

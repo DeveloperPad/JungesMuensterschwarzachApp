@@ -45,12 +45,12 @@ const LegalInformationConsentCheckbox = (
         style,
     } = props;
 
-    const onChange = (event: any): void => {
+    const onChange = React.useCallback((event: any): void => {
         onUpdateValue(
             ILegalInformationConsentCheckBoxKeys.LegalInformationConsent,
             event.target.checked
         );
-    };
+    }, [onUpdateValue]);
 
     React.useEffect(() => {
         onError(

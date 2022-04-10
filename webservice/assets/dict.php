@@ -452,7 +452,7 @@
 "legal_notice_responsible_content_heading" => "Inhaltlich verantwortlich",
 "legal_notice_responsible_content_paragraph" => "Pater Maximilian Grund - Abtei Münsterschwarzach<br/>Schweinfurter Straße 40<br/>97359 Münsterschwarzach<br/>Telefon: Tel. 09324 20204<br/>E-Mail: p.maximilian@abtei-muensterschwarzach.de",
 "legal_notice_responsible_technics_heading" => "Technisch verantwortlich",
-"legal_notice_responsible_technics_paragraph" => "Lucas Kinne<br/>Leo-Weismantel-Straße 1a<br/>(Appartment-Nr. 1614b)<br/>97074 Würzburg<br/>E-Mail: lucas.kinne@live.de",
+"legal_notice_responsible_technics_paragraph" => "Lucas Kinne<br/>Elsa-Brandström-Straße 14<br/>97218 Gerbrunn<br/>E-Mail: lucas.kinne@live.de",
 "mail_account_transfer_not_sent" => "Die E-Mail zum Bestätigen des Account-Transfers konnte nicht versandt werden.",
 "mail_attachment_invalid" => "Mail-Anhänge dürfen maximal 5 MB groß sein.",
 "mail_attachments" => "Anhänge",

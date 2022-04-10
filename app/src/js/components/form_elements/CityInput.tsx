@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useState } from "react";
 
 import { TextField } from "@material-ui/core";
 
@@ -7,7 +6,6 @@ import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { grid1Style, textFieldInputProps } from "../../constants/theme";
 import { IUserKeys } from "../../networking/account_data/IUser";
-import { useEffect } from "react";
 
 interface ICityInputProps {
     errorMessage: string | null;
@@ -21,21 +19,25 @@ const CityInput = (props: ICityInputProps) => {
     const LOCAL_ERROR_MESSAGE = Dict.account_city_invalid;
 
     const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
-    const [submit, setSubmit] = useState(false);
 
-    const onChange = (event: any): void => {
-        onError(IUserKeys.city, null);
-        onUpdateValue(IUserKeys.city, event.target.value);
-    };
-    const localOnBlur = (_: any): void => {
-        if (value) {
-            onUpdateValue(IUserKeys.city, value.trim());
-        }
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.city, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.city, value.trim());
+            }
 
-        setSubmit(true);
-    };
+            onBlur(IUserKeys.city, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    useEffect(() => {
+    React.useEffect(() => {
         const localErrorMessage =
             !value ||
             (value.length > 0 && value.length <= Formats.LENGTH.MAX.CITY)
@@ -44,32 +46,12 @@ const CityInput = (props: ICityInputProps) => {
 
         // do not overwrite server side error messages
         if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
         ) {
-            return;
+            onError(IUserKeys.city, localErrorMessage);
         }
-
-        onError(IUserKeys.city, localErrorMessage);
-
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
-            onBlur(IUserKeys.city, value || null);
-        }
-
-        setSubmit(false);
-    }, [
-        errorMessage,
-        LOCAL_ERROR_MESSAGE,
-        onBlur,
-        onError,
-        submit,
-        value,
-    ]);
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
     return (
         <TextField
@@ -82,7 +64,7 @@ const CityInput = (props: ICityInputProps) => {
             label={Dict.account_city}
             margin="dense"
             name={IUserKeys.city}
-            onBlur={localOnBlur}
+            onBlur={onLocalBlur}
             onChange={onChange}
             style={grid1Style}
             type="text"

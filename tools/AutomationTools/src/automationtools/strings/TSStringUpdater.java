@@ -33,7 +33,7 @@ public class TSStringUpdater extends StringUpdater {
         for (int i = 0; i < jsonDict.size(); i++) {
             String identifier = ((JSONObject)jsonDict.get(i)).get("identifier").toString();
             String trans = ((JSONObject)jsonDict.get(i)).get(Main.LANG).toString();
-            trans = trans.replaceAll("\r\n", "\\r\\n");
+            trans = trans.replaceAll("\\r\\n", "\\\\r\\\\n");
 
             sbDict.append("\r\n");
             sbDict.append("public static ");

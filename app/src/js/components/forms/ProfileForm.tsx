@@ -1,5 +1,6 @@
 import log, * as logger from "loglevel";
 import * as React from "react";
+import { useNavigate } from "react-router";
 
 import {
     Accordion,
@@ -59,10 +60,9 @@ import PhoneNumberInput from "../form_elements/PhoneNumberInput";
 import StreetNameInput from "../form_elements/StreetNameInput";
 import SupplementaryAddressInput from "../form_elements/SupplementaryAddressInput";
 import ZipCodeInput from "../form_elements/ZipCodeInput";
+import { useStateRequest } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import { showNotification } from "../utilities/Notifier";
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
 
 type IProfileFormProps = WithTheme;
 
@@ -124,9 +124,10 @@ interface IFormError {
 }
 
 const ProfileForm = (props: IProfileFormProps) => {
+    const navigate = useNavigate();
     const { theme } = props;
 
-    const [form, setForm] = useState<IForm>({
+    const [form, setForm] = React.useState<IForm>({
         [IUserKeys.accessIdentifier]: Dict.account_accessLevel_guest,
         [IUserKeys.allowNewsletter]: 0,
         [IUserKeys.allowPost]: 0,
@@ -144,7 +145,7 @@ const ProfileForm = (props: IProfileFormProps) => {
         [IUserKeys.streetName]: "",
         [IUserKeys.zipCode]: "",
     });
-    const emptyFormError = (): IFormError => {
+    const emptyFormError = React.useMemo((): IFormError => {
         return {
             [IUserKeys.accessIdentifier]: null,
             [IUserKeys.allowNewsletter]: null,
@@ -163,228 +164,276 @@ const ProfileForm = (props: IProfileFormProps) => {
             [IUserKeys.streetName]: null,
             [IUserKeys.zipCode]: null,
         };
-    };
-    const [formError, setFormError] = useState<IFormError>(emptyFormError());
-    const [notice, setNotice] = useState<INotice>({
+    }, []);
+    const [formError, setFormError] = React.useState<IFormError>({
+        ...emptyFormError,
+    });
+    const [notice, setNotice] = React.useState<INotice>({
         message: Dict.label_wait,
         type: Dict.label_loading,
     });
     const [showDeletionConfirmationDialog, setShowDeletionConfirmationDialog] =
-        useState<boolean>(false);
-    const fetchedForm = useRef<IForm>();
-    const fetchAccountDataRequest = useRef<FetchAccountDataRequest>();
-    const updateAccountDataRequest = useRef<UpdateAccountDataRequest>();
-    const deleteAccountDataRequest = useRef<DeleteAccountDataRequest>();
-    const navigate = useNavigate();
+        React.useState<boolean>(false);
+    const fetchedForm = React.useRef<IForm>();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [request, setRequest] = useStateRequest();
 
-    const expansionPanelDetailsStyle: React.CSSProperties = {
-        flexDirection: "column",
-    };
-    const expansionPanelDetailsInnerStyle: React.CSSProperties = {
-        marginLeft: theme.spacing(),
-        marginRight: theme.spacing(),
-        paddingTop: theme.spacing(),
-    };
-    const separatorStyle: React.CSSProperties = {
-        height: theme.spacing(2),
-    };
-    const textCenterStyle: React.CSSProperties = {
-        textAlign: "center",
-    };
-    const preWrapStyle: React.CSSProperties = {
-        whiteSpace: "pre-wrap",
-    };
-    const legendGridStyle: React.CSSProperties = {
-        ...gridHorizontalStyle,
-        justifyContent: "flex-start",
-    };
-    const accountMarkerStyle: React.CSSProperties = {
-        ...markerAccountRequirementsStyle,
-        ...markerRequirementsLeftMarginStyle,
-    };
-    const eventMarkerStyle: React.CSSProperties = {
-        ...markerEventRequirementsStyle,
-        ...markerRequirementsLeftMarginStyle,
-    };
+    const expansionPanelDetailsStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            flexDirection: "column",
+        }),
+        []
+    );
+    const expansionPanelDetailsInnerStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginLeft: theme.spacing(),
+            marginRight: theme.spacing(),
+            paddingTop: theme.spacing(),
+        }),
+        [theme]
+    );
+    const separatorStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            height: theme.spacing(2),
+        }),
+        [theme]
+    );
+    const textCenterStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            textAlign: "center",
+        }),
+        []
+    );
+    const preWrapStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            whiteSpace: "pre-wrap",
+        }),
+        []
+    );
+    const legendGridStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            ...gridHorizontalStyle,
+            justifyContent: "flex-start",
+        }),
+        []
+    );
+    const accountMarkerStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            ...markerAccountRequirementsStyle,
+            ...markerRequirementsLeftMarginStyle,
+        }),
+        []
+    );
+    const eventMarkerStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            ...markerEventRequirementsStyle,
+            ...markerRequirementsLeftMarginStyle,
+        }),
+        []
+    );
 
-    const updateForm = (key: IFormKeys, value: IFormValues): void => {
-        setForm((form) => {
-            return {
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: IFormValues): void => {
+            setForm((form) => ({
                 ...form,
                 [key]: value,
-            };
-        });
-    };
-    const updateFormError = (key: IFormKeys, value: string | null): void => {
-        setFormError((formError) => {
-            formError[key] = value;
-            return formError;
-        });
-    };
-    const fetchAccountData = (
-        notice: INotice | null = null,
-        resetErrors: boolean = true
-    ): void => {
-        fetchAccountDataRequest.current = new FetchAccountDataRequest(
-            (response: IFetchAccountDataResponse) => {
-                const errorMsg = response.errorMsg;
-                const user = response.user;
+            }));
+            console.log("updating form: " + key + " to " + value);
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const fetchAccountData = React.useCallback(
+        (notice: INotice | null = null, resetErrors: boolean = true): void => {
+            setRequest(
+                new FetchAccountDataRequest(
+                    (response: IFetchAccountDataResponse) => {
+                        const errorMsg = response.errorMsg;
+                        const user = response.user;
 
-                if (errorMsg) {
-                    setNotice({
-                        message: errorMsg,
-                        type: Dict.error_type_server,
-                    });
-                } else if (user) {
-                    const downloadedForm: IForm = {
-                        [IUserKeys.accessIdentifier]:
-                            user.accessIdentifier || "",
-                        [IUserKeys.allowNewsletter]: user.allowNewsletter || 0,
-                        [IUserKeys.allowPost]: user.allowPost || 0,
-                        [IUserKeys.birthdate]: user.birthdate
-                            ? getDate(
-                                  user.birthdate,
-                                  Formats.DATE.DATETIME_DATABASE
-                              )
-                            : null,
-                        [IUserKeys.city]: user.city || "",
-                        [IUserKeys.country]: user.country || "",
-                        [IUserKeys.displayName]: user.displayName || "",
-                        [IUserKeys.eMailAddress]: user.eMailAddress || "",
-                        [IUserKeys.eatingHabits]: user.eatingHabits || "",
-                        [IUserKeys.firstName]: user.firstName || "",
-                        [IUserKeys.houseNumber]: user.houseNumber || "",
-                        [IUserKeys.supplementaryAddress]:
-                            user.supplementaryAddress || "",
-                        [IUserKeys.lastName]: user.lastName || "",
-                        [IUserKeys.phoneNumber]: user.phoneNumber || "",
-                        [IUserKeys.streetName]: user.streetName || "",
-                        [IUserKeys.zipCode]: user.zipCode || "",
-                    };
-                    setForm(downloadedForm);
-                    if (resetErrors) {
-                        setFormError(emptyFormError());
-                    }
-                    setNotice(notice);
-                    fetchedForm.current = downloadedForm;
-                }
-                fetchAccountDataRequest.current = null;
-            },
-            () => {
-                setNotice({
-                    message: Dict.error_message_try_later,
-                    type: Dict.error_type_network,
-                });
-                fetchAccountDataRequest.current = null;
-            }
-        );
-        fetchAccountDataRequest.current.execute();
-    };
-    const updateAccountData = (key: IFormKeys, value: IFormValues): void => {
-        if (
-            !fetchedForm.current ||
-            !form ||
-            formError[key] ||
-            fetchedForm.current[key] === form[key]
-        ) {
-            return;
-        }
-
-        let newValue = null;
-        if (typeof value === "string") {
-            newValue = value;
-        } else if (typeof value === "number" || value) {
-            newValue = value.toString();
-        }
-
-        logger.info(
-            LogTags.ACCOUNT_DATA +
-                "updating '" +
-                key +
-                "' to '" +
-                newValue +
-                "'"
-        );
-
-        updateAccountDataRequest.current = new UpdateAccountDataRequest(
-            key,
-            newValue,
-            (response: IResponse) => {
-                const errorMsg = response.errorMsg;
-                const successMsg = response.successMsg;
-
-                if (errorMsg) {
-                    let errorKey: IFormKeys | null = null;
-
-                    for (const formKey in formError) {
-                        if (errorMsg.indexOf(formKey) > -1) {
-                            errorKey = formKey as IFormKeys;
-                            break;
+                        if (errorMsg) {
+                            setNotice({
+                                message: errorMsg,
+                                type: Dict.error_type_server,
+                            });
+                        } else if (user) {
+                            const downloadedForm: IForm = {
+                                [IUserKeys.accessIdentifier]:
+                                    user.accessIdentifier || "",
+                                [IUserKeys.allowNewsletter]:
+                                    user.allowNewsletter || 0,
+                                [IUserKeys.allowPost]: user.allowPost || 0,
+                                [IUserKeys.birthdate]: user.birthdate
+                                    ? getDate(
+                                          user.birthdate,
+                                          Formats.DATE.DATETIME_DATABASE
+                                      )
+                                    : null,
+                                [IUserKeys.city]: user.city || "",
+                                [IUserKeys.country]: user.country || "",
+                                [IUserKeys.displayName]: user.displayName || "",
+                                [IUserKeys.eMailAddress]:
+                                    user.eMailAddress || "",
+                                [IUserKeys.eatingHabits]:
+                                    user.eatingHabits || "",
+                                [IUserKeys.firstName]: user.firstName || "",
+                                [IUserKeys.houseNumber]: user.houseNumber || "",
+                                [IUserKeys.supplementaryAddress]:
+                                    user.supplementaryAddress || "",
+                                [IUserKeys.lastName]: user.lastName || "",
+                                [IUserKeys.phoneNumber]: user.phoneNumber || "",
+                                [IUserKeys.streetName]: user.streetName || "",
+                                [IUserKeys.zipCode]: user.zipCode || "",
+                            };
+                            setForm(downloadedForm);
+                            if (resetErrors) {
+                                setFormError({
+                                    ...emptyFormError
+                                });
+                            }
+                            setNotice(notice);
+                            fetchedForm.current = downloadedForm;
                         }
+                        setRequest(null);
+                    },
+                    () => {
+                        setNotice({
+                            message: Dict.error_message_try_later,
+                            type: Dict.error_type_network,
+                        });
+                        setRequest(null);
                     }
-
-                    if (errorKey) {
-                        const newFormError = emptyFormError();
-                        newFormError[errorKey] = Dict[errorMsg] ?? errorMsg;
-                        setFormError(newFormError);
-                    } else {
-                        setFormError(emptyFormError());
-                        showNotification(errorMsg);
-                    }
-                }
-
-                fetchAccountData(
-                    successMsg
-                        ? {
-                              message: successMsg,
-                              type: Dict.label_warning,
-                          }
-                        : null,
-                    errorMsg ? false : true
-                );
-                updateAccountDataRequest.current = null;
-            },
-            () => {
-                setNotice({
-                    message: Dict.error_message_try_later,
-                    type: Dict.error_type_network,
-                });
-                updateAccountDataRequest.current = null;
+                )
+            );
+        },
+        [emptyFormError, setRequest]
+    );
+    const updateAccountData = React.useCallback(
+        (key: IFormKeys, value: IFormValues): void => {
+            console.log("fetchedForm.current: " + fetchedForm.current);
+            console.log("form: " + JSON.stringify(form));
+            console.log("formError[key]: " + formError[key]);
+            console.log("fetchedForm.current[key]: " + fetchedForm.current[key]);
+            console.log("form[key]: " + form[key]);
+            if (
+                !fetchedForm.current ||
+                !form ||
+                formError[key] ||
+                fetchedForm.current[key] === form[key]
+            ) {
+                return;
             }
-        );
-        updateAccountDataRequest.current.execute();
-    };
-    const deleteAccountData = (): void => {
+
+            let newValue = null;
+            if (typeof value === "string") {
+                newValue = value;
+            } else if (typeof value === "number" || value) {
+                newValue = value.toString();
+            }
+
+            logger.info(
+                LogTags.ACCOUNT_DATA +
+                    "updating '" +
+                    key +
+                    "' to '" +
+                    newValue +
+                    "'"
+            );
+
+            setRequest(
+                new UpdateAccountDataRequest(
+                    key,
+                    newValue,
+                    (response: IResponse) => {
+                        const errorMsg = response.errorMsg;
+                        const successMsg = response.successMsg;
+
+                        if (errorMsg) {
+                            let errorKey: IFormKeys | null = null;
+
+                            for (const formKey in formError) {
+                                if (errorMsg.indexOf(formKey) > -1) {
+                                    errorKey = formKey as IFormKeys;
+                                    break;
+                                }
+                            }
+
+                            if (errorKey) {
+                                const newFormError = {
+                                    ...emptyFormError
+                                };
+                                newFormError[errorKey] =
+                                    Dict[errorMsg] ?? errorMsg;
+                                setFormError(newFormError);
+                            } else {
+                                setFormError({
+                                    ...emptyFormError
+                                });
+                                showNotification(errorMsg);
+                            }
+                        }
+
+                        setRequest(null);
+                        fetchAccountData(
+                            successMsg
+                                ? {
+                                      message: successMsg,
+                                      type: Dict.label_warning,
+                                  }
+                                : null,
+                            errorMsg ? false : true
+                        );
+                    },
+                    () => {
+                        setNotice({
+                            message: Dict.error_message_try_later,
+                            type: Dict.error_type_network,
+                        });
+                        setRequest(null);
+                    }
+                )
+            );
+        },
+        [emptyFormError, fetchAccountData, form, formError, setRequest]
+    );
+    const deleteAccountData = React.useCallback((): void => {
         setShowDeletionConfirmationDialog(false);
-        deleteAccountDataRequest.current = new DeleteAccountDataRequest(
-            (response: IResponse) => {
-                const errorMsg = response.errorMsg;
-                const successMsg = response.successMsg;
+        setRequest(
+            new DeleteAccountDataRequest(
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+                    const successMsg = response.successMsg;
 
-                if (errorMsg) {
-                    setNotice({
-                        message: errorMsg,
-                        type: Dict.error_type_server,
-                    });
-                } else {
-                    setNotice({
-                        message: successMsg,
-                        type: Dict.label_warning,
-                    });
+                    if (errorMsg) {
+                        setNotice({
+                            message: errorMsg,
+                            type: Dict.error_type_server,
+                        });
+                    } else {
+                        setNotice({
+                            message: successMsg,
+                            type: Dict.label_warning,
+                        });
+                    }
+                    setRequest(null);
+                },
+                () => {
+                    setNotice(null);
+                    setRequest(null);
                 }
-                deleteAccountDataRequest.current = null;
-            },
-            () => {
-                setNotice(null);
-                deleteAccountDataRequest.current = null;
-            }
+            )
         );
-    };
-    const separator = (): React.ReactNode => {
-        return <div style={separatorStyle} />;
-    };
+    }, [setRequest]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         CookieService.get<number>(IUserKeys.userId)
             .then((userId) => {
                 if (userId === null) {
@@ -403,24 +452,19 @@ const ProfileForm = (props: IProfileFormProps) => {
                 );
                 navigate(AppUrls.HOME);
             });
-
-        return () => {
-            if (fetchAccountDataRequest.current) {
-                fetchAccountDataRequest.current.cancel();
-            }
-            if (updateAccountDataRequest.current) {
-                updateAccountDataRequest.current.cancel();
-            }
-            if (deleteAccountDataRequest.current) {
-                deleteAccountDataRequest.current.cancel();
-            }
-        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    if (notice) {
-        const { message, type } = notice;
+    const separator = React.useMemo((): React.ReactNode => {
+        return <div style={separatorStyle} />;
+    }, [separatorStyle]);
 
+    const renderedNotice = React.useMemo((): React.ReactElement<any> => {
+        if (!notice) {
+            return null;
+        }
+
+        const { message, type } = notice;
         return (
             <Card>
                 <CardHeader title={Dict[type] ?? type} />
@@ -429,8 +473,9 @@ const ProfileForm = (props: IProfileFormProps) => {
                 </CardContent>
             </Card>
         );
-    } else {
-        return (
+    }, [notice]);
+    const renderedForm = React.useMemo(
+        (): React.ReactElement<any> => (
             <>
                 <Accordion expanded={true}>
                     <AccordionSummary>
@@ -450,7 +495,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_signUp}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <Grid style={legendGridStyle}>
                                 <Typography style={eventMarkerStyle}>
                                     {Dict.account_credentials_mark}
@@ -478,7 +523,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                             <AccessIdentifierInput
                                 value={form[IUserKeys.accessIdentifier]}
                             />
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <EMailAddressInput
                                     errorMessage={
@@ -496,7 +541,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_mark}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <DisplayNameInput
                                 errorMessage={formError[IUserKeys.displayName]}
                                 onError={updateFormError}
@@ -504,13 +549,13 @@ const ProfileForm = (props: IProfileFormProps) => {
                                 onBlur={updateAccountData}
                                 value={form[IUserKeys.displayName]}
                             />
-                            {separator()}
+                            {separator}
                             <div style={textCenterStyle}>
                                 <ForwardButton
                                     forwardTo={AppUrls.PROFILE_CHANGE_PASSWORD}
                                     label={Dict.account_password_new}
                                 />
-                                {separator()}
+                                {separator}
                                 <DeleteButton
                                     label={Dict.account_deletion}
                                     onClick={setShowDeletionConfirmationDialog.bind(
@@ -547,7 +592,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_mark}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <LastNameInput
                                     errorMessage={formError[IUserKeys.lastName]}
@@ -560,7 +605,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_mark}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <StreetNameInput
                                     errorMessage={
@@ -575,7 +620,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_mark}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <HouseNumberInput
                                     errorMessage={
@@ -590,7 +635,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_mark}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <SupplementaryAddressInput
                                     errorMessage={
@@ -604,7 +649,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     value={form[IUserKeys.supplementaryAddress]}
                                 />
                             </Grid>
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <ZipCodeInput
                                     errorMessage={formError[IUserKeys.zipCode]}
@@ -617,7 +662,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_mark}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <CityInput
                                     errorMessage={formError[IUserKeys.city]}
@@ -630,7 +675,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_mark}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <CountryInput
                                     errorMessage={formError[IUserKeys.country]}
@@ -643,14 +688,14 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_mark}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <AllowPostCheckbox
                                 checked={form[IUserKeys.allowPost] === 1}
                                 errorMessage={formError[IUserKeys.allowPost]}
                                 onUpdateValue={updateForm}
                                 onBlur={updateAccountData}
                             />
-                            {separator()}
+                            {separator}
                             <AllowNewsletterCheckbox
                                 checked={form[IUserKeys.allowNewsletter] === 1}
                                 errorMessage={
@@ -659,7 +704,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                 onUpdateValue={updateForm}
                                 onBlur={updateAccountData}
                             />
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <EMailAddressInput
                                     disabled={true}
@@ -678,7 +723,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_mark}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <PhoneNumberInput
                                     errorMessage={
@@ -718,7 +763,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     {Dict.account_credentials_mark}
                                 </Typography>
                             </Grid>
-                            {separator()}
+                            {separator}
                             <Grid style={gridHorizontalStyle}>
                                 <EatingHabitsInput
                                     errorMessage={
@@ -766,8 +811,27 @@ const ProfileForm = (props: IProfileFormProps) => {
                     </DialogActions>
                 </Dialog>
             </>
-        );
-    }
+        ),
+        [
+            accountMarkerStyle,
+            deleteAccountData,
+            eventMarkerStyle,
+            expansionPanelDetailsInnerStyle,
+            expansionPanelDetailsStyle,
+            form,
+            formError,
+            legendGridStyle,
+            preWrapStyle,
+            separator,
+            showDeletionConfirmationDialog,
+            textCenterStyle,
+            updateAccountData,
+            updateForm,
+            updateFormError,
+        ]
+    );
+
+    return notice ? renderedNotice : renderedForm;
 };
 
 export default withTheme(ProfileForm);

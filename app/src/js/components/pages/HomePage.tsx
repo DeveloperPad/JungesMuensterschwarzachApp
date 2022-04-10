@@ -29,21 +29,21 @@ import { useNavigate } from "react-router";
 type IHomePageProps = WithTheme;
 
 const HomePage = (props: IHomePageProps) => {
+    const navigate = useNavigate();
     const { theme } = props;
     const [guestSession, setGuestSession] = useState(true);
-    const navigate = useNavigate();
 
-    const h1Style: React.CSSProperties = {
+    const h1Style: React.CSSProperties = React.useMemo(() => ({
         fontSize: 1.8 * theme.typography.fontSize.valueOf(),
         marginBottom: 0.8 * theme.spacing(),
-    };
-    const listStyle: React.CSSProperties = {
+    }), [theme]);
+    const listStyle: React.CSSProperties = React.useMemo(() => ({
         alignContent: "center",
         alignItems: "stretch",
         display: "flex",
         flexWrap: "wrap",
         justifyContent: "space-evenly",
-    };
+    }), []);
 
     useEffect(() => {
         CookieService.get<number>(IUserKeys.accessLevel)

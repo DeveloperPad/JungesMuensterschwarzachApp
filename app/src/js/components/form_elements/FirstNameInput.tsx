@@ -6,8 +6,6 @@ import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { grid1Style, textFieldInputProps } from "../../constants/theme";
 import { IUserKeys } from "../../networking/account_data/IUser";
-import { useState } from "react";
-import { useEffect } from "react";
 
 interface IFirstNameInputProps {
     errorMessage: string | null;
@@ -19,23 +17,26 @@ interface IFirstNameInputProps {
 
 const FirstNameInput = (props: IFirstNameInputProps) => {
     const LOCAL_ERROR_MESSAGE = Dict.account_firstName_invalid;
-
     const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
-    const [submit, setSubmit] = useState(false);
 
-    const onChange = (event: any): void => {
-        onError(IUserKeys.firstName, null);
-        onUpdateValue(IUserKeys.firstName, event.target.value);
-    };
-    const onLocalBlur = (_: any): void => {
-        if (value) {
-            onUpdateValue(IUserKeys.firstName, value.trim());
-        }
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.firstName, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.firstName, value.trim());
+            }
 
-        setSubmit(true);
-    };
+            onBlur(IUserKeys.firstName, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    useEffect(() => {
+    React.useEffect(() => {
         const localErrorMessage =
             !value ||
             (value.length > 0 && value.length <= Formats.LENGTH.MAX.FIRST_NAME)
@@ -44,25 +45,12 @@ const FirstNameInput = (props: IFirstNameInputProps) => {
 
         // do not overwrite server side error messages
         if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
         ) {
-            return;
+            onError(IUserKeys.firstName, localErrorMessage);
         }
-
-        onError(IUserKeys.firstName, localErrorMessage);
-
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
-            onBlur(IUserKeys.firstName, value || null);
-        }
-
-        setSubmit(false);
-    }, [errorMessage, LOCAL_ERROR_MESSAGE, onBlur, onError, submit, value]);
+    }, [errorMessage, LOCAL_ERROR_MESSAGE, onBlur, onError, value]);
 
     return (
         <TextField

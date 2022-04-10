@@ -1,9 +1,9 @@
+import * as React from 'react';
+
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 
 import { Dict } from '../../constants/dict';
-import { useEffect, useRef, useState } from 'react';
-import { useCallback } from 'react';
 
 let showNotificationFn: (message: string) => void;
 
@@ -21,11 +21,11 @@ export function showNotification(message: string) {
 }
 
 const Notifier = (props: any) => {
-    const [message, setMessage] = useState("");
-    const [open, setOpen] = useState(false);
-    const messageQueue = useRef<string[]>([]);
+    const [message, setMessage] = React.useState("");
+    const [open, setOpen] = React.useState(false);
+    const messageQueue = React.useRef<string[]>([]);
 
-    const queueMessage = useCallback((message: string): void => {
+    const queueMessage = React.useCallback((message: string): void => {
         messageQueue.current.push(Dict[message] ?? message);
 
         if (open === false) {
@@ -49,7 +49,7 @@ const Notifier = (props: any) => {
         }
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
         showNotificationFn = queueMessage;
     }, [queueMessage]);
 

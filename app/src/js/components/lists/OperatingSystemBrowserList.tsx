@@ -23,7 +23,7 @@ const OperatingSystemBrowserList = (
 ) => {
     const { operatingSystem } = props;
 
-    const getBrowsers = (): Browsers[] => {
+    const browsers = React.useMemo((): Browsers[] => {
         switch (operatingSystem) {
             case OperatingSystems.WINDOWS:
                 return [
@@ -46,7 +46,7 @@ const OperatingSystemBrowserList = (
             default:
                 return [];
         }
-    };
+    }, [operatingSystem]);
 
     return (
         <Accordion expanded={true}>
@@ -58,7 +58,7 @@ const OperatingSystemBrowserList = (
 
             <AccordionDetails>
                 <Grid>
-                    {getBrowsers().map((browser) => {
+                    {browsers.map((browser) => {
                         return (
                             <GridItem key={operatingSystem + "|" + browser}>
                                 <BrowserListItem

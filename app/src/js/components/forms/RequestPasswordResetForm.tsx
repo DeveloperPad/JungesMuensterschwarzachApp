@@ -1,22 +1,25 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Typography, withTheme, WithTheme } from '@material-ui/core';
+import { Typography, withTheme, WithTheme } from "@material-ui/core";
 
-import { Dict } from '../../constants/dict';
+import { Dict } from "../../constants/dict";
 import {
-    grid1Style, grid6Style, successMsgTypographyStyle, ThemeTypes
-} from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
-import {
-    RequestPasswordResetRequest
-} from '../../networking/account_data/RequestPasswordResetRequest';
-import { IResponse } from '../../networking/Request';
-import EMailAddressInput, { E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE } from '../form_elements/EMailAddressInput';
-import SubmitButton from '../form_elements/SubmitButton';
-import Grid from '../utilities/Grid';
-import GridItem from '../utilities/GridItem';
-import { showNotification } from '../utilities/Notifier';
-import { useEffect, useRef, useState } from 'react';
+    grid1Style,
+    grid6Style,
+    successMsgTypographyStyle,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import { RequestPasswordResetRequest } from "../../networking/account_data/RequestPasswordResetRequest";
+import { IResponse } from "../../networking/Request";
+import EMailAddressInput, {
+    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
+} from "../form_elements/EMailAddressInput";
+import SubmitButton from "../form_elements/SubmitButton";
+import { useStateRequest } from "../utilities/CustomHooks";
+import Grid from "../utilities/Grid";
+import GridItem from "../utilities/GridItem";
+import { showNotification } from "../utilities/Notifier";
 
 type IRequestPasswordResetFormProps = WithTheme;
 
@@ -32,84 +35,98 @@ interface IFormError {
 
 const RequestPasswordResetForm = (props: IRequestPasswordResetFormProps) => {
     const { theme } = props;
-
-    const [form, setForm] = useState<IForm>({
-        [IUserKeys.eMailAddress]: ""
+    const [form, setForm] = React.useState<IForm>({
+        [IUserKeys.eMailAddress]: "",
     });
-    const [formError, setFormError] = useState<IForm>({
-        [IUserKeys.eMailAddress]: null
+    const [formError, setFormError] = React.useState<IForm>({
+        [IUserKeys.eMailAddress]: null,
     });
-    const [successMsg, setSuccessMsg] = useState<string>();
-    const requestPasswordResetRequest = useRef<RequestPasswordResetRequest>();
-    
+    const [successMsg, setSuccessMsg] = React.useState<string>();
+    const [requestPasswordResetRequest, setRequestPasswordResetRequest] =
+        useStateRequest();
+    const suppressErrorMsgs = React.useRef<boolean>(true);
 
-    const accountPasswortResetTypographyStyle: React.CSSProperties = {
-        color: "#ffffff",
-        display: "inline-block",
-        marginBottom: 3 * theme.spacing(),
-        textAlign: "center"
-    };
-    const marginTopStyle: React.CSSProperties = {
-        marginTop: 2 * theme.spacing()
-    };
+    const accountPasswortResetTypographyStyle: React.CSSProperties =
+        React.useMemo(
+            () => ({
+                color: "#ffffff",
+                display: "inline-block",
+                marginBottom: 3 * theme.spacing(),
+                textAlign: "center",
+            }),
+            [theme]
+        );
+    const marginTopStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginTop: 2 * theme.spacing(),
+        }),
+        [theme]
+    );
 
-    const updateForm = (key: IFormKeys, value: string): void => {
-        setForm((form: IForm) => {
-            form[key] = value;
-            return form;
-        });
-    }
-    const updateFormError = (key: IFormKeys, value: string | null): void => {
-        setFormError((formError: IFormError) => {
-            formError[key] = value;
-            return formError;
-        });
-    }
-    const sendRequest = (): void => {
-        if (formError[IUserKeys.eMailAddress] === E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE) {
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string): void => {
+            setForm((form: IForm) => ({
+                ...form,
+                [key]: value,
+            }));
+            suppressErrorMsgs.current = false;
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError: IFormError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const sendRequest = React.useCallback((): void => {
+        if (
+            formError[IUserKeys.eMailAddress] ===
+            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE
+        ) {
             return;
         }
 
-        requestPasswordResetRequest.current = new RequestPasswordResetRequest(
-            form[IUserKeys.eMailAddress],
-            (response: IResponse) => {
-                const errorMsg = response.errorMsg;
-                const successMsg = response.successMsg;
+        setRequestPasswordResetRequest(
+            new RequestPasswordResetRequest(
+                form[IUserKeys.eMailAddress],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+                    const successMsg = response.successMsg;
 
-                if (errorMsg) {
-                    if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
-                        updateFormError(IUserKeys.eMailAddress, Dict[errorMsg] ?? errorMsg);
-                    } else {
-                        showNotification(errorMsg);
+                    if (errorMsg) {
+                        if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
+                            updateFormError(
+                                IUserKeys.eMailAddress,
+                                Dict[errorMsg] ?? errorMsg
+                            );
+                        } else {
+                            showNotification(errorMsg);
+                        }
+                    } else if (successMsg) {
+                        setSuccessMsg(Dict[successMsg] ?? successMsg);
                     }
-                } else if (successMsg) {
-                    setSuccessMsg(Dict[successMsg] ?? successMsg);
+
+                    setRequestPasswordResetRequest(null);
+                },
+                (error: any) => {
+                    showNotification(Dict.error_message_timeout);
+                    setRequestPasswordResetRequest(null);
                 }
-
-                requestPasswordResetRequest.current = null;
-            },
-            (error: any) => {
-                showNotification(Dict.error_message_timeout);
-                requestPasswordResetRequest.current = null;
-            }
+            )
         );
-        requestPasswordResetRequest.current.execute();
-    }
-
-    useEffect(() => {
-        return () => {
-            if (requestPasswordResetRequest.current) {
-                requestPasswordResetRequest.current.cancel();
-            }
-        }
-    }, []);
+    }, [form, formError, setRequestPasswordResetRequest, updateFormError]);
 
     const showRequestGrid = (): React.ReactElement<any> => {
         return (
             <Grid>
                 <Typography
                     variant="h5"
-                    style={accountPasswortResetTypographyStyle}>
+                    style={accountPasswortResetTypographyStyle}
+                >
                     <span>{Dict.navigation_request_password_reset}</span>
                 </Typography>
 
@@ -117,40 +134,38 @@ const RequestPasswordResetForm = (props: IRequestPasswordResetFormProps) => {
                     errorMessage={formError[IUserKeys.eMailAddress]}
                     onError={updateFormError}
                     onUpdateValue={updateForm}
-                    showErrorMessageOnLoad={false}
+                    suppressErrorMsg={suppressErrorMsgs.current}
                     themeType={ThemeTypes.LIGHT}
                     value={form[IUserKeys.eMailAddress]}
                 />
 
                 <SubmitButton
-                    disabled={requestPasswordResetRequest.current !== null}
+                    disabled={!!requestPasswordResetRequest}
                     onClick={sendRequest}
                     style={marginTopStyle}
                 />
             </Grid>
         );
-    }
+    };
     const showResponseGrid = (): React.ReactElement<any> => {
         return (
             <Grid>
-                <Typography
-                    variant="h5"
-                    style={successMsgTypographyStyle}>
+                <Typography variant="h5" style={successMsgTypographyStyle}>
                     <span>{successMsg}</span>
                 </Typography>
             </Grid>
         );
-    }
+    };
     return (
         <Grid>
-            <GridItem
-                style={grid6Style}>
+            <GridItem style={grid6Style}>
                 {successMsg ? showResponseGrid() : showRequestGrid()}
             </GridItem>
             <GridItem style={grid1Style}>
+                <span />
             </GridItem>
         </Grid>
     );
-}
+};
 
 export default withTheme(RequestPasswordResetForm);

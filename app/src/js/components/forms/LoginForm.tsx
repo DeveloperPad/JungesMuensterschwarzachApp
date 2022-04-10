@@ -36,7 +36,7 @@ import PasswordInput, {
     PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/PasswordInput";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateWithCallback } from "../utilities/CustomHooks";
+import { useStateRequest } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -72,12 +72,7 @@ const LoginForm = (props: ILoginFormProps) => {
     });
     const [showGuestSignInDialog, setShowGuestSignInDialog] =
         React.useState<boolean>(false);
-    const [signInRequest, setSignInRequest] =
-        useStateWithCallback<AccountSessionSignInRequest>(null, (request) => {
-            if (request) {
-                request.execute();
-            }
-        });
+    const [signInRequest, setSignInRequest] = useStateRequest();
     const suppressErrorMsgs = React.useRef<boolean>(true);
     const navigate = useNavigate();
 
@@ -107,24 +102,20 @@ const LoginForm = (props: ILoginFormProps) => {
 
     const updateForm = React.useCallback(
         (key: IFormKeys, value: string): void => {
-            setForm((form: IForm) => {
-                return {
-                    ...form,
-                    [key]: value,
-                };
-            });
+            setForm((form: IForm) => ({
+                ...form,
+                [key]: value,
+            }));
             suppressErrorMsgs.current = false;
         },
         []
     );
     const updateFormError = React.useCallback(
         (key: IFormKeys, value: string | null): void => {
-            setFormError((formError: IFormError) => {
-                return {
-                    ...formError,
-                    [key]: value,
-                };
-            });
+            setFormError((formError: IFormError) => ({
+                ...formError,
+                [key]: value,
+            }));
         },
         []
     );
@@ -212,15 +203,6 @@ const LoginForm = (props: ILoginFormProps) => {
                 navigate(AppUrls.HOME);
             });
     }, [navigate, setIsLoggedIn]);
-
-    React.useEffect(() => {
-        return () => {
-            if (signInRequest) {
-                signInRequest.cancel();
-            }
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     return (
         <>

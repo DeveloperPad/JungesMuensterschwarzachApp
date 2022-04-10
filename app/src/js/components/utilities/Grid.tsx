@@ -8,7 +8,7 @@ interface IGridProps {
 const Grid = (props: IGridProps) => {
     const { children, style } = props;
 
-    const getClassStyle = (): React.CSSProperties => {
+    const classStyle = React.useMemo((): React.CSSProperties => {
         const height =
             style && style.flexDirection && style.flexDirection !== "column"
                 ? "auto"
@@ -27,12 +27,12 @@ const Grid = (props: IGridProps) => {
             margin: "auto",
             width,
         };
-    };
+    }, [style]);
 
     return (
         <div
             style={{
-                ...getClassStyle(),
+                ...classStyle,
                 ...style,
             }}
         >

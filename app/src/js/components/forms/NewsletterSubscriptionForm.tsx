@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router";
 
 import {
     Card,
@@ -10,6 +11,7 @@ import {
 } from "@material-ui/core";
 
 import { Dict } from "../../constants/dict";
+import { AppUrls } from "../../constants/specific-urls";
 import {
     grid1Style,
     grid6Style,
@@ -23,16 +25,14 @@ import { IResponse } from "../../networking/Request";
 import EMailAddressInput, {
     E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/EMailAddressInput";
-import SubmitButton from "../form_elements/SubmitButton";
-import Grid from "../utilities/Grid";
-import GridItem from "../utilities/GridItem";
-import { showNotification } from "../utilities/Notifier";
-import { AppUrls } from "../../constants/specific-urls";
 import LegalInformationConsentCheckbox, {
     ILegalInformationConsentCheckBoxKeys,
 } from "../form_elements/LegalInformationConsentCheckbox";
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import SubmitButton from "../form_elements/SubmitButton";
+import { useStateRequest } from "../utilities/CustomHooks";
+import Grid from "../utilities/Grid";
+import GridItem from "../utilities/GridItem";
+import { showNotification } from "../utilities/Notifier";
 
 type INewsletterSubscriptionFormProps = WithTheme;
 
@@ -55,58 +55,77 @@ interface IFormError {
 const NewsletterSubscriptionForm = (
     props: INewsletterSubscriptionFormProps
 ) => {
+    const navigate = useNavigate();
     const { theme } = props;
-
-    const [form, setForm] = useState<IForm>({
+    const [form, setForm] = React.useState<IForm>({
         [IUserKeys.eMailAddress]: "",
         [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: false,
     });
-    const [formError, setFormError] = useState<IFormError>({
+    const [formError, setFormError] = React.useState<IFormError>({
         [IUserKeys.eMailAddress]: null,
         [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: null,
     });
-    const [successMsg, setSuccessMsg] = useState<string>();
-    const subscriptionRequest = useRef<NewsletterSubscriptionRequest>();
+    const [successMsg, setSuccessMsg] = React.useState<string>();
+    const [subscriptionRequest, setSubscriptionRequest] = useStateRequest();
+    const suppressErrorMsgs = React.useRef<boolean>(true);
 
-    const navigate = useNavigate();
+    const marginTopStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginTop: 2 * theme.spacing(),
+        }),
+        [theme]
+    );
+    const cardHeaderStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            backgroundColor: "#cccccc",
+            color: "#ff0000",
+            padding: "4px 8px",
+        }),
+        []
+    );
+    const cardContentStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            backgroundColor: "#eeeeee",
+            padding: "4px 8px",
+        }),
+        []
+    );
+    const cardTypographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            display: "inline-block",
+            textAlign: "center",
+        }),
+        []
+    );
+    const typographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            color: "#ffffff",
+            display: "inline-block",
+            textAlign: "center",
+        }),
+        []
+    );
 
-    const marginTopStyle: React.CSSProperties = {
-        marginTop: 2 * theme.spacing(),
-    };
-    const cardHeaderStyle: React.CSSProperties = {
-        backgroundColor: "#cccccc",
-        color: "#ff0000",
-        padding: "4px 8px",
-    };
-    const cardContentStyle: React.CSSProperties = {
-        backgroundColor: "#eeeeee",
-        padding: "4px 8px",
-    };
-    const cardTypographyStyle: React.CSSProperties = {
-        display: "inline-block",
-        textAlign: "center",
-    };
-    const typographyStyle: React.CSSProperties = {
-        color: "#ffffff",
-        display: "inline-block",
-        textAlign: "center",
-    };
-
-    const updateForm = (key: IFormKeys, value: string | boolean): void => {
-        setForm((form) => {
-            return {
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string | boolean): void => {
+            setForm((form) => ({
                 ...form,
                 [key]: value,
-            };
-        });
-    };
-    const updateFormError = (key: IFormKeys, value: string | null): void => {
-        setFormError((formError) => {
-            formError[key] = value;
-            return formError;
-        });
-    };
-    const sendRequest = (): void => {
+            }));
+            suppressErrorMsgs.current = false;
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const sendRequest = React.useCallback((): void => {
         if (
             formError[IUserKeys.eMailAddress] ===
             E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE
@@ -114,44 +133,37 @@ const NewsletterSubscriptionForm = (
             return;
         }
 
-        subscriptionRequest.current = new NewsletterSubscriptionRequest(
-            form[IUserKeys.eMailAddress],
-            (response: IResponse) => {
-                const errorMsg = response.errorMsg;
-                const successMsg = response.successMsg;
+        setSubscriptionRequest(
+            new NewsletterSubscriptionRequest(
+                form[IUserKeys.eMailAddress],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+                    const successMsg = response.successMsg;
 
-                if (errorMsg) {
-                    if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
-                        updateFormError(
-                            IUserKeys.eMailAddress,
-                            Dict[errorMsg] ?? errorMsg
-                        );
-                    } else {
-                        showNotification(errorMsg);
+                    if (errorMsg) {
+                        if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
+                            updateFormError(
+                                IUserKeys.eMailAddress,
+                                Dict[errorMsg] ?? errorMsg
+                            );
+                        } else {
+                            showNotification(errorMsg);
+                        }
+                    } else if (successMsg) {
+                        setSuccessMsg(Dict[successMsg] ?? successMsg);
                     }
-                } else if (successMsg) {
-                    setSuccessMsg(Dict[successMsg] ?? successMsg);
+
+                    setSubscriptionRequest(null);
+                },
+                (error: any) => {
+                    showNotification(Dict.error_message_timeout);
+                    setSubscriptionRequest(null);
                 }
-
-                subscriptionRequest.current = null;
-            },
-            (error: any) => {
-                showNotification(Dict.error_message_timeout);
-                subscriptionRequest.current = null;
-            }
+            )
         );
-        subscriptionRequest.current.execute();
-    };
+    }, [form, formError, setSubscriptionRequest, updateFormError]);
 
-    useEffect(() => {
-        return () => {
-            if (subscriptionRequest.current) {
-                subscriptionRequest.current.cancel();
-            }
-        };
-    });
-
-    const showRequestGrid = (): React.ReactElement<any> => {
+    const requestGrid = React.useMemo((): React.ReactElement<any> => {
         return (
             <Grid>
                 <div style={marginTopStyle} />
@@ -168,7 +180,7 @@ const NewsletterSubscriptionForm = (
                     errorMessage={formError[IUserKeys.eMailAddress]}
                     onError={updateFormError}
                     onUpdateValue={updateForm}
-                    showErrorMessageOnLoad={false}
+                    suppressErrorMsg={suppressErrorMsgs.current}
                     themeType={ThemeTypes.LIGHT}
                     value={form[IUserKeys.eMailAddress]}
                 />
@@ -192,13 +204,13 @@ const NewsletterSubscriptionForm = (
                         AppUrls.LEGAL_INFORMATION
                     )}
                     onUpdateValue={updateForm}
-                    showErrorMessageOnLoad={false}
+                    suppressErrorMsg={suppressErrorMsgs.current}
                     style={marginTopStyle}
                 />
 
                 <SubmitButton
                     disabled={
-                        subscriptionRequest !== null ||
+                        !!subscriptionRequest ||
                         form[
                             ILegalInformationConsentCheckBoxKeys
                                 .LegalInformationConsent
@@ -234,8 +246,21 @@ const NewsletterSubscriptionForm = (
                 </Card>
             </Grid>
         );
-    };
-    const showResponseGrid = (): React.ReactElement<any> => {
+    }, [
+        cardContentStyle,
+        cardHeaderStyle,
+        cardTypographyStyle,
+        form,
+        formError,
+        marginTopStyle,
+        navigate,
+        sendRequest,
+        subscriptionRequest,
+        typographyStyle,
+        updateForm,
+        updateFormError,
+    ]);
+    const responseGrid = React.useMemo((): React.ReactElement<any> => {
         return (
             <Grid>
                 <Typography variant="h5" style={successMsgTypographyStyle}>
@@ -243,13 +268,14 @@ const NewsletterSubscriptionForm = (
                 </Typography>
             </Grid>
         );
-    };
+    }, [successMsg]);
     return (
         <Grid>
             <GridItem style={grid6Style}>
-                {successMsg ? showResponseGrid() : showRequestGrid()}
+                {successMsg ? responseGrid : requestGrid}
             </GridItem>
             <GridItem style={grid1Style}>
+                <span />
             </GridItem>
         </Grid>
     );

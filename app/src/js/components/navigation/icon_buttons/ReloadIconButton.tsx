@@ -6,9 +6,9 @@ import { Refresh } from "@material-ui/icons";
 import { Dict } from "../../../constants/dict";
 
 const ReloadIconButton = () => {
-    const reload = (): void => {
+    const reload = React.useCallback((): void => {
         window.location.reload();
-    };
+    }, []);
 
     return (
         <Tooltip title={Dict.navigation_reload}>

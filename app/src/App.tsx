@@ -1,6 +1,5 @@
 import log from "loglevel";
 import * as React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { Routes, useNavigate } from "react-router";
 import { Route } from "react-router-dom";
 
@@ -19,6 +18,7 @@ import NewsItemPage from "./js/components/pages/NewsItemPage";
 import NewsletterRedemptionPage from "./js/components/pages/NewsletterRedemptionPage";
 import NewsletterSubscriptionPage from "./js/components/pages/NewsletterSubscriptionPage";
 import NewsListPage from "./js/components/pages/NewsListPage";
+import PageNotFound from "./js/components/pages/PageNotFound";
 import ProfilePage from "./js/components/pages/ProfilePage";
 import ProfilePasswordChangePage from "./js/components/pages/ProfilePasswordChangePage";
 import RegistrationPage from "./js/components/pages/RegistrationPage";
@@ -41,37 +41,46 @@ import { CookieService } from "./js/services/CookieService";
 
 const App = () => {
     const navigate = useNavigate();
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const forceUpdate = useForceUpdate();
+    const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
     const wasLoggedIn = usePrevious(isLoggedIn);
-    const rerenderApp = useForceUpdate();
-    const sessionObservationSchedule = useRef<NodeJS.Timer>();
-    const signOnRequest = useRef<AccountSessionSignOnRequest>();
+    const sessionObservationSchedule = React.useRef<NodeJS.Timer>();
+    const signOnRequest = React.useRef<AccountSessionSignOnRequest>();
 
-    const SESSION_OBSERVATION_INTERVAL: number = 1 * 60 * 1000;
-    const appRouteStyle: React.CSSProperties = {
-        margin: "auto",
-        maxWidth: "600px",
-    };
+    const SESSION_OBSERVATION_INTERVAL: number = React.useMemo(
+        () => 1 * 60 * 1000,
+        []
+    );
+    const appRouteStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            margin: "auto",
+            maxWidth: "600px",
+        }),
+        []
+    );
 
-    const isValidAccessLevel = (accessLevel: any): boolean => {
-        let isValid: boolean = false;
+    const isValidAccessLevel = React.useCallback(
+        (accessLevel: any): boolean => {
+            let isValid: boolean = false;
 
-        if (accessLevel !== null) {
-            Object.keys(IUserValues[IUserKeys.accessLevel]).forEach(
-                (accessLevelKey: string) => {
-                    if (
-                        Number(accessLevel) ===
-                        IUserValues[IUserKeys.accessLevel][accessLevelKey]
-                    ) {
-                        isValid = true;
+            if (accessLevel !== null) {
+                Object.keys(IUserValues[IUserKeys.accessLevel]).forEach(
+                    (accessLevelKey: string) => {
+                        if (
+                            Number(accessLevel) ===
+                            IUserValues[IUserKeys.accessLevel][accessLevelKey]
+                        ) {
+                            isValid = true;
+                        }
                     }
-                }
-            );
-        }
+                );
+            }
 
-        return isValid;
-    };
-    const validateAccessLevel = (): void => {
+            return isValid;
+        },
+        []
+    );
+    const validateAccessLevel = React.useCallback((): void => {
         CookieService.get<number>(IUserKeys.accessLevel)
             .then((accessLevel) => {
                 if (!isValidAccessLevel(accessLevel)) {
@@ -91,25 +100,24 @@ const App = () => {
                         error
                 );
                 setIsLoggedIn(false);
-            });
-    };
-    const stopSignOnRequest = (): void => {
+            })
+            .then(forceUpdate);
+    }, [forceUpdate, isValidAccessLevel]);
+    const stopSignOnRequest = React.useCallback((): void => {
         if (signOnRequest.current) {
             signOnRequest.current.cancel();
         }
-    };
-    const stopSessionObservation = useCallback((): void => {
+    }, []);
+    const stopSessionObservation = React.useCallback((): void => {
         stopSignOnRequest();
 
-        if (!sessionObservationSchedule.current) {
-            return;
+        if (sessionObservationSchedule.current) {
+            clearInterval(sessionObservationSchedule.current);
+            sessionObservationSchedule.current = null;
+            log.info(LogTags.AUTHENTICATION + "Session observation stopped.");
         }
-
-        clearInterval(sessionObservationSchedule.current);
-        sessionObservationSchedule.current = null;
-        log.info(LogTags.AUTHENTICATION + "Session observation stopped.");
     }, []);
-    const newSignOnRequest = useCallback((): AccountSessionSignOnRequest => {
+    const newSignOnRequest = React.useMemo((): AccountSessionSignOnRequest => {
         return new AccountSessionSignOnRequest(
             (response) => {
                 const errorMsg = response.errorMsg;
@@ -142,15 +150,15 @@ const App = () => {
             }
         );
     }, [SESSION_OBSERVATION_INTERVAL, navigate, stopSessionObservation]);
-    const runSessionObservation = useCallback((): void => {
+    const runSessionObservation = React.useCallback((): void => {
         if (signOnRequest.current) {
             signOnRequest.current.cancel();
         }
 
-        signOnRequest.current = newSignOnRequest();
+        signOnRequest.current = newSignOnRequest;
         signOnRequest.current.execute();
     }, [newSignOnRequest]);
-    const startSessionObservation = useCallback((): void => {
+    const startSessionObservation = React.useCallback((): void => {
         stopSessionObservation();
 
         if (!isLoggedIn) {
@@ -184,7 +192,7 @@ const App = () => {
         stopSessionObservation,
     ]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         validateAccessLevel();
         startSessionObservation();
 
@@ -194,7 +202,7 @@ const App = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (!wasLoggedIn && isLoggedIn) {
             startSessionObservation();
         } else if (wasLoggedIn && !isLoggedIn) {
@@ -213,11 +221,7 @@ const App = () => {
 
     return (
         <div id="app" style={appRouteStyle}>
-            <HeaderNavigation
-                rerenderApp={rerenderApp}
-                isLoggedIn={isLoggedIn}
-            />
-
+            <HeaderNavigation isLoggedIn={isLoggedIn} />
             <div>
                 <Routes>
                     <Route
@@ -299,6 +303,7 @@ const App = () => {
                         element={<RegistrationPage />}
                     />
                     <Route path={AppUrls.HOME} element={<HomePage />} />
+                    <Route path="*" element={<PageNotFound />} />
                 </Routes>
             </div>
 

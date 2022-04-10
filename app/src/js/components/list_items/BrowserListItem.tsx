@@ -1,20 +1,13 @@
-import * as React from "react";
+import * as React from 'react';
+import { useNavigate } from 'react-router';
 
-import {
-    Card,
-    CardContent,
-    CardMedia,
-    Typography,
-    withTheme,
-    WithTheme,
-} from "@material-ui/core";
+import { Card, CardContent, CardMedia, Typography, withTheme, WithTheme } from '@material-ui/core';
 
-import { Browsers } from "../../constants/browsers";
-import { Dict } from "../../constants/dict";
-import { OperatingSystems } from "../../constants/operating-systems";
-import { AppUrls } from "../../constants/specific-urls";
-import { CustomTheme, grid5Style } from "../../constants/theme";
-import { useNavigate } from "react-router";
+import { Browsers } from '../../constants/browsers';
+import { Dict } from '../../constants/dict';
+import { OperatingSystems } from '../../constants/operating-systems';
+import { AppUrls } from '../../constants/specific-urls';
+import { CustomTheme, grid5Style } from '../../constants/theme';
 
 type IBrowserListItemProps = WithTheme & {
     browser: Browsers;
@@ -22,21 +15,15 @@ type IBrowserListItemProps = WithTheme & {
 };
 
 const BrowserListItem = (props: IBrowserListItemProps) => {
-    const { browser, operatingSystem, theme } = props;
     const navigate = useNavigate();
+    const { browser, operatingSystem, theme } = props;
 
-    const browserIconPath =
-        process.env.PUBLIC_URL + "/browsers/" + browser + ".png";
-    const browserInstallationDetailsPagePath =
-        AppUrls.INSTALLATION + "/" + operatingSystem + "/" + browser;
-
-    const openInstallationDetailsPage = (): void => {
-        navigate(browserInstallationDetailsPagePath);
-    };
+    const browserIconPath = React.useMemo(() => process.env.PUBLIC_URL + "/browsers/" + browser + ".png", [browser]);
+    const browserInstallationDetailsPagePath = React.useMemo(() => AppUrls.INSTALLATION + "/" + operatingSystem + "/" + browser, [browser, operatingSystem]);
 
     return (
         <Card
-            onClick={openInstallationDetailsPage}
+            onClick={navigate.bind(this, browserInstallationDetailsPagePath)}
             style={{
                 backgroundColor: CustomTheme.COLOR_BODY_INNER,
                 cursor: "pointer",

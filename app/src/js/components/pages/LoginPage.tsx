@@ -18,14 +18,17 @@ type ILoginPageProps = WithTheme & {
 };
 
 const LoginPage = (props: ILoginPageProps) => {
-    const { setIsLoggedIn, theme } = props;
     const navigate = useNavigate();
+    const { setIsLoggedIn, theme } = props;
 
-    const loginPageStyle: React.CSSProperties = {
-        flex: 1,
-        textAlign: "center",
-        width: "70%",
-    };
+    const loginPageStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            flex: 1,
+            textAlign: "center",
+            width: "70%",
+        }),
+        []
+    );
 
     CookieService.get<number>(IUserKeys.accessLevel).then((accessLevel) => {
         if (accessLevel !== null) {

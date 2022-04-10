@@ -14,9 +14,9 @@ type IInstallationPageProps = WithTheme;
 
 const InstallationPage = (props: IInstallationPageProps) => {
     const { theme } = props;
-    const paragraphStyle: React.CSSProperties = {
+    const paragraphStyle: React.CSSProperties = React.useMemo(() => ({
         marginBottom: theme.spacing(2)
-    }
+    }), [theme]);
 
     return (
         <Background theme={theme}>

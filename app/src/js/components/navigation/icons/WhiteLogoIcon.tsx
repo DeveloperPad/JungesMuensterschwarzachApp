@@ -12,12 +12,8 @@ type WhiteLogoIconProps = {
 const WhiteLogoIcon = (props: WhiteLogoIconProps) => {
     const navigate = useNavigate();
 
-    const forward = (): void => {
-        navigate(AppUrls.HOME);
-    };
-
     return (
-        <img alt="" onClick={forward} src={WhiteLogo} style={logoItemStyle} />
+        <img alt="" onClick={navigate.bind(this, AppUrls.HOME)} src={WhiteLogo} style={logoItemStyle} />
     );
 };
 

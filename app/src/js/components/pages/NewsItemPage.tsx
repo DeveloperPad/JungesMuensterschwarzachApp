@@ -1,3 +1,6 @@
+import * as React from "react";
+import { useLocation } from "react-router";
+
 import {
     Card,
     CardContent,
@@ -5,7 +8,7 @@ import {
     withTheme,
     WithTheme,
 } from "@material-ui/core";
-import * as React from "react";
+
 import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { formatDate, getDate } from "../../constants/global-functions";
@@ -15,76 +18,89 @@ import INewsItem from "../../networking/news/INewsItem";
 import { INewsItemResponse } from "../../networking/news/NewsItemRequest";
 import NewsRequest from "../../networking/news/NewsRequest";
 import Background from "../utilities/Background";
-import ImageCarousel from "../utilities/ImageCarousel";
 import Badge from "../utilities/Badge";
-import { useLocation } from "react-router";
-import { useEffect, useRef, useState } from "react";
+import { useStateRequest } from "../utilities/CustomHooks";
+import ImageCarousel from "../utilities/ImageCarousel";
 
 type INewsItemPageProps = WithTheme;
 
 const NewsItemPage = (props: INewsItemPageProps) => {
-    const { theme } = props;
-    const newsRequest = useRef<NewsRequest>(null);
     const location = useLocation();
+    const { theme } = props;
+    const [newsRequest, setNewsRequest] = useStateRequest();
 
-    const alignVerticallyStyle: React.CSSProperties = {
-        margin: "auto",
-    };
+    const newsId = React.useMemo(
+        () =>
+            parseInt(
+                location.pathname.slice((AppUrls.NEWS_LIST + "/").length),
+                10
+            ),
+        [location.pathname]
+    );
+    const alignVerticallyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            margin: "auto",
+        }),
+        []
+    );
+    const postingTimeTypographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            display: "inline-block",
+            float: "left",
+        }),
+        []
+    );
+    const postingDateTypographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            display: "inline-block",
+            float: "right",
+        }),
+        []
+    );
+    const postingHrStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            clear: "both",
+            float: "none",
+        }),
+        []
+    );
+    const newsItemTemplateLoading: INewsItem = React.useMemo(
+        () => ({
+            newsId: -1,
+            postingDate: new Date(),
+            summary: Dict.label_wait,
+            title: Dict.label_loading,
+        }),
+        []
+    );
+    const cardContentStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginBottom: theme.spacing(),
+            paddingBottom: theme.spacing(),
+            paddingTop: theme.spacing(),
+        }),
+        [theme]
+    );
 
-    const postingTimeTypographyStyle: React.CSSProperties = {
-        display: "inline-block",
-        float: "left",
-    };
+    const [newsItem, setNewsItem] = React.useState(newsItemTemplateLoading);
 
-    const postingDateTypographyStyle: React.CSSProperties = {
-        display: "inline-block",
-        float: "right",
-    };
-
-    const postingHrStyle: React.CSSProperties = {
-        clear: "both",
-        float: "none",
-    };
-    const newsItemTemplateLoading: INewsItem = {
-        newsId: -1,
-        postingDate: new Date(),
-        summary: Dict.label_wait,
-        title: Dict.label_loading,
-    };
-    const cardContentStyle: React.CSSProperties = {
-        marginBottom: theme.spacing(),
-        paddingBottom: theme.spacing(),
-        paddingTop: theme.spacing(),
-    };
-
-    const [newsItem, setNewsItem] = useState(newsItemTemplateLoading);
-
-    useEffect(() => {
-        const newsId = parseInt(
-            location.pathname.slice((AppUrls.NEWS_LIST + "/").length),
-            10
-        );
-
+    React.useEffect(() => {
         if (Number.isNaN(newsId)) {
-            setNewsItem( {
+            setNewsItem({
                 newsId: -1,
                 postingDate: new Date(),
                 summary: Dict.news_id_invalid,
                 title: Dict.error_type_client,
             });
         } else {
-            if (newsRequest.current) {
-                newsRequest.current.cancel();
-            }
-
-            newsRequest.current = new NewsRequest(
+            setNewsRequest(new NewsRequest(
                 {
                     newsId,
                 },
                 (response: INewsItemResponse) => {
                     if (response.errorMsg) {
                         const errorMsg = response.errorMsg;
-                        
+
                         setNewsItem({
                             newsId: -1,
                             postingDate: new Date(),
@@ -96,7 +112,7 @@ const NewsItemPage = (props: INewsItemPageProps) => {
                     } else {
                         setNewsItem(response.news);
                     }
-                    newsRequest.current = null;
+                    setNewsRequest(null);
                 },
                 (error: string) => {
                     setNewsItem({
@@ -105,20 +121,13 @@ const NewsItemPage = (props: INewsItemPageProps) => {
                         summary: Dict.error_message_try_later,
                         title: Dict.error_type_network,
                     });
-                    newsRequest.current = null;
+                    setNewsRequest(null);
                 }
-            );
-            newsRequest.current.execute();
+            ));
         }
+    }, [newsId, setNewsRequest]);
 
-        return () => {
-            if (newsRequest.current) {
-                newsRequest.current.cancel();
-            }
-        };
-    }, [location]);
-
-    const getAuthorDetails = (): React.ReactNode => {
+    const authorDetails = React.useMemo((): React.ReactNode => {
         if (newsItem.author) {
             if (
                 newsItem.author[IUserKeys.firstName] &&
@@ -178,7 +187,7 @@ const NewsItemPage = (props: INewsItemPageProps) => {
         } else {
             return <></>;
         }
-    };
+    }, [newsItem.author]);
 
     return (
         <Background theme={theme}>
@@ -246,7 +255,7 @@ const NewsItemPage = (props: INewsItemPageProps) => {
 
                     <hr />
 
-                    <div style={alignVerticallyStyle}>{getAuthorDetails()}</div>
+                    <div style={alignVerticallyStyle}>{authorDetails}</div>
                 </CardContent>
             </Card>
         </Background>

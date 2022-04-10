@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import { Typography, withTheme, WithTheme } from "@material-ui/core";
 
@@ -18,11 +18,10 @@ import PasswordInput, {
     PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/PasswordInput";
 import SubmitButton from "../form_elements/SubmitButton";
+import { useStateRequest } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
-import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router";
 
 type ITokenRedemptionPasswordResetFormProps = WithTheme;
 
@@ -44,50 +43,65 @@ const TokenRedemptionPasswordResetPage = (
     const location = useLocation();
     const navigate = useNavigate();
     const { theme } = props;
-    const [form, setForm] = useState<IForm>({
+    const [form, setForm] = React.useState<IForm>({
         [IUserKeys.password]: "",
         [IUserKeys.passwordRepetition]: "",
     });
-    const [formError, setFormError] = useState<IFormError>({
+    const [formError, setFormError] = React.useState<IFormError>({
         [IUserKeys.password]: null,
         [IUserKeys.passwordRepetition]: null,
     });
-    const [successMsg, setSuccessMsg] = useState<string>();
-    const tokenRedemptionPasswordResetRequest =
-        useRef<TokenRedemptionPasswordResetRequest>();
+    const [successMsg, setSuccessMsg] = React.useState<string>();
+    const [
+        tokenRedemptionPasswordResetRequest,
+        setTokenRedemptionPasswordResetRequest,
+    ] = useStateRequest();
+    const suppressErrorMsgs = React.useRef<boolean>(true);
 
-    const accountNewPasswortTypographyStyle: React.CSSProperties = {
-        color: "#ffffff",
-        display: "inline-block",
-        marginBottom: theme.spacing(3),
-        textAlign: "center",
-    };
-    const marginTopStyle: React.CSSProperties = {
-        marginTop: theme.spacing(2),
-    };
+    const accountNewPasswortTypographyStyle: React.CSSProperties =
+        React.useMemo(
+            () => ({
+                color: "#ffffff",
+                display: "inline-block",
+                marginBottom: theme.spacing(3),
+                textAlign: "center",
+            }),
+            [theme]
+        );
+    const marginTopStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginTop: theme.spacing(2),
+        }),
+        [theme]
+    );
 
-    const updateForm = (key: IFormKeys, value: string | boolean): void => {
-        setForm((form: IForm) => {
-            return {
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string | boolean): void => {
+            setForm((form: IForm) => ({
                 ...form,
-                [key]: value,
-            };
-        });
-    };
-    const updateFormError = (key: IFormKeys, value: string | null): void => {
-        setFormError((formError: IFormError) => {
-            formError[key] = value;
-            return formError;
-        });
-    };
-    const getTokenCode = (): string => {
+                [key]: value
+            }));
+            suppressErrorMsgs.current = false;
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError: IFormError) => ({
+                ...formError,
+                [key]: value
+            }));
+        },
+        []
+    );
+    const tokenCode = React.useMemo((): string => {
         return decodeURI(
             location.pathname.slice(
-                (AppUrls.HELP_REDEEM_TOKEN_RESET_PASSWORD + "/").length
+                AppUrls.HELP_REDEEM_TOKEN_RESET_PASSWORD.slice(0, -1).length
             )
         );
-    };
-    const sendRequest = (): void => {
+    }, [location]);
+    const sendRequest = React.useCallback((): void => {
         if (
             formError[IUserKeys.passwordRepetition] ===
                 PASSWORD_INPUT_LOCAL_ERROR_MESSAGE ||
@@ -104,9 +118,9 @@ const TokenRedemptionPasswordResetPage = (
             return;
         }
 
-        tokenRedemptionPasswordResetRequest.current =
+        setTokenRedemptionPasswordResetRequest(
             new TokenRedemptionPasswordResetRequest(
-                getTokenCode(),
+                tokenCode,
                 form[IUserKeys.password],
                 (response: IResponse) => {
                     const errorMsg = response.errorMsg;
@@ -115,7 +129,7 @@ const TokenRedemptionPasswordResetPage = (
                     if (errorMsg) {
                         if (errorMsg.indexOf("token") > -1) {
                             showNotification(errorMsg);
-                            navigate(AppUrls.HELP_REDEEM_TOKEN);
+                            navigate(AppUrls.HELP_REDEEM_TOKEN.slice(0, -2));
                         } else if (
                             errorMsg.indexOf(IUserKeys.passwordRepetition) > -1
                         ) {
@@ -135,24 +149,24 @@ const TokenRedemptionPasswordResetPage = (
                         setSuccessMsg(Dict[successMsg] ?? successMsg);
                     }
 
-                    tokenRedemptionPasswordResetRequest.current = null;
+                    setTokenRedemptionPasswordResetRequest(null);
                 },
                 (error: any) => {
                     showNotification(Dict.error_message_timeout);
-                    tokenRedemptionPasswordResetRequest.current = null;
+                    setTokenRedemptionPasswordResetRequest(null);
                 }
-            );
-    };
+            )
+        );
+    }, [
+        form,
+        formError,
+        navigate,
+        setTokenRedemptionPasswordResetRequest,
+        tokenCode,
+        updateFormError,
+    ]);
 
-    useEffect(() => {
-        return () => {
-            if (tokenRedemptionPasswordResetRequest.current) {
-                tokenRedemptionPasswordResetRequest.current.cancel();
-            }
-        };
-    }, []);
-
-    const showRequestGrid = (): React.ReactElement<any> => {
+    const showRequestGrid = React.useCallback((): React.ReactElement<any> => {
         return (
             <Grid>
                 <Typography
@@ -166,7 +180,7 @@ const TokenRedemptionPasswordResetPage = (
                     errorMessage={formError[IUserKeys.password]}
                     onError={updateFormError}
                     onUpdateValue={updateForm}
-                    showErrorMessageOnLoad={false}
+                    suppressErrorMsg={suppressErrorMsgs.current}
                     themeType={ThemeTypes.LIGHT}
                     value={form[IUserKeys.password]}
                 />
@@ -176,23 +190,30 @@ const TokenRedemptionPasswordResetPage = (
                     name={IUserKeys.passwordRepetition}
                     onError={updateFormError}
                     onUpdateValue={updateForm}
-                    showErrorMessageOnLoad={false}
+                    suppressErrorMsg={suppressErrorMsgs.current}
                     style={marginTopStyle}
                     themeType={ThemeTypes.LIGHT}
                     value={form[IUserKeys.passwordRepetition]}
                 />
 
                 <SubmitButton
-                    disabled={
-                        tokenRedemptionPasswordResetRequest.current !== null
-                    }
+                    disabled={!!tokenRedemptionPasswordResetRequest}
                     onClick={sendRequest}
                     style={marginTopStyle}
                 />
             </Grid>
         );
-    };
-    const showResponseGrid = (): React.ReactElement<any> => {
+    }, [
+        accountNewPasswortTypographyStyle,
+        form,
+        formError,
+        marginTopStyle,
+        sendRequest,
+        tokenRedemptionPasswordResetRequest,
+        updateForm,
+        updateFormError,
+    ]);
+    const showResponseGrid = React.useCallback((): React.ReactElement<any> => {
         return (
             <Grid>
                 <Typography variant="h5" style={successMsgTypographyStyle}>
@@ -200,14 +221,14 @@ const TokenRedemptionPasswordResetPage = (
                 </Typography>
             </Grid>
         );
-    };
+    }, [successMsg]);
     return (
         <Grid>
             <GridItem style={grid6Style}>
                 {successMsg ? showResponseGrid() : showRequestGrid()}
             </GridItem>
             <GridItem style={grid1Style}>
-                <span></span>
+                <span />
             </GridItem>
         </Grid>
     );

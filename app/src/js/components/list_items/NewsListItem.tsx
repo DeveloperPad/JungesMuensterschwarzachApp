@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router";
 
 import {
     Card,
@@ -16,23 +17,22 @@ import { AppUrls } from "../../constants/specific-urls";
 import { CustomTheme, grid5Style } from "../../constants/theme";
 import INewsItem from "../../networking/news/INewsItem";
 import { ConfigService } from "../../services/ConfigService";
-import { useNavigate } from "react-router";
 
 type INewsListItemProps = WithTheme & {
     newsItem: INewsItem;
 };
 
 const NewsListItem = (props: INewsListItemProps) => {
-    const { newsItem, theme } = props;
     const navigate = useNavigate();
+    const { newsItem, theme } = props;
 
-    const openNewsItem = (): void => {
+    const openNewsItem = React.useCallback((): void => {
         const newsId = newsItem.newsId;
 
         if (newsId >= 0) {
             navigate(AppUrls.NEWS_LIST + "/" + newsId);
         }
-    };
+    }, [navigate, newsItem.newsId]);
 
     return (
         <Card

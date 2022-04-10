@@ -14,15 +14,15 @@ type IAppMenuProps = {
 };
 
 const AppMenu = (props: IAppMenuProps) => {
-    const {isLoggedIn, open, toggleAppMenuVisibility} = props;
     const navigate = useNavigate();
+    const {isLoggedIn, open, toggleAppMenuVisibility} = props;
 
-    const getAnchorElement = (): (HTMLElement | undefined) => {
+    const getAnchorElement = React.useCallback((): (HTMLElement | undefined) => {
         return ((document.querySelector(".jma-app-menu-anchor") || undefined) as HTMLElement);
-    };
-    const forwardContact = (): void => {
+    }, []);
+    const forwardContact = React.useCallback((): void => {
         window.location.href = ConfigService.getConfig().BaseUrls.CONTACT_LINK;
-    };
+    }, []);
 
     return (
         <Menu

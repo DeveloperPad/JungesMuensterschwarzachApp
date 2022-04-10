@@ -17,14 +17,14 @@ type IParticipantsListProps = {
 
 const ParticipantsList = (props: IParticipantsListProps) => {
     const { participants } = props;
-    const showEmptyRow = (): React.ReactNode => {
+    const emptyRow = React.useMemo((): React.ReactNode => {
         return (
             <TableRow>
                 <TableCell>{Dict.event_participants_list_empty}</TableCell>
             </TableRow>
         );
-    };
-    const showParticipantRows = (): React.ReactNode => {
+    }, []);
+    const participantsRows = React.useMemo((): React.ReactNode => {
         return participants.map((participant: IUser) => {
             return (
                 <TableRow key={participant[IUserKeys.userId]}>
@@ -40,7 +40,7 @@ const ParticipantsList = (props: IParticipantsListProps) => {
                 </TableRow>
             );
         });
-    };
+    }, [participants]);
 
     return (
         <>
@@ -55,8 +55,8 @@ const ParticipantsList = (props: IParticipantsListProps) => {
                 <Table size="small">
                     <TableBody>
                         {!participants || participants.length === 0
-                            ? showEmptyRow()
-                            : showParticipantRows()}
+                            ? emptyRow
+                            : participantsRows}
                     </TableBody>
                 </Table>
             </TableContainer>

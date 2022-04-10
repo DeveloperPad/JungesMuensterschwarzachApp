@@ -1,32 +1,35 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Button, Icon, withTheme, WithTheme } from '@material-ui/core';
+import { Button, Icon, withTheme, WithTheme } from "@material-ui/core";
 
 type IDeleteButtonProps = WithTheme & {
-    color?: "inherit" | "primary" | "secondary" | "default" | undefined,
-    icon?: string,
-    label: string,
-    onClick: () => void,
-    style?: React.CSSProperties,
-    variant?: "text" | "outlined" | "contained" | undefined,
-}
+    color?: "inherit" | "primary" | "secondary" | "default" | undefined;
+    icon?: string;
+    label: string;
+    onClick: () => void;
+    style?: React.CSSProperties;
+    variant?: "text" | "outlined" | "contained" | undefined;
+};
 
 const DeleteButton = (props: IDeleteButtonProps) => {
+    const { color, icon, label, onClick, style, theme, variant } = props;
     return (
         <Button
-            color={props.color ?? "primary"}
-            onClick={props.onClick}
-            style={props.style}
-            variant={props.variant ?? "contained"}
+            color={color ?? "primary"}
+            onClick={onClick}
+            style={style}
+            variant={variant ?? "contained"}
         >
-            {props.label}
-            <Icon style={{
-                marginLeft: props.theme.spacing()
-            }}>
-                {props.icon ?? "delete_forever"}
+            {label}
+            <Icon
+                style={{
+                    marginLeft: theme.spacing(),
+                }}
+            >
+                {icon ?? "delete_forever"}
             </Icon>
         </Button>
     );
-}
+};
 
 export default withTheme(DeleteButton);

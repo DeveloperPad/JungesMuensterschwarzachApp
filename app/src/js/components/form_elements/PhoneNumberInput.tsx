@@ -6,8 +6,6 @@ import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { grid1Style, textFieldInputProps } from "../../constants/theme";
 import { IUserKeys } from "../../networking/account_data/IUser";
-import { useState } from "react";
-import { useEffect } from "react";
 
 interface IPhoneNumberInputProps {
     errorMessage: string | null;
@@ -21,21 +19,25 @@ const PhoneNumberInput = (props: IPhoneNumberInputProps) => {
     const LOCAL_ERROR_MESSAGE = Dict.account_phoneNumber_invalid;
 
     const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
-    const [submit, setSubmit] = useState(false);
 
-    const onChange = (event: any): void => {
-        onError(IUserKeys.phoneNumber, null);
-        onUpdateValue(IUserKeys.phoneNumber, event.target.value);
-    };
-    const localOnBlur = (_: any): void => {
-        if (value) {
-            onUpdateValue(IUserKeys.phoneNumber, value.trim());
-        }
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.phoneNumber, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.phoneNumber, value.trim());
+            }
 
-        setSubmit(true);
-    };
+            onBlur(IUserKeys.phoneNumber, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    useEffect(() => {
+    React.useEffect(() => {
         const localErrorMessage =
             !value ||
             (value.length > 0 &&
@@ -45,25 +47,12 @@ const PhoneNumberInput = (props: IPhoneNumberInputProps) => {
 
         // do not overwrite server side error messages
         if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
         ) {
-            return;
+            onError(IUserKeys.phoneNumber, localErrorMessage);
         }
-
-        onError(IUserKeys.phoneNumber, localErrorMessage);
-
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
-            onBlur(IUserKeys.phoneNumber, value || null);
-        }
-
-        setSubmit(false);
-    }, [errorMessage, LOCAL_ERROR_MESSAGE, onBlur, onError, submit, value]);
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
     return (
         <TextField
@@ -76,7 +65,7 @@ const PhoneNumberInput = (props: IPhoneNumberInputProps) => {
             label={Dict.account_phoneNumber}
             margin="dense"
             name={IUserKeys.phoneNumber}
-            onBlur={localOnBlur}
+            onBlur={onLocalBlur}
             onChange={onChange}
             style={grid1Style}
             type="text"

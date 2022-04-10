@@ -7,18 +7,17 @@ import AppMenu from "./menus/AppMenu";
 
 interface IHeaderNavigationProps {
     isLoggedIn: boolean;
-    rerenderApp: () => void;
 }
 
 const HeaderNavigation = (props: IHeaderNavigationProps) => {
-    const { isLoggedIn, rerenderApp } = props;
-    const [drawerVisible, setDrawerVisible] = useState(false);
-    const [menuVisible, setMenuVisible] = useState(false);
+    const { isLoggedIn } = props;
+    const [drawerVisible, setDrawerVisible] = useState<boolean>(false);
+    const [menuVisible, setMenuVisible] = useState<boolean>(false);
 
     return (
         <>
             <AppBar
-                rerenderApp={rerenderApp}
+                isLoggedIn={isLoggedIn}
                 toggleAppDrawerVisibility={setDrawerVisible.bind(
                     this,
                     (v: boolean) => !v

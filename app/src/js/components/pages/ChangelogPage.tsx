@@ -20,9 +20,12 @@ type IChangelogPageProps = WithTheme;
 const ChangelogPage = (props: IChangelogPageProps) => {
     const { theme } = props;
 
-    const preFormattedStyle: React.CSSProperties = {
-        whiteSpace: "pre-wrap",
-    };
+    const preFormattedStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            whiteSpace: "pre-wrap",
+        }),
+        []
+    );
 
     return (
         <Background theme={theme}>

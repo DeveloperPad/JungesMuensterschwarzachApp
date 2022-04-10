@@ -8,7 +8,7 @@ interface IGridItemProps {
 const GridItem = (props: IGridItemProps) => {
     const { children, style } = props;
 
-    const getClassStyle = (): React.CSSProperties => {
+    const classStyle = React.useMemo((): React.CSSProperties => {
         // these default properties are specific to the flex direction of "column*"
         return {
             display: "flex",
@@ -16,12 +16,12 @@ const GridItem = (props: IGridItemProps) => {
             flexDirection: "column",
             width: "100%",
         };
-    };
+    }, []);
 
     return (
         <div
             style={{
-                ...getClassStyle(),
+                ...classStyle,
                 ...style,
             }}
         >

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router";
 
 import {
     Card,
@@ -11,25 +12,24 @@ import {
 
 import { AppUrls } from "../../constants/specific-urls";
 import { CustomTheme } from "../../constants/theme";
-import { useNavigate } from "react-router";
 
 type IHomePageListItemProps = WithTheme & {
     icon?: string;
-    target: AppUrls|string;
+    target: AppUrls | string;
     title: string;
 };
 
 const HomePageListItem = (props: IHomePageListItemProps) => {
-    const { icon, target, theme, title } = props;
     const navigate = useNavigate();
+    const { icon, target, theme, title } = props;
 
-    const forwardToTarget = (): void => {
+    const forwardToTarget = React.useCallback((): void => {
         if (target.startsWith("mailto")) {
             window.location.href = target;
         } else {
             navigate(target);
         }
-    };
+    }, [navigate, target]);
 
     return (
         <Card

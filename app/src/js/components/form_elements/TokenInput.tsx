@@ -23,9 +23,12 @@ interface ITokenInputProps {
 const TokenInput = (props: ITokenInputProps) => {
     const { errorMessage, onUpdateValue, themeType, value } = props;
 
-    const onChange = (event: any): void => {
-        onUpdateValue(ITokenInputKeys.tokenCode, event.target.value.trim());
-    };
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(ITokenInputKeys.tokenCode, event.target.value.trim());
+        },
+        [onUpdateValue]
+    );
 
     return (
         <MuiThemeProvider theme={getTextFieldTheme(themeType)}>

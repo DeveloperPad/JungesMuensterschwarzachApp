@@ -14,9 +14,9 @@ type IRequestActivationMailPageProps = WithTheme;
 const RequestActivationMailPage = (props: IRequestActivationMailPageProps) => {
     const { theme } = props;
 
-    const gridStyle: React.CSSProperties = {
+    const gridStyle: React.CSSProperties = React.useMemo(() => ({
         width: "70%",
-    };
+    }), []);
 
     return (
         <Background theme={theme}>

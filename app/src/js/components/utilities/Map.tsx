@@ -23,8 +23,22 @@ const Map = (props: IMapProps) => {
             zoom: 15,
         },
     });
-
     const ref = React.useRef(null);
+
+    const onViewportChange = React.useCallback((viewport) => {
+        const { latitude, longitude, zoom } = viewport;
+        setState(state => {
+            return {
+                ...state,
+                viewport: {
+                    ...state.viewport,
+                    latitude,
+                    longitude,
+                    zoom
+                }
+            }
+        });
+    }, []);
 
     React.useEffect(
         () => {
@@ -44,19 +58,6 @@ const Map = (props: IMapProps) => {
         },
         []
     );
-
-    function onViewportChange(viewport) {
-        const { latitude, longitude, zoom } = viewport;
-        setState({
-            ...state,
-            viewport: {
-                ...state.viewport,
-                latitude,
-                longitude,
-                zoom,
-            },
-        });
-    }
 
     return (
         <ReactMapGL

@@ -22,10 +22,10 @@ type HelpItem = {
 };
 
 const HelpPage = (props: IHelpPageProps) => {
-    const { theme } = props;
     const navigate = useNavigate();
+    const { theme } = props;
 
-    const getHelpItems = (): HelpItem[] => {
+    const getHelpItems = React.useCallback((): HelpItem[] => {
         return [
             {
                 forwardTo: AppUrls.INSTALLATION,
@@ -53,51 +53,52 @@ const HelpPage = (props: IHelpPageProps) => {
                 label: Dict.navigation_request_account_transfer_mail,
             },
         ];
-    };
-
-    const helpItemCards: React.ReactNode[] = getHelpItems().map((helpItem) => {
-        return (
-            <Card
-                key={helpItem.forwardTo}
-                onClick={navigate.bind(this, helpItem.forwardTo)}
-                style={{
-                    backgroundColor: CustomTheme.COLOR_BODY_INNER,
-                    cursor: "pointer",
-                    marginBottom: theme.spacing(2),
-                    width: "100%",
-                }}
-            >
-                <CardContent
+    }, []);
+    const helpItemCards = React.useCallback((): React.ReactElement<any>[] => {
+        return getHelpItems().map((helpItem) => {
+            return (
+                <Card
+                    key={helpItem.forwardTo}
+                    onClick={navigate.bind(this, helpItem.forwardTo)}
                     style={{
-                        alignItems: "center",
-                        display: "flex",
-                        justifyContent: "start",
-                        margin: "auto",
-                        width: "90%",
+                        backgroundColor: CustomTheme.COLOR_BODY_INNER,
+                        cursor: "pointer",
+                        marginBottom: theme.spacing(2),
+                        width: "100%",
                     }}
                 >
-                    <Icon
+                    <CardContent
                         style={{
-                            display: "inline-block",
+                            alignItems: "center",
+                            display: "flex",
+                            justifyContent: "start",
+                            margin: "auto",
+                            width: "90%",
                         }}
                     >
-                        {helpItem.iconString}
-                    </Icon>
+                        <Icon
+                            style={{
+                                display: "inline-block",
+                            }}
+                        >
+                            {helpItem.iconString}
+                        </Icon>
 
-                    <Typography
-                        color="primary"
-                        variant="h5"
-                        style={{
-                            display: "inline-block",
-                            marginLeft: theme.spacing(5),
-                        }}
-                    >
-                        {helpItem.label}
-                    </Typography>
-                </CardContent>
-            </Card>
-        );
-    });
+                        <Typography
+                            color="primary"
+                            variant="h5"
+                            style={{
+                                display: "inline-block",
+                                marginLeft: theme.spacing(5),
+                            }}
+                        >
+                            {helpItem.label}
+                        </Typography>
+                    </CardContent>
+                </Card>
+            );
+        });
+    }, [getHelpItems, navigate, theme]);
 
     return (
         <Background theme={theme}>
@@ -109,7 +110,7 @@ const HelpPage = (props: IHelpPageProps) => {
                     justifyContent: "center",
                 }}
             >
-                {helpItemCards}
+                {helpItemCards()}
             </div>
         </Background>
     );

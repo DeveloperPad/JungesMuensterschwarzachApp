@@ -6,8 +6,6 @@ import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { grid1Style, textFieldInputProps } from "../../constants/theme";
 import { IUserKeys } from "../../networking/account_data/IUser";
-import { useState } from "react";
-import { useEffect } from "react";
 
 interface ICountryInputProps {
     errorMessage: string | null;
@@ -21,20 +19,25 @@ const CountryInput = (props: ICountryInputProps) => {
     const LOCAL_ERROR_MESSAGE = Dict.account_country_invalid;
 
     const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
-    const [submit, setSubmit] = useState(false);
 
-    const onChange = (event: any): void => {
-        onError(IUserKeys.country, null);
-        onUpdateValue(IUserKeys.country, event.target.value);
-    };
-    const localOnBlur = (_: any): void => {
-        if (value) {
-            onUpdateValue(IUserKeys.country, value.trim());
-        }
-        setSubmit(true);
-    };
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.country, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.country, value.trim());
+            }
 
-    useEffect(() => {
+            onBlur(IUserKeys.country, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
+
+    React.useEffect(() => {
         const localErrorMessage =
             !value ||
             (value.length > 0 && value.length <= Formats.LENGTH.MAX.COUNTRY)
@@ -43,32 +46,12 @@ const CountryInput = (props: ICountryInputProps) => {
 
         // do not overwrite server side error messages
         if (
-            errorMessage &&
-            !localErrorMessage &&
-            errorMessage !== LOCAL_ERROR_MESSAGE
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
         ) {
-            return;
+            onError(IUserKeys.country, localErrorMessage);
         }
-
-        onError(IUserKeys.country, localErrorMessage);
-
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
-            onBlur(IUserKeys.country, value.trim());
-        }
-
-        setSubmit(false);
-    }, [
-        errorMessage,
-        LOCAL_ERROR_MESSAGE,
-        onBlur,
-        onError,
-        submit,
-        value,
-    ]);
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
     return (
         <TextField
@@ -81,7 +64,7 @@ const CountryInput = (props: ICountryInputProps) => {
             label={Dict.account_country}
             margin="dense"
             name={IUserKeys.country}
-            onBlur={localOnBlur}
+            onBlur={onLocalBlur}
             onChange={onChange}
             style={grid1Style}
             type="text"

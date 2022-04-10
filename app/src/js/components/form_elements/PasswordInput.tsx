@@ -1,10 +1,14 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { MuiThemeProvider, TextField } from '@material-ui/core';
+import { MuiThemeProvider, TextField } from "@material-ui/core";
 
-import { Dict } from '../../constants/dict';
-import { getTextFieldTheme, textFieldInputProps, ThemeTypes } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
+import { Dict } from "../../constants/dict";
+import {
+    getTextFieldTheme,
+    textFieldInputProps,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
 
 interface IPasswordInputProps {
     errorMessage: string | null;
@@ -39,14 +43,20 @@ const PasswordInput = (props: IPasswordInputProps) => {
         value,
     } = props;
 
-    const onKeyPress = (event: React.KeyboardEvent<HTMLDivElement>): void => {
-        if (onKeyPressEnter && event.key === "Enter") {
-            onKeyPressEnter();
-        }
-    };
-    const onChange = (event: any): void => {
-        onUpdateValue(name ? name : IUserKeys.password, event.target.value);
-    };
+    const onKeyPress = React.useCallback(
+        (event: React.KeyboardEvent<HTMLDivElement>): void => {
+            if (onKeyPressEnter && event.key === "Enter") {
+                onKeyPressEnter();
+            }
+        },
+        [onKeyPressEnter]
+    );
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(name ? name : IUserKeys.password, event.target.value);
+        },
+        [name, onUpdateValue]
+    );
 
     React.useEffect(() => {
         const localErrorMessage =
@@ -55,7 +65,11 @@ const PasswordInput = (props: IPasswordInputProps) => {
                 : PASSWORD_INPUT_LOCAL_ERROR_MESSAGE;
 
         // do not overwrite combined and server side error messages
-        if (!errorMessage || errorMessage === PASSWORD_INPUT_LOCAL_ERROR_MESSAGE) {
+        if (
+            errorMessage !== localErrorMessage &&
+            (!errorMessage ||
+                errorMessage === PASSWORD_INPUT_LOCAL_ERROR_MESSAGE)
+        ) {
             onError(name ? name : IUserKeys.password, localErrorMessage);
         }
     }, [errorMessage, name, onError, value]);

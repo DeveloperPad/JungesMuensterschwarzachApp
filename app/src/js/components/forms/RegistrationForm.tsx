@@ -28,7 +28,7 @@ import PasswordInput, {
     PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/PasswordInput";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateWithCallback } from "../utilities/CustomHooks";
+import { useStateRequest } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -84,12 +84,7 @@ const RegistrationForm = (props: IRegistrationFormProps) => {
     });
     const [successMsg, setSuccessMsg] = React.useState<string>();
     const suppressErrorMsgs = React.useRef<boolean>(true);
-    const [signUpRequest, setSignUpRequest] =
-        useStateWithCallback<SignUpRequest>(null, (request) => {
-            if (request) {
-                request.execute();
-            }
-        });
+    const [signUpRequest, setSignUpRequest] = useStateRequest();
 
     const upperInputStyle: React.CSSProperties = React.useMemo(
         () => ({
@@ -100,24 +95,20 @@ const RegistrationForm = (props: IRegistrationFormProps) => {
 
     const updateForm = React.useCallback(
         (key: IFormKeys, value: string | number | boolean): void => {
-            setForm((form) => {
-                return {
-                    ...form,
-                    [key]: value,
-                };
-            });
+            setForm((form) => ({
+                ...form,
+                [key]: value,
+            }));
             suppressErrorMsgs.current = false;
         },
         []
     );
     const updateFormError = React.useCallback(
         (key: IFormKeys, value: string | null): void => {
-            setFormError((formError) => {
-                return {
-                    ...formError,
-                    [key]: value,
-                };
-            });
+            setFormError((formError) => ({
+                ...formError,
+                [key]: value,
+            }));
         },
         []
     );
@@ -217,15 +208,6 @@ const RegistrationForm = (props: IRegistrationFormProps) => {
             )
         );
     }, [form, setSignUpRequest, validate]);
-
-    React.useEffect(() => {
-        return () => {
-            if (signUpRequest) {
-                signUpRequest.cancel();
-            }
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     const showRequestGrid = React.useCallback((): React.ReactElement<any> => {
         return (

@@ -9,11 +9,15 @@ interface IErrorMessageTypographyProps {
 const ErrorMessageTypography = (props: IErrorMessageTypographyProps) => {
     const { value } = props;
 
-    return value !== null ? (
+    if (!value) {
+        return null;
+    }
+
+    return (
         <Typography align="center" color="error">
             {value}
         </Typography>
-    ) : null;
+    );
 };
 
 export default ErrorMessageTypography;
