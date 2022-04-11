@@ -21,12 +21,12 @@ type IEventInfoSubPageProps = WithTheme & {
 const EventInfoSubPage = (props: IEventInfoSubPageProps) => {
     const { eventItem, theme } = props;
 
-    const contentIndentationStyle: React.CSSProperties = {
+    const contentIndentationStyle: React.CSSProperties = React.useMemo(() => ({
         marginLeft: theme.spacing(2),
-    };
-    const lowerSeparatorStyle: React.CSSProperties = {
+    }), [theme]);
+    const lowerSeparatorStyle: React.CSSProperties = React.useMemo(() => ({
         height: theme.spacing(),
-    };
+    }), [theme]);
 
     return (
         <Card

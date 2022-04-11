@@ -27,6 +27,8 @@ const AllowNewsLetterCheckbox = (props: IAllowNewsletterCheckboxProps) => {
         style,
         themeType,
     } = props;
+    const [isBlurScheduled, setIsBlurScheduled] =
+        React.useState<boolean>(false);
 
     const contentDivStyle: React.CSSProperties = React.useMemo(
         () => ({
@@ -51,21 +53,25 @@ const AllowNewsLetterCheckbox = (props: IAllowNewsletterCheckboxProps) => {
 
     const onChange = React.useCallback(
         (event: React.ChangeEvent<HTMLInputElement>): void => {
-            const newChecked = (event.currentTarget as HTMLInputElement).checked;
-            console.log("newchecked: " + newChecked);
             onUpdateValue(
                 IUserKeys.allowNewsletter,
-                newChecked ? 1 : 0
+                (event.currentTarget as HTMLInputElement).checked ? 1 : 0
             );
             if (onBlur) {
-                onBlur(
-                    IUserKeys.allowNewsletter,
-                    newChecked ? 1 : 0
-                );            
+                setIsBlurScheduled(true);
             }
         },
         [onBlur, onUpdateValue]
     );
+
+    React.useEffect(() => {
+        if (isBlurScheduled) {
+            if (onBlur) {
+                onBlur(IUserKeys.allowNewsletter, checked ? 1 : 0);
+            }
+            setIsBlurScheduled(false);
+        }
+    }, [checked, isBlurScheduled, onBlur]);
 
     return themeType && themeType === ThemeTypes.LIGHT ? (
         <>

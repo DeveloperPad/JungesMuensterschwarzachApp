@@ -15,6 +15,7 @@ interface IAllowPostCheckboxProps {
 
 const AllowPostCheckbox = (props: IAllowPostCheckboxProps) => {
     const { checked, errorMessage, onBlur, onUpdateValue } = props;
+    const [isBlurScheduled, setIsBlurScheduled] = React.useState<boolean>(false);
 
     const onChange = React.useCallback(
         (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -22,10 +23,17 @@ const AllowPostCheckbox = (props: IAllowPostCheckboxProps) => {
                 IUserKeys.allowPost,
                 (event.currentTarget as HTMLInputElement).checked ? 1 : 0
             );
-            onBlur(IUserKeys.allowPost, checked ? 1 : 0);
+            setIsBlurScheduled(true);
         },
-        [checked, onBlur, onUpdateValue]
+        [onUpdateValue]
     );
+
+    React.useEffect(() => {
+        if (isBlurScheduled) {
+            onBlur(IUserKeys.allowPost, checked ? 1 : 0);
+            setIsBlurScheduled(false);
+        }
+    }, [checked, isBlurScheduled, onBlur]);
 
     return (
         <>

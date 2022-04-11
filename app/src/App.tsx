@@ -116,7 +116,7 @@ const App = () => {
             sessionObservationSchedule.current = null;
             log.info(LogTags.AUTHENTICATION + "Session observation stopped.");
         }
-    }, []);
+    }, [stopSignOnRequest]);
     const newSignOnRequest = React.useMemo((): AccountSessionSignOnRequest => {
         return new AccountSessionSignOnRequest(
             (response) => {
@@ -234,7 +234,19 @@ const App = () => {
                     />
                     <Route
                         path={AppUrls.EVENTS_ITEM}
-                        element={<EventItemPage />}
+                        element={
+                            <EventItemPage
+                                isLoggedIn={isLoggedIn}
+                            />
+                        }
+                    />
+                    <Route
+                        path={AppUrls.EVENTS_ITEM_TAB}
+                        element={
+                            <EventItemPage
+                                isLoggedIn={isLoggedIn}
+                            />
+                        }
                     />
                     <Route
                         path={AppUrls.HELP_NEWSLETTER_REDEEM}

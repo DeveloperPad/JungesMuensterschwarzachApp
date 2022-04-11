@@ -15,11 +15,12 @@ import ParticipantsList from "../lists/ParticipantsList";
 
 type IEventEnrollmentSubPageProps = WithTheme & {
     eventItem: IEventItem;
+    isLoggedIn: boolean;
     refetchEventItem: () => void;
 };
 
 const EventEnrollmentSubPage = (props: IEventEnrollmentSubPageProps) => {
-    const { eventItem, refetchEventItem, theme } = props;
+    const { eventItem, isLoggedIn, refetchEventItem, theme } = props;
 
     return (
         <Card
@@ -68,6 +69,7 @@ const EventEnrollmentSubPage = (props: IEventEnrollmentSubPageProps) => {
 
                 <EventEnrollmentForm
                     eventItem={eventItem}
+                    isLoggedIn={isLoggedIn}
                     refetchEventItem={refetchEventItem}
                 />
 

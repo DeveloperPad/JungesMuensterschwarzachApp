@@ -27,6 +27,7 @@ type INewsItemPageProps = WithTheme;
 const NewsItemPage = (props: INewsItemPageProps) => {
     const location = useLocation();
     const { theme } = props;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [newsRequest, setNewsRequest] = useStateRequest();
 
     const newsId = React.useMemo(

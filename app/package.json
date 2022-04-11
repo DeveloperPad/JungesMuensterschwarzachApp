@@ -55,7 +55,9 @@
   "browserslist": [
     ">0.2%",
     "not dead",
-    "not ie <= 11",
-    "not op_mini all"
+    "not IE > 0",
+    "not op_mini all",
+    "not chrome < 51",
+    "not safari < 10"
   ]
 }

@@ -238,7 +238,6 @@ const ProfileForm = (props: IProfileFormProps) => {
                 ...form,
                 [key]: value,
             }));
-            console.log("updating form: " + key + " to " + value);
         },
         []
     );
@@ -318,11 +317,6 @@ const ProfileForm = (props: IProfileFormProps) => {
     );
     const updateAccountData = React.useCallback(
         (key: IFormKeys, value: IFormValues): void => {
-            console.log("fetchedForm.current: " + fetchedForm.current);
-            console.log("form: " + JSON.stringify(form));
-            console.log("formError[key]: " + formError[key]);
-            console.log("fetchedForm.current[key]: " + fetchedForm.current[key]);
-            console.log("form[key]: " + form[key]);
             if (
                 !fetchedForm.current ||
                 !form ||

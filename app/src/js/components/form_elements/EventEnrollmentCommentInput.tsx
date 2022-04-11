@@ -7,12 +7,10 @@ import Formats from "../../constants/formats";
 import { textFieldInputProps } from "../../constants/theme";
 import { IEventEnrollmentKeys } from "../../networking/events/IEventEnrollment";
 import { IEventItemKeys } from "../../networking/events/IEventItem";
-import { useState } from "react";
-import { useEffect } from "react";
 
 interface IEventEnrollmentCommentInputProps {
     errorMessage: string | null;
-    onBlur?: (key: IEventEnrollmentKeys, value: string) => void;
+    onBlur: (key: IEventEnrollmentKeys, value: string) => void;
     onError: (key: IEventEnrollmentKeys, value: string) => void;
     onUpdateValue: (key: IEventEnrollmentKeys, value: string) => void;
     style?: React.CSSProperties;
@@ -22,46 +20,48 @@ interface IEventEnrollmentCommentInputProps {
 const EventEnrollmentCommentInput = (
     props: IEventEnrollmentCommentInputProps
 ) => {
+    const LOCAL_ERROR_MESSAGE = Dict.event_eventEnrollmentComment_invalid;
+
     const { errorMessage, onBlur, onError, onUpdateValue, style, value } =
         props;
-    const [submit, setSubmit] = useState(false);
 
-    const onChange = (event: any): void => {
-        onUpdateValue(
-            IEventEnrollmentKeys.eventEnrollmentComment,
-            event.target.value
-        );
-    };
-    const onLocalBlur = (
-        event: React.FocusEvent<HTMLTextAreaElement>
-    ): void => {
-        event.preventDefault();
-        event.stopPropagation();
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(
+                IEventEnrollmentKeys.eventEnrollmentComment,
+                event.target.value
+            );
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (event: React.FocusEvent<HTMLTextAreaElement>): void => {
+            // event.preventDefault();
+            // event.stopPropagation();
 
-        if (onBlur) {
-            setSubmit(true);
-        }
-    };
-
-    useEffect(() => {
-        onError(
-            IEventEnrollmentKeys.eventEnrollmentComment,
-            value != null &&
-                value.length <= Formats.LENGTH.MAX.EVENT_ENROLLMENT_COMMENT
-                ? null
-                : Dict.event_eventEnrollmentComment_invalid
-        );
-
-        if (!submit) {
-            return;
-        }
-
-        if (onBlur) {
             onBlur(IEventEnrollmentKeys.eventEnrollmentComment, value);
-        }
+        },
+        [onBlur, value]
+    );
 
-        setSubmit(false);
-    }, [onBlur, onError, submit, value]);
+    React.useEffect(() => {
+        const localErrorMessage =
+            value != null &&
+            value.length <= Formats.LENGTH.MAX.EVENT_ENROLLMENT_COMMENT
+                ? null
+                : LOCAL_ERROR_MESSAGE;
+
+        // do not overwrite server side error messages
+        if (
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
+        ) {
+            onError(
+                IEventEnrollmentKeys.eventEnrollmentComment,
+                localErrorMessage
+            );
+        }
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
     return (
         <TextField

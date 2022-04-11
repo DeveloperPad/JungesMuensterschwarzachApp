@@ -4,6 +4,7 @@ export enum AppUrls {
     CONTACT = "/contact",
     EVENTS_LIST = "/events",
     EVENTS_ITEM = "/events/:id",
+    EVENTS_ITEM_TAB = "/events/:id/:tab",
     HELP = "/help",
     HELP_NEWSLETTER_SUBSCRIBE = "/help/newsletter/subscribe",
     HELP_NEWSLETTER_REDEEM = "/help/newsletter/redeem/*",
