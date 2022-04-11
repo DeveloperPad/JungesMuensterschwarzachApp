@@ -38,9 +38,9 @@ services:
   jma-cron:
     volumes:
       - ./webservice:/var/www/html
-  jma-api:
-    profiles:
-      - donotstart
+  # jma-api:
+  #   profiles:
+  #     - donotstart
   jma-phpmyadmin:
     container_name: jma-phpmyadmin
     image: phpmyadmin:latest

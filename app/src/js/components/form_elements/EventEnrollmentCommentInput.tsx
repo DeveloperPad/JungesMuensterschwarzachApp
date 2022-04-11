@@ -10,9 +10,9 @@ import { IEventItemKeys } from "../../networking/events/IEventItem";
 
 interface IEventEnrollmentCommentInputProps {
     errorMessage: string | null;
-    onBlur: (key: IEventEnrollmentKeys, value: string) => void;
-    onError: (key: IEventEnrollmentKeys, value: string) => void;
-    onUpdateValue: (key: IEventEnrollmentKeys, value: string) => void;
+    onBlur: (key: IEventEnrollmentKeys.eventEnrollmentComment, value: string) => void;
+    onError: (key: IEventEnrollmentKeys.eventEnrollmentComment, value: string) => void;
+    onUpdateValue: (key: IEventEnrollmentKeys.eventEnrollmentComment, value: string) => void;
     style?: React.CSSProperties;
     value: string;
 }

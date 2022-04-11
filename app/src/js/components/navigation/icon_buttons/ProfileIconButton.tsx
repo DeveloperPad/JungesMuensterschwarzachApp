@@ -19,11 +19,11 @@ const ProfileIconButton = (props: IProfileIconButtonProps) => {
     const [display, setDisplay] = React.useState(isLoggedIn);
 
     React.useEffect(() => {
-        CookieService.get<number>(IUserKeys.accessLevel)
+        CookieService.get<string>(IUserKeys.accessLevel)
             .then((accessLevel) => {
                 setDisplay(
                     accessLevel !== null &&
-                        accessLevel !== IUserValues[IUserKeys.accessLevel].guest
+                        parseInt(accessLevel) !== IUserValues[IUserKeys.accessLevel].guest
                 );
             })
             .catch((error) => {

@@ -28,8 +28,10 @@ import {
     gridHorizontalStyle,
 } from "../../constants/theme";
 import { IUserKeys } from "../../networking/account_data/IUser";
+import { CheckInEventDataRequest } from "../../networking/events/CheckInEventDataRequest";
 import { DisenrollEventDataRequest } from "../../networking/events/DisenrollEventDataRequest";
 import { EnrollEventDataRequest } from "../../networking/events/EnrollEventDataRequest";
+import { UpdateEventEnrollmentPublicMediaUsageConsentDataRequest } from "../../networking/events/UpdateEventEnrollmentPublicMediaUsageConsentDataRequest";
 import {
     FetchEventEnrollmentDataRequest,
     IFetchEventEnrollmentDataResponse,
@@ -42,9 +44,10 @@ import { IResponse } from "../../networking/Request";
 import { CookieService } from "../../services/CookieService";
 import EventEnrollmentCommentInput from "../form_elements/EventEnrollmentCommentInput";
 import SubmitButton from "../form_elements/SubmitButton";
+import { useStateRequest } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import { showNotification } from "../utilities/Notifier";
-import { useStateRequest } from "../utilities/CustomHooks";
+import PublicMediaUsageConsentCheckbox from "../form_elements/PublicMediaUsageConsentCheckbox";
 
 type IEventEnrollmentFormProps = WithTheme & {
     eventItem: IEventItem;
@@ -52,21 +55,27 @@ type IEventEnrollmentFormProps = WithTheme & {
     refetchEventItem: () => void;
 };
 
-type IFormKeys = IEventEnrollmentKeys.eventEnrollmentComment;
+type IFormKeys =
+    | IEventEnrollmentKeys.eventEnrollmentComment
+    | IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent;
 
 interface IForm {
     [IEventEnrollmentKeys.eventEnrollmentComment]: string;
+    [IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent]: number;
 }
 
 interface IFormError {
     [IEventEnrollmentKeys.eventEnrollmentComment]: string | null;
+    [IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent]:
+        | string
+        | null;
 }
 
 const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
     const navigate = useNavigate();
-    const { eventItem, isLoggedIn, refetchEventItem, theme } =
-        props;
+    const { eventItem, isLoggedIn, refetchEventItem, theme } = props;
     const [isEnrolled, setIsEnrolled] = React.useState<boolean>(false);
+    const [isCheckedIn, setIsCheckedIn] = React.useState<boolean>(false);
     const [
         showEnrollmentConfirmationDialog,
         setShowEnrollmentConfirmationDialog,
@@ -77,9 +86,17 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
     });
     const [form, setForm] = React.useState<IForm>({
         [IEventEnrollmentKeys.eventEnrollmentComment]: "",
+        [IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent]: 0,
     });
+    const emptyFormError = React.useMemo(
+        () => ({
+            [IEventEnrollmentKeys.eventEnrollmentComment]: null,
+            [IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent]: null,
+        }),
+        []
+    );
     const [formError, setFormError] = React.useState<IFormError>({
-        [IEventEnrollmentKeys.eventEnrollmentComment]: null,
+        ...emptyFormError,
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [request, setRequest] = useStateRequest();
@@ -105,8 +122,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
     );
 
     const updateForm = React.useCallback(
-        (key: IFormKeys, value: string): void => {
-            console.log("updating " + key + " to " + value);
+        (key: IFormKeys, value: string | number): void => {
             setForm((form) => ({
                 ...form,
                 [key]: value,
@@ -141,30 +157,52 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                         });
                     } else {
                         let comment = "";
+                        let publicMediaUsageConsent = 0;
                         let enrolled = false;
+                        let checkedIn = false;
 
                         const eventEnrollment = response.eventEnrollment;
                         if (eventEnrollment) {
                             enrolled = true;
+
                             const eventEnrollmentComment =
                                 eventEnrollment[
                                     IEventEnrollmentKeys.eventEnrollmentComment
                                 ];
-
                             if (eventEnrollmentComment) {
                                 comment = eventEnrollmentComment;
+                            }
+
+                            const eventEnrollmentPublicMediaUsageConsent =
+                                eventEnrollment[
+                                    IEventEnrollmentKeys
+                                        .eventEnrollmentPublicMediaUsageConsent
+                                ];
+                            if (
+                                eventEnrollmentPublicMediaUsageConsent !== null
+                            ) {
+                                publicMediaUsageConsent = parseInt(
+                                    eventEnrollmentPublicMediaUsageConsent,
+                                    10
+                                );
+                                checkedIn = true;
                             }
                         }
 
                         const downloadedForm: IForm = {
                             [IEventEnrollmentKeys.eventEnrollmentComment]:
                                 comment,
+                            [IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent]:
+                                publicMediaUsageConsent,
                         };
 
                         fetchedForm.current = downloadedForm;
                         setForm(downloadedForm);
-                        updateFormError(IEventEnrollmentKeys.eventEnrollmentComment, null);
+                        setFormError({
+                            ...emptyFormError,
+                        });
                         setIsEnrolled(enrolled);
+                        setIsCheckedIn(checkedIn);
                         setNotice(null);
                     }
 
@@ -180,7 +218,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
             )
         );
         refetchEventItem();
-    }, [eventItem, isLoggedIn, refetchEventItem, setRequest, updateFormError]);
+    }, [emptyFormError, eventItem, isLoggedIn, refetchEventItem, setRequest]);
     const enroll = React.useCallback((): void => {
         if (!isLoggedIn || isEnrolled) {
             return;
@@ -199,7 +237,10 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                                 IEventEnrollmentKeys.eventEnrollmentComment
                             ) > -1
                         ) {
-                            updateFormError(IEventEnrollmentKeys.eventEnrollmentComment, Dict[errorMsg] ?? errorMsg);
+                            updateFormError(
+                                IEventEnrollmentKeys.eventEnrollmentComment,
+                                Dict[errorMsg] ?? errorMsg
+                            );
                         } else if (
                             errorMsg ===
                             "event_user_enrollment_missing_account_data"
@@ -208,14 +249,20 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                             navigate(AppUrls.PROFILE);
                             showNotification(errorMsg);
                         } else {
-                            updateFormError(IEventEnrollmentKeys.eventEnrollmentComment, null);
+                            updateFormError(
+                                IEventEnrollmentKeys.eventEnrollmentComment,
+                                null
+                            );
                             showNotification(errorMsg);
                         }
 
                         setNotice(null);
                         setRequest(null);
                     } else {
-                        updateFormError(IEventEnrollmentKeys.eventEnrollmentComment, null);
+                        updateFormError(
+                            IEventEnrollmentKeys.eventEnrollmentComment,
+                            null
+                        );
                         setNotice(null);
 
                         fetchEventEnrollment();
@@ -231,9 +278,21 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
             )
         );
         setShowEnrollmentConfirmationDialog(false);
-    }, [eventItem, fetchEventEnrollment, form, isEnrolled, isLoggedIn, navigate, setRequest, updateFormError]);
-    const updateEventEnrollmentData = React.useCallback(
-        (key: IFormKeys, value: string): void => {
+    }, [
+        eventItem,
+        fetchEventEnrollment,
+        form,
+        isEnrolled,
+        isLoggedIn,
+        navigate,
+        setRequest,
+        updateFormError,
+    ]);
+    const updateEventEnrollmentComment = React.useCallback(
+        (
+            key: IEventEnrollmentKeys.eventEnrollmentComment,
+            value: string
+        ): void => {
             if (
                 !isLoggedIn ||
                 !isEnrolled ||
@@ -258,7 +317,10 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                                     IEventEnrollmentKeys.eventEnrollmentComment
                                 ) > -1
                             ) {
-                                updateFormError(IEventEnrollmentKeys.eventEnrollmentComment, Dict[errorMsg] ?? errorMsg);
+                                updateFormError(
+                                    IEventEnrollmentKeys.eventEnrollmentComment,
+                                    Dict[errorMsg] ?? errorMsg
+                                );
                             } else {
                                 updateFormError(key, null);
                                 showNotification(errorMsg);
@@ -281,7 +343,14 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                 )
             );
         },
-        [eventItem, formError, isEnrolled, isLoggedIn, setRequest, updateFormError]
+        [
+            eventItem,
+            formError,
+            isEnrolled,
+            isLoggedIn,
+            setRequest,
+            updateFormError,
+        ]
     );
     const disenroll = React.useCallback((): void => {
         if (!isLoggedIn || !isEnrolled) {
@@ -295,12 +364,18 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                     const errorMsg = response.errorMsg;
 
                     if (errorMsg) {
-                        updateFormError(IEventEnrollmentKeys.eventEnrollmentComment, null);
+                        updateFormError(
+                            IEventEnrollmentKeys.eventEnrollmentComment,
+                            null
+                        );
                         showNotification(errorMsg);
 
                         setRequest(null);
                     } else {
-                        updateFormError(IEventEnrollmentKeys.eventEnrollmentComment, null);
+                        updateFormError(
+                            IEventEnrollmentKeys.eventEnrollmentComment,
+                            null
+                        );
 
                         fetchEventEnrollment();
                     }
@@ -316,7 +391,148 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                 }
             )
         );
-    }, [eventItem, fetchEventEnrollment, isEnrolled, isLoggedIn, setRequest, updateFormError]);
+    }, [
+        eventItem,
+        fetchEventEnrollment,
+        isEnrolled,
+        isLoggedIn,
+        setRequest,
+        updateFormError,
+    ]);
+    const checkIn = React.useCallback((): void => {
+        if (!isLoggedIn || !isEnrolled || isCheckedIn) {
+            return;
+        }
+
+        setRequest(
+            new CheckInEventDataRequest(
+                eventItem[IEventItemKeys.eventId],
+                form[
+                    IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent
+                ],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+                    const successMsg = response.successMsg;
+
+                    if (errorMsg) {
+                        if (
+                            errorMsg.indexOf(
+                                IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent
+                            ) > -1
+                        ) {
+                            updateFormError(
+                                IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
+                                Dict[errorMsg] ?? errorMsg
+                            );
+                        } else {
+                            updateFormError(
+                                IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
+                                null
+                            );
+                            showNotification(errorMsg);
+                        }
+
+                        setNotice(null);
+                        setRequest(null);
+                    } else {
+                        updateFormError(
+                            IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
+                            null
+                        );
+                        setNotice(null);
+                        showNotification(successMsg);
+
+                        fetchEventEnrollment();
+                    }
+                },
+                () => {
+                    setNotice({
+                        message: Dict.error_message_try_later,
+                        type: Dict.error_type_network,
+                    });
+                    setRequest(null);
+                }
+            )
+        );
+    }, [
+        eventItem,
+        fetchEventEnrollment,
+        form,
+        isCheckedIn,
+        isEnrolled,
+        isLoggedIn,
+        setRequest,
+        updateFormError,
+    ]);
+    const updateEventEnrollmentPublicMediaUsageConsent = React.useCallback(
+        (
+            key: IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
+            value: number
+        ): void => {
+            if (
+                !isLoggedIn ||
+                !isEnrolled ||
+                !isCheckedIn ||
+                !fetchedForm.current ||
+                fetchedForm.current[key] === value ||
+                formError[key]
+            ) {
+                return;
+            }
+
+            setRequest(
+                new UpdateEventEnrollmentPublicMediaUsageConsentDataRequest(
+                    eventItem[IEventItemKeys.eventId],
+                    value,
+                    (response: IResponse) => {
+                        const errorMsg = response.errorMsg;
+                        const successMsg = response.successMsg;
+
+                        if (errorMsg) {
+                            if (
+                                errorMsg.indexOf(
+                                    IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent
+                                ) > -1
+                            ) {
+                                updateFormError(
+                                    IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
+                                    Dict[errorMsg] ?? errorMsg
+                                );
+                            } else {
+                                updateFormError(key, null);
+                                showNotification(errorMsg);
+                            }
+
+                            setRequest(null);
+                        } else {
+                            updateFormError(key, null);
+                            showNotification(successMsg);
+                            fetchEventEnrollment();
+                        }
+
+                        setNotice(null);
+                    },
+                    () => {
+                        setNotice({
+                            message: Dict.error_message_try_later,
+                            type: Dict.error_type_network,
+                        });
+                        setRequest(null);
+                    }
+                )
+            );
+        },
+        [
+            eventItem,
+            fetchEventEnrollment,
+            formError,
+            isCheckedIn,
+            isEnrolled,
+            isLoggedIn,
+            setRequest,
+            updateFormError,
+        ]
+    );
 
     React.useEffect(() => {
         CookieService.get<number>(IUserKeys.accessLevel)
@@ -354,7 +570,8 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
             </Card>
         );
     }, [notice]);
-    const renderedForm = React.useMemo(() => {
+    // TODO: extract to separate component
+    const renderedEnrollmentForm = React.useMemo(() => {
         const enrollmentStart: Date =
             eventItem[IEventItemKeys.eventEnrollmentStart];
         const enrollmentEnd: Date =
@@ -384,7 +601,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                                 IEventEnrollmentKeys.eventEnrollmentComment
                             ]
                         }
-                        onBlur={updateEventEnrollmentData}
+                        onBlur={updateEventEnrollmentComment}
                         onError={updateFormError}
                         onUpdateValue={updateForm}
                         style={grid1Style}
@@ -411,11 +628,94 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                 />
             </>
         );
+        return (
+            <Card>
+                <CardHeader title={Dict.event_eventEnrollment} />
+                <CardContent>{content}</CardContent>
+            </Card>
+        );
+    }, [
+        disenroll,
+        eventItem,
+        form,
+        formError,
+        isEnrolled,
+        isLoggedIn,
+        lowerSeparatorStyle,
+        updateEventEnrollmentComment,
+        updateForm,
+        updateFormError,
+    ]);
+    // TODO: extract to separate component
+    const renderedCheckInForm = React.useMemo(() => {
+        const eventStart: Date = eventItem[IEventItemKeys.eventStart];
+        const eventEnd: Date = eventItem[IEventItemKeys.eventEnd];
+        const now: Date = new Date();
+
+        if (!isLoggedIn || !isEnrolled || now < eventStart || eventEnd < now) {
+            return null;
+        }
+
+        return (
+            <>
+                <div style={lowerSeparatorStyle} />
+                <Card>
+                    <CardHeader title={Dict.event_checkIn} />
+                    <CardContent>
+                        <Grid style={gridHorizontalStyle}>
+                            <PublicMediaUsageConsentCheckbox
+                                checked={
+                                    !!form[
+                                        IEventEnrollmentKeys
+                                            .eventEnrollmentPublicMediaUsageConsent
+                                    ]
+                                }
+                                errorMessage={
+                                    formError[
+                                        IEventEnrollmentKeys
+                                            .eventEnrollmentPublicMediaUsageConsent
+                                    ]
+                                }
+                                onBlur={
+                                    isCheckedIn
+                                        ? updateEventEnrollmentPublicMediaUsageConsent
+                                        : () => {}
+                                }
+                                onUpdateValue={updateForm}
+                            />
+                        </Grid>
+
+                        <div style={lowerSeparatorStyle} />
+
+                        <SubmitButton
+                            disabled={isCheckedIn}
+                            label={Dict.event_checkIn}
+                            onClick={checkIn}
+                        />
+                    </CardContent>
+                </Card>
+            </>
+        );
+    }, [
+        checkIn,
+        eventItem,
+        form,
+        formError,
+        isCheckedIn,
+        isEnrolled,
+        isLoggedIn,
+        lowerSeparatorStyle,
+        updateEventEnrollmentPublicMediaUsageConsent,
+        updateForm,
+    ]);
+    const renderedForm = React.useMemo(() => {
         const registrationStateTypographyStyle: React.CSSProperties = {
             ...contentIndentationStyle,
-            color: isEnrolled
-                ? CustomTheme.COLOR_SUCCESS
-                : CustomTheme.COLOR_FAILURE,
+            color: !isEnrolled
+                ? CustomTheme.COLOR_FAILURE
+                : !isCheckedIn
+                ? CustomTheme.COLOR_SECONDARY
+                : CustomTheme.COLOR_SUCCESS,
         };
 
         return (
@@ -448,17 +748,18 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                     {Dict.event_user_enrollment_state}
                 </Typography>
                 <Typography style={registrationStateTypographyStyle}>
-                    {isEnrolled
+                    {!isEnrolled
+                        ? Dict.event_user_enrollment_state_enrolled_not
+                        : !isCheckedIn
                         ? Dict.event_user_enrollment_state_enrolled
-                        : Dict.event_user_enrollment_state_enrolled_not}
+                        : Dict.event_user_enrollment_state_checked_in}
                 </Typography>
 
                 <hr />
 
-                <Card>
-                    <CardHeader title={Dict.event_eventEnrollment} />
-                    <CardContent>{content}</CardContent>
-                </Card>
+                {renderedEnrollmentForm}
+
+                {renderedCheckInForm}
 
                 <Dialog
                     onClose={setShowEnrollmentConfirmationDialog.bind(
@@ -495,19 +796,15 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
         );
     }, [
         contentIndentationStyle,
-        disenroll,
         enroll,
         eventItem,
-        form,
-        formError,
+        isCheckedIn,
         isEnrolled,
-        isLoggedIn,
         lowerSeparatorStyle,
         preWrapStyle,
+        renderedCheckInForm,
+        renderedEnrollmentForm,
         showEnrollmentConfirmationDialog,
-        updateEventEnrollmentData,
-        updateForm,
-        updateFormError,
     ]);
 
     return notice ? renderedNotice : renderedForm;
