@@ -38,9 +38,18 @@ services:
   jma-cron:
     volumes:
       - ./webservice:/var/www/html
-  # jma-api:
-  #   profiles:
-  #     - donotstart
+  jma-api:
+    container_name: jma-api
+    image: jungesmuensterschwarzach/jma-api:${JMA_BUILD_TYPE}
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: always
+    volumes:
+      - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
+    networks:
+      jenkins:
+        ipv4_address: 172.16.1.242
   jma-phpmyadmin:
     container_name: jma-phpmyadmin
     image: phpmyadmin:latest

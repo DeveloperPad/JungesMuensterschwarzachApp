@@ -243,6 +243,7 @@ Neuigkeiten\
 "error_type_storage": "Speicherfehler",
 "event_add": "Neue Veranstaltung anlegen",
 "event_checkIn": "Einchecken",
+"event_checkInDate": "Eincheck-Datum",
 "event_component_content": "Inhalt",
 "event_component_content_invalid": "Der ausgewählte Inhalt ist ungültig!",
 "event_component_content_placeholder": "Gib den Inhalt hier ein.",
@@ -293,6 +294,7 @@ Neuigkeiten\
 "event_eventEnrollmentPublicMediaUsageConsent": "Uns erlauben, während der Veranstaltung \
 angefertigte Medien (z.B. Foto- und Videoaufnahmen), die dich beinhalten, für die Öffentlichkeitsarbeit (z.B. durch Teilen auf den Social Media Kanälen) verwenden zu dürfen.",
 "event_eventEnrollmentPublicMediaUsageConsent_invalid": "Die Einwilligung von öffentlicher Mediennutzung muss ein binärer Wert sein (ja/nein)!",
+"event_eventEnrollmentPublicMediaUsageConsent_short": "Mediennutzung",
 "event_eventEnrollmentPublicMediaUsageConsent_updated": "Die Genehmigung zur öffentlichen Verwendung von Medien wurde erfolgreich aktualisiert.",
 "event_eventEnrollmentStart": "Anmeldebeginn",
 "event_eventEnrollmentStart_malformed": "Das Format des Veranstaltungsanmeldebeginns ist nicht korrekt.",

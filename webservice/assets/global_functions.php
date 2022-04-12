@@ -42,6 +42,15 @@
             return $dateParts[2] . "." . $dateParts[1] . "." . $dateParts[0];
         }
 
+        // sql datetime string to formatted datetime string
+        public static function formatDateTime($date) {
+            $parts = explode(" ", $date);
+            $dateParts = explode("-", $parts[0]);
+            $timeParts = explode(":", $parts[1]);
+            return $dateParts[2] . "." . $dateParts[1] . "." . $dateParts[0] . " "
+                . $timeParts[0] . ":" . $timeParts[1] . $GLOBALS["dict"]["date_time_suffix"];
+        }
+
     }
 
 ?>

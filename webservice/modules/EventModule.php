@@ -452,7 +452,7 @@
 
 		private static function appendParticipantsList($event) {
 			$stmt = DatabaseModule::getInstance()->prepare(
-				"SELECT ad.userId, ee.eventEnrollmentComment, ee.enrollmentDate 
+				"SELECT ad.userId, ee.eventEnrollmentComment, ee.enrollmentDate, ee.checkInDate, ee.eventEnrollmentPublicMediaUsageConsent 
 				 FROM account_data ad, event_enrollments ee 
 				 WHERE ee.eventId=? AND ad.userId=ee.userId  
 				 ORDER BY ee.enrollmentDate"

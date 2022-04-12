@@ -3,7 +3,7 @@ import * as React from "react";
 import { Checkbox, Typography } from "@material-ui/core";
 
 import { Dict } from "../../constants/dict";
-import { CustomTheme, grid1Style } from "../../constants/theme";
+import { grid1Style } from "../../constants/theme";
 import ErrorMessageTypography from "./ErrorMessageTypography";
 import { IEventEnrollmentKeys } from "../../networking/events/IEventEnrollment";
 
