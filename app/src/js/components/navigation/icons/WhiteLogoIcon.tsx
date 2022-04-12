@@ -1,33 +1,20 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
 
-import WhiteLogo from '../../../../assets/images/logo_white.png';
-import { AppUrls } from '../../../constants/specific-urls';
-import { logoItemStyle } from '../../../constants/theme';
+import WhiteLogo from "../../../../assets/images/logo_white.png";
+import { AppUrls } from "../../../constants/specific-urls";
+import { logoItemStyle } from "../../../constants/theme";
+import { useNavigate } from "react-router";
 
-type WhiteLogoIconProps = RouteComponentProps<any, StaticContext> & {
-    divider?: boolean
+type WhiteLogoIconProps = {
+    divider?: boolean;
 };
 
-class WhiteLogoIcon extends React.Component<WhiteLogoIconProps> {
+const WhiteLogoIcon = (props: WhiteLogoIconProps) => {
+    const navigate = useNavigate();
 
-    public render(): React.ReactNode {
-        return (
-            <img
-                alt=""
-                onClick={this.forward}
-                src={WhiteLogo}
-                style={logoItemStyle}
-            />
-        );
-    }
+    return (
+        <img alt="" onClick={navigate.bind(this, AppUrls.HOME)} src={WhiteLogo} style={logoItemStyle} />
+    );
+};
 
-    private forward = (): void => {
-        this.props.history.push(
-            AppUrls.HOME
-        );
-    }
-
-}
-
-export default withRouter(WhiteLogoIcon);
+export default WhiteLogoIcon;

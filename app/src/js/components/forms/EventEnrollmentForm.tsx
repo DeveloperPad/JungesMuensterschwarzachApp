@@ -1,582 +1,813 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import log from "loglevel";
+import * as React from "react";
+import { useNavigate } from "react-router";
 
 import {
-    Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogContentText,
-    DialogTitle, Typography, withTheme, WithTheme
-} from '@material-ui/core';
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Typography,
+    withTheme,
+    WithTheme,
+} from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import Formats from '../../constants/formats';
-import { formatDate } from '../../constants/global-functions';
-import { AppUrls } from '../../constants/specific-urls';
-import { CustomTheme, grid1Style, gridHorizontalStyle } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
-import { DisenrollEventDataRequest } from '../../networking/events/DisenrollEventDataRequest';
-import { EnrollEventDataRequest } from '../../networking/events/EnrollEventDataRequest';
+import { Dict } from "../../constants/dict";
+import Formats from "../../constants/formats";
+import { formatDate } from "../../constants/global-functions";
+import { LogTags } from "../../constants/log-tags";
+import { AppUrls } from "../../constants/specific-urls";
 import {
-    FetchEventEnrollmentDataRequest, IFetchEventEnrollmentDataResponse
-} from '../../networking/events/FetchEventEnrollmentDataRequest';
-import { IEventEnrollmentKeys } from '../../networking/events/IEventEnrollment';
-import IEventItem, { IEventItemKeys } from '../../networking/events/IEventItem';
+    CustomTheme,
+    grid1Style,
+    gridHorizontalStyle,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import { CheckInEventDataRequest } from "../../networking/events/CheckInEventDataRequest";
+import { DisenrollEventDataRequest } from "../../networking/events/DisenrollEventDataRequest";
+import { EnrollEventDataRequest } from "../../networking/events/EnrollEventDataRequest";
+import { UpdateEventEnrollmentPublicMediaUsageConsentDataRequest } from "../../networking/events/UpdateEventEnrollmentPublicMediaUsageConsentDataRequest";
 import {
-    UpdateEventEnrollmentCommentDataRequest
-} from '../../networking/events/UpdateEventEnrollmentCommentDataRequest';
-import INotice from '../../networking/INotice';
-import { IResponse } from '../../networking/Request';
-import { CookieService } from '../../services/CookieService';
-import EventEnrollmentCommentInput from '../form_elements/EventEnrollmentCommentInput';
-import SubmitButton from '../form_elements/SubmitButton';
-import Grid from '../utilities/Grid';
-import { showNotification } from '../utilities/Notifier';
-import { LogTags } from '../../constants/log-tags';
-import log from 'loglevel';
+    FetchEventEnrollmentDataRequest,
+    IFetchEventEnrollmentDataResponse,
+} from "../../networking/events/FetchEventEnrollmentDataRequest";
+import { IEventEnrollmentKeys } from "../../networking/events/IEventEnrollment";
+import IEventItem, { IEventItemKeys } from "../../networking/events/IEventItem";
+import { UpdateEventEnrollmentCommentDataRequest } from "../../networking/events/UpdateEventEnrollmentCommentDataRequest";
+import INotice from "../../networking/INotice";
+import { IResponse } from "../../networking/Request";
+import { CookieService } from "../../services/CookieService";
+import EventEnrollmentCommentInput from "../form_elements/EventEnrollmentCommentInput";
+import SubmitButton from "../form_elements/SubmitButton";
+import { useStateRequest } from "../utilities/CustomHooks";
+import Grid from "../utilities/Grid";
+import { showNotification } from "../utilities/Notifier";
+import PublicMediaUsageConsentCheckbox from "../form_elements/PublicMediaUsageConsentCheckbox";
 
-type IEventEnrollmentFormProps = RouteComponentProps<any, StaticContext> & WithTheme & {
+type IEventEnrollmentFormProps = WithTheme & {
     eventItem: IEventItem;
-    refetchEventItem: () => void;
-}
-
-interface IEventEnrollmentFormState {
-    fetchedForm: IForm | null;
-    form: IForm;
-    formError: IFormError;
-    isEnrolled: boolean;
     isLoggedIn: boolean;
-    notice: INotice | null;
-    showEnrollmentConfirmationDialog: boolean;
-}
+    refetchEventItem: () => void;
+};
 
 type IFormKeys =
-    IEventEnrollmentKeys.eventEnrollmentComment;
+    | IEventEnrollmentKeys.eventEnrollmentComment
+    | IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent;
 
 interface IForm {
     [IEventEnrollmentKeys.eventEnrollmentComment]: string;
+    [IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent]: number;
 }
 
 interface IFormError {
     [IEventEnrollmentKeys.eventEnrollmentComment]: string | null;
+    [IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent]:
+        | string
+        | null;
 }
 
-class EventEnrollmentForm extends React.PureComponent<IEventEnrollmentFormProps, IEventEnrollmentFormState> {
+const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
+    const navigate = useNavigate();
+    const { eventItem, isLoggedIn, refetchEventItem, theme } = props;
+    const [isEnrolled, setIsEnrolled] = React.useState<boolean>(false);
+    const [isCheckedIn, setIsCheckedIn] = React.useState<boolean>(false);
+    const [
+        showEnrollmentConfirmationDialog,
+        setShowEnrollmentConfirmationDialog,
+    ] = React.useState<boolean>(false);
+    const [notice, setNotice] = React.useState<INotice>({
+        message: Dict.label_wait,
+        type: Dict.label_loading,
+    });
+    const [form, setForm] = React.useState<IForm>({
+        [IEventEnrollmentKeys.eventEnrollmentComment]: "",
+        [IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent]: 0,
+    });
+    const emptyFormError = React.useMemo(
+        () => ({
+            [IEventEnrollmentKeys.eventEnrollmentComment]: null,
+            [IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent]: null,
+        }),
+        []
+    );
+    const [formError, setFormError] = React.useState<IFormError>({
+        ...emptyFormError,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [request, setRequest] = useStateRequest();
+    const fetchedForm = React.useRef<IForm>();
 
-    private fetchEventEnrollmentDataRequest: FetchEventEnrollmentDataRequest | null;
-    private enrollEventDataRequest: EnrollEventDataRequest | null;
-    private updateEventEnrollmentCommentDataRequest: UpdateEventEnrollmentCommentDataRequest | null;
-    private disenrollEventDataRequest: DisenrollEventDataRequest | null;
+    const contentIndentationStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginLeft: 2 * theme.spacing(),
+        }),
+        [theme]
+    );
+    const lowerSeparatorStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            height: theme.spacing(),
+        }),
+        [theme]
+    );
+    const preWrapStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            whiteSpace: "pre-wrap",
+        }),
+        []
+    );
 
-    private contentIndentationStyle: React.CSSProperties = {
-        marginLeft: 2 * this.props.theme.spacing()
-    }
-    private lowerSeparatorStyle: React.CSSProperties = {
-        height: this.props.theme.spacing()
-    };
-
-    constructor(props: IEventEnrollmentFormProps) {
-        super(props);
-
-        this.state = {
-            fetchedForm: null,
-            form: {
-                [IEventEnrollmentKeys.eventEnrollmentComment]: ""
-            },
-            formError: {
-                [IEventEnrollmentKeys.eventEnrollmentComment]: null
-            },
-            isEnrolled: false,
-            isLoggedIn: false,
-            notice: {
-                message: Dict.label_wait,
-                type: Dict.label_loading
-            },
-            showEnrollmentConfirmationDialog: false
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string | number): void => {
+            setForm((form) => ({
+                ...form,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const fetchEventEnrollment = React.useCallback((): void => {
+        if (!isLoggedIn) {
+            return;
         }
-    }
 
-    public componentDidMount() {
-        CookieService.get<number>(IUserKeys.accessLevel)
-            .then(accessLevel => {
-                if (accessLevel) {
-                    this.setState(prevState => {
-                        return {
-                            ...prevState,
-                            isLoggedIn: true
-                        };
-                    });
-                    this.fetchEventEnrollment();
-                } else {
-                    this.setState(prevState => {
-                        return {
-                            ...prevState,
-                            notice: null
+        setRequest(
+            new FetchEventEnrollmentDataRequest(
+                eventItem[IEventItemKeys.eventId],
+                (response: IFetchEventEnrollmentDataResponse) => {
+                    const errorMsg = response.errorMsg;
+
+                    if (errorMsg) {
+                        setNotice({
+                            message: errorMsg,
+                            type: Dict.error_type_account,
+                        });
+                    } else {
+                        let comment = "";
+                        let publicMediaUsageConsent = 0;
+                        let enrolled = false;
+                        let checkedIn = false;
+
+                        const eventEnrollment = response.eventEnrollment;
+                        if (eventEnrollment) {
+                            enrolled = true;
+
+                            const eventEnrollmentComment =
+                                eventEnrollment[
+                                    IEventEnrollmentKeys.eventEnrollmentComment
+                                ];
+                            if (eventEnrollmentComment) {
+                                comment = eventEnrollmentComment;
+                            }
+
+                            const eventEnrollmentPublicMediaUsageConsent =
+                                eventEnrollment[
+                                    IEventEnrollmentKeys
+                                        .eventEnrollmentPublicMediaUsageConsent
+                                ];
+                            if (
+                                eventEnrollmentPublicMediaUsageConsent !== null
+                            ) {
+                                publicMediaUsageConsent = parseInt(
+                                    eventEnrollmentPublicMediaUsageConsent,
+                                    10
+                                );
+                                checkedIn = true;
+                            }
                         }
+
+                        const downloadedForm: IForm = {
+                            [IEventEnrollmentKeys.eventEnrollmentComment]:
+                                comment,
+                            [IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent]:
+                                publicMediaUsageConsent,
+                        };
+
+                        fetchedForm.current = downloadedForm;
+                        setForm(downloadedForm);
+                        setFormError({
+                            ...emptyFormError,
+                        });
+                        setIsEnrolled(enrolled);
+                        setIsCheckedIn(checkedIn);
+                        setNotice(null);
+                    }
+
+                    setRequest(null);
+                },
+                () => {
+                    setNotice({
+                        message: Dict.error_message_try_later,
+                        type: Dict.error_type_network,
                     });
+                    setRequest(null);
+                }
+            )
+        );
+        refetchEventItem();
+    }, [emptyFormError, eventItem, isLoggedIn, refetchEventItem, setRequest]);
+    const enroll = React.useCallback((): void => {
+        if (!isLoggedIn || isEnrolled) {
+            return;
+        }
+
+        setRequest(
+            new EnrollEventDataRequest(
+                eventItem[IEventItemKeys.eventId],
+                form[IEventEnrollmentKeys.eventEnrollmentComment],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+
+                    if (errorMsg) {
+                        if (
+                            errorMsg.indexOf(
+                                IEventEnrollmentKeys.eventEnrollmentComment
+                            ) > -1
+                        ) {
+                            updateFormError(
+                                IEventEnrollmentKeys.eventEnrollmentComment,
+                                Dict[errorMsg] ?? errorMsg
+                            );
+                        } else if (
+                            errorMsg ===
+                            "event_user_enrollment_missing_account_data"
+                        ) {
+                            // TODO: replace with DictKeys from commons
+                            navigate(AppUrls.PROFILE);
+                            showNotification(errorMsg);
+                        } else {
+                            updateFormError(
+                                IEventEnrollmentKeys.eventEnrollmentComment,
+                                null
+                            );
+                            showNotification(errorMsg);
+                        }
+
+                        setNotice(null);
+                        setRequest(null);
+                    } else {
+                        updateFormError(
+                            IEventEnrollmentKeys.eventEnrollmentComment,
+                            null
+                        );
+                        setNotice(null);
+
+                        fetchEventEnrollment();
+                    }
+                },
+                () => {
+                    setNotice({
+                        message: Dict.error_message_try_later,
+                        type: Dict.error_type_network,
+                    });
+                    setRequest(null);
+                }
+            )
+        );
+        setShowEnrollmentConfirmationDialog(false);
+    }, [
+        eventItem,
+        fetchEventEnrollment,
+        form,
+        isEnrolled,
+        isLoggedIn,
+        navigate,
+        setRequest,
+        updateFormError,
+    ]);
+    const updateEventEnrollmentComment = React.useCallback(
+        (
+            key: IEventEnrollmentKeys.eventEnrollmentComment,
+            value: string
+        ): void => {
+            if (
+                !isLoggedIn ||
+                !isEnrolled ||
+                !fetchedForm.current ||
+                fetchedForm.current[key] === value ||
+                formError[key]
+            ) {
+                return;
+            }
+
+            setRequest(
+                new UpdateEventEnrollmentCommentDataRequest(
+                    eventItem[IEventItemKeys.eventId],
+                    value,
+                    (response: IResponse) => {
+                        const errorMsg = response.errorMsg;
+                        const successMsg = response.successMsg;
+
+                        if (errorMsg) {
+                            if (
+                                errorMsg.indexOf(
+                                    IEventEnrollmentKeys.eventEnrollmentComment
+                                ) > -1
+                            ) {
+                                updateFormError(
+                                    IEventEnrollmentKeys.eventEnrollmentComment,
+                                    Dict[errorMsg] ?? errorMsg
+                                );
+                            } else {
+                                updateFormError(key, null);
+                                showNotification(errorMsg);
+                            }
+                        } else {
+                            updateFormError(key, null);
+                            showNotification(successMsg);
+                        }
+
+                        setNotice(null);
+                        setRequest(null);
+                    },
+                    () => {
+                        setNotice({
+                            message: Dict.error_message_try_later,
+                            type: Dict.error_type_network,
+                        });
+                        setRequest(null);
+                    }
+                )
+            );
+        },
+        [
+            eventItem,
+            formError,
+            isEnrolled,
+            isLoggedIn,
+            setRequest,
+            updateFormError,
+        ]
+    );
+    const disenroll = React.useCallback((): void => {
+        if (!isLoggedIn || !isEnrolled) {
+            return;
+        }
+
+        setRequest(
+            new DisenrollEventDataRequest(
+                eventItem[IEventItemKeys.eventId],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+
+                    if (errorMsg) {
+                        updateFormError(
+                            IEventEnrollmentKeys.eventEnrollmentComment,
+                            null
+                        );
+                        showNotification(errorMsg);
+
+                        setRequest(null);
+                    } else {
+                        updateFormError(
+                            IEventEnrollmentKeys.eventEnrollmentComment,
+                            null
+                        );
+
+                        fetchEventEnrollment();
+                    }
+
+                    setNotice(null);
+                },
+                () => {
+                    setNotice({
+                        message: Dict.error_message_try_later,
+                        type: Dict.error_type_network,
+                    });
+                    setRequest(null);
+                }
+            )
+        );
+    }, [
+        eventItem,
+        fetchEventEnrollment,
+        isEnrolled,
+        isLoggedIn,
+        setRequest,
+        updateFormError,
+    ]);
+    const checkIn = React.useCallback((): void => {
+        if (!isLoggedIn || !isEnrolled || isCheckedIn) {
+            return;
+        }
+
+        setRequest(
+            new CheckInEventDataRequest(
+                eventItem[IEventItemKeys.eventId],
+                form[
+                    IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent
+                ],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+                    const successMsg = response.successMsg;
+
+                    if (errorMsg) {
+                        if (
+                            errorMsg.indexOf(
+                                IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent
+                            ) > -1
+                        ) {
+                            updateFormError(
+                                IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
+                                Dict[errorMsg] ?? errorMsg
+                            );
+                        } else {
+                            updateFormError(
+                                IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
+                                null
+                            );
+                            showNotification(errorMsg);
+                        }
+
+                        setNotice(null);
+                        setRequest(null);
+                    } else {
+                        updateFormError(
+                            IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
+                            null
+                        );
+                        setNotice(null);
+                        showNotification(successMsg);
+
+                        fetchEventEnrollment();
+                    }
+                },
+                () => {
+                    setNotice({
+                        message: Dict.error_message_try_later,
+                        type: Dict.error_type_network,
+                    });
+                    setRequest(null);
+                }
+            )
+        );
+    }, [
+        eventItem,
+        fetchEventEnrollment,
+        form,
+        isCheckedIn,
+        isEnrolled,
+        isLoggedIn,
+        setRequest,
+        updateFormError,
+    ]);
+    const updateEventEnrollmentPublicMediaUsageConsent = React.useCallback(
+        (
+            key: IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
+            value: number
+        ): void => {
+            if (
+                !isLoggedIn ||
+                !isEnrolled ||
+                !isCheckedIn ||
+                !fetchedForm.current ||
+                fetchedForm.current[key] === value ||
+                formError[key]
+            ) {
+                return;
+            }
+
+            setRequest(
+                new UpdateEventEnrollmentPublicMediaUsageConsentDataRequest(
+                    eventItem[IEventItemKeys.eventId],
+                    value,
+                    (response: IResponse) => {
+                        const errorMsg = response.errorMsg;
+                        const successMsg = response.successMsg;
+
+                        if (errorMsg) {
+                            if (
+                                errorMsg.indexOf(
+                                    IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent
+                                ) > -1
+                            ) {
+                                updateFormError(
+                                    IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
+                                    Dict[errorMsg] ?? errorMsg
+                                );
+                            } else {
+                                updateFormError(key, null);
+                                showNotification(errorMsg);
+                            }
+
+                            setRequest(null);
+                        } else {
+                            updateFormError(key, null);
+                            showNotification(successMsg);
+                            fetchEventEnrollment();
+                        }
+
+                        setNotice(null);
+                    },
+                    () => {
+                        setNotice({
+                            message: Dict.error_message_try_later,
+                            type: Dict.error_type_network,
+                        });
+                        setRequest(null);
+                    }
+                )
+            );
+        },
+        [
+            eventItem,
+            fetchEventEnrollment,
+            formError,
+            isCheckedIn,
+            isEnrolled,
+            isLoggedIn,
+            setRequest,
+            updateFormError,
+        ]
+    );
+
+    React.useEffect(() => {
+        CookieService.get<number>(IUserKeys.accessLevel)
+            .then((accessLevel) => {
+                if (accessLevel) {
+                    //setIsLoggedIn(true);
+                    fetchEventEnrollment();
+                } else {
+                    setNotice(null);
                 }
             })
-            .catch(error => {
-                log.warn(LogTags.STORAGE_MANAGER + "accessLevel could not be loaded: " + error);
-                this.props.history.push(
-                    AppUrls.LOGOUT
+            .catch((error) => {
+                log.warn(
+                    LogTags.STORAGE_MANAGER +
+                        "accessLevel could not be loaded: " +
+                        error
                 );
+                navigate(AppUrls.LOGOUT);
             });
-    }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    public componentWillUnmount(): void {
-        if (this.fetchEventEnrollmentDataRequest) {
-            this.fetchEventEnrollmentDataRequest.cancel();
+    const renderedNotice = React.useMemo(() => {
+        if (!notice) {
+            return null;
         }
 
-        if (this.enrollEventDataRequest) {
-            this.enrollEventDataRequest.cancel();
-        }
-
-        if (this.updateEventEnrollmentCommentDataRequest) {
-            this.updateEventEnrollmentCommentDataRequest.cancel();
-        }
-
-        if (this.disenrollEventDataRequest) {
-            this.disenrollEventDataRequest.cancel();
-        }
-    }
-
-    public updateForm = (key: IFormKeys, value: string): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                form: {
-                    ...prevState.form,
-                    [key]: value
-                }
-            };
-        });
-    }
-
-    public updateFormError = (key: IFormKeys, value: string | null): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                formError: {
-                    ...prevState.formError,
-                    [key]: value
-                }
-            }
-        })
-    }
-
-    public render(): React.ReactNode {
-        return (
-            this.state.notice ? this.showNotice() : this.showContent()
-        );
-    }
-
-    private showNotice = (): React.ReactNode => {
-        const { message, type } = this.state.notice!;
-
+        const { message, type } = notice;
         return (
             <Card>
-                <CardHeader title={Dict.hasOwnProperty(type) ? Dict[type] : type} />
+                <CardHeader title={Dict[type] ?? type} />
                 <CardContent>
-                    <Typography>{Dict.hasOwnProperty(message) ? Dict[message] : message}</Typography>
+                    <Typography>{Dict[message] ?? message}</Typography>
                 </CardContent>
             </Card>
         );
-    }
-
-    private showContent = (): React.ReactNode => {
-        const enrollmentStart: Date = this.props.eventItem[IEventItemKeys.eventEnrollmentStart];
-        const enrollmentEnd: Date = this.props.eventItem[IEventItemKeys.eventEnrollmentEnd];
+    }, [notice]);
+    // TODO: extract to separate component
+    const renderedEnrollmentForm = React.useMemo(() => {
+        const enrollmentStart: Date =
+            eventItem[IEventItemKeys.eventEnrollmentStart];
+        const enrollmentEnd: Date =
+            eventItem[IEventItemKeys.eventEnrollmentEnd];
         const now: Date = new Date();
 
-        const content = !this.state.isLoggedIn ? (
-            <Typography>
-                {Dict.error_message_account_required}
-            </Typography>
+        const content = !isLoggedIn ? (
+            <Typography>{Dict.error_message_account_required}</Typography>
         ) : now < enrollmentStart ? (
             <Typography>
-                {this.state.isEnrolled ? Dict.event_user_disenrollment_too_early : Dict.event_user_enrollment_too_early}
+                {isEnrolled
+                    ? Dict.event_user_disenrollment_too_early
+                    : Dict.event_user_enrollment_too_early}
             </Typography>
         ) : enrollmentEnd < now ? (
             <Typography>
-                {this.state.isEnrolled ? Dict.event_user_disenrollment_too_late : Dict.event_user_enrollment_too_late}
+                {isEnrolled
+                    ? Dict.event_user_disenrollment_too_late
+                    : Dict.event_user_enrollment_too_late}
             </Typography>
         ) : (
             <>
                 <Grid style={gridHorizontalStyle}>
                     <EventEnrollmentCommentInput
-                        errorMessage={this.state.formError[IEventEnrollmentKeys.eventEnrollmentComment]}
-                        onBlur={this.updateEventEnrollmentData}
-                        onError={this.updateFormError}
-                        onUpdateValue={this.updateForm}
+                        errorMessage={
+                            formError[
+                                IEventEnrollmentKeys.eventEnrollmentComment
+                            ]
+                        }
+                        onBlur={updateEventEnrollmentComment}
+                        onError={updateFormError}
+                        onUpdateValue={updateForm}
                         style={grid1Style}
-                        value={this.state.form[IEventEnrollmentKeys.eventEnrollmentComment]}
+                        value={
+                            form[IEventEnrollmentKeys.eventEnrollmentComment]
+                        }
                     />
                 </Grid>
 
-                <div style={this.lowerSeparatorStyle} />
+                <div style={lowerSeparatorStyle} />
 
                 <SubmitButton
-                    label={this.state.isEnrolled ? Dict.event_disenroll : Dict.event_enroll}
-                    onClick={this.state.isEnrolled ? this.disenroll.bind(this) : this.showConfirmationDialog.bind(this, true)}
+                    label={
+                        isEnrolled ? Dict.event_disenroll : Dict.event_enroll
+                    }
+                    onClick={
+                        isEnrolled
+                            ? disenroll.bind(this)
+                            : setShowEnrollmentConfirmationDialog.bind(
+                                  this,
+                                  true
+                              )
+                    }
                 />
             </>
         );
-        const registrationStateTypographyStyle: React.CSSProperties = {
-            ...this.contentIndentationStyle,
-            color: this.state.isEnrolled ? CustomTheme.COLOR_SUCCESS : CustomTheme.COLOR_FAILURE
+        return (
+            <Card>
+                <CardHeader title={Dict.event_eventEnrollment} />
+                <CardContent>{content}</CardContent>
+            </Card>
+        );
+    }, [
+        disenroll,
+        eventItem,
+        form,
+        formError,
+        isEnrolled,
+        isLoggedIn,
+        lowerSeparatorStyle,
+        updateEventEnrollmentComment,
+        updateForm,
+        updateFormError,
+    ]);
+    // TODO: extract to separate component
+    const renderedCheckInForm = React.useMemo(() => {
+        const eventStart: Date = eventItem[IEventItemKeys.eventStart];
+        const eventEnd: Date = eventItem[IEventItemKeys.eventEnd];
+        const now: Date = new Date();
+
+        if (!isLoggedIn || !isEnrolled || now < eventStart || eventEnd < now) {
+            return null;
         }
 
         return (
             <>
-                <Typography
-                    variant="body1">
+                <div style={lowerSeparatorStyle} />
+                <Card>
+                    <CardHeader title={Dict.event_checkIn} />
+                    <CardContent>
+                        <Grid style={gridHorizontalStyle}>
+                            <PublicMediaUsageConsentCheckbox
+                                checked={
+                                    !!form[
+                                        IEventEnrollmentKeys
+                                            .eventEnrollmentPublicMediaUsageConsent
+                                    ]
+                                }
+                                errorMessage={
+                                    formError[
+                                        IEventEnrollmentKeys
+                                            .eventEnrollmentPublicMediaUsageConsent
+                                    ]
+                                }
+                                onBlur={
+                                    isCheckedIn
+                                        ? updateEventEnrollmentPublicMediaUsageConsent
+                                        : () => {}
+                                }
+                                onUpdateValue={updateForm}
+                            />
+                        </Grid>
+
+                        <div style={lowerSeparatorStyle} />
+
+                        <SubmitButton
+                            disabled={isCheckedIn}
+                            label={Dict.event_checkIn}
+                            onClick={checkIn}
+                        />
+                    </CardContent>
+                </Card>
+            </>
+        );
+    }, [
+        checkIn,
+        eventItem,
+        form,
+        formError,
+        isCheckedIn,
+        isEnrolled,
+        isLoggedIn,
+        lowerSeparatorStyle,
+        updateEventEnrollmentPublicMediaUsageConsent,
+        updateForm,
+    ]);
+    const renderedForm = React.useMemo(() => {
+        const registrationStateTypographyStyle: React.CSSProperties = {
+            ...contentIndentationStyle,
+            color: !isEnrolled
+                ? CustomTheme.COLOR_FAILURE
+                : !isCheckedIn
+                ? CustomTheme.COLOR_SECONDARY
+                : CustomTheme.COLOR_SUCCESS,
+        };
+
+        return (
+            <>
+                <Typography variant="body1">
                     {Dict.event_eventEnrollmentStart}
                 </Typography>
-                <Typography
-                    style={this.contentIndentationStyle}
-                >
-                    {formatDate(this.props.eventItem[IEventItemKeys.eventEnrollmentStart], Formats.DATE.DATETIME_LOCAL)}
+                <Typography style={contentIndentationStyle}>
+                    {formatDate(
+                        eventItem[IEventItemKeys.eventEnrollmentStart],
+                        Formats.DATE.DATETIME_LOCAL
+                    )}
                 </Typography>
 
-                <div style={this.lowerSeparatorStyle} />
+                <div style={lowerSeparatorStyle} />
 
-                <Typography
-                    variant="body1">
+                <Typography variant="body1">
                     {Dict.event_eventEnrollmentEnd}
                 </Typography>
-                <Typography
-                    style={this.contentIndentationStyle}
-                >
-                    {formatDate(this.props.eventItem[IEventItemKeys.eventEnrollmentEnd], Formats.DATE.DATETIME_LOCAL)}
+                <Typography style={contentIndentationStyle}>
+                    {formatDate(
+                        eventItem[IEventItemKeys.eventEnrollmentEnd],
+                        Formats.DATE.DATETIME_LOCAL
+                    )}
                 </Typography>
 
-                <div style={this.lowerSeparatorStyle} />
+                <div style={lowerSeparatorStyle} />
 
-                <Typography
-                    variant="body1">
+                <Typography variant="body1">
                     {Dict.event_user_enrollment_state}
                 </Typography>
-                <Typography
-                    style={registrationStateTypographyStyle}
-                >
-                    {this.state.isEnrolled ? Dict.event_user_enrollment_state_enrolled : Dict.event_user_enrollment_state_enrolled_not}
+                <Typography style={registrationStateTypographyStyle}>
+                    {!isEnrolled
+                        ? Dict.event_user_enrollment_state_enrolled_not
+                        : !isCheckedIn
+                        ? Dict.event_user_enrollment_state_enrolled
+                        : Dict.event_user_enrollment_state_checked_in}
                 </Typography>
 
                 <hr />
 
-                <Card>
-                    <CardHeader title={Dict.event_eventEnrollment} />
-                    <CardContent>
-                        {content}
-                    </CardContent>
-                </Card>
+                {renderedEnrollmentForm}
+
+                {renderedCheckInForm}
 
                 <Dialog
-                    onClose={this.showConfirmationDialog.bind(this, false)}
-                    open={this.state.showEnrollmentConfirmationDialog}
+                    onClose={setShowEnrollmentConfirmationDialog.bind(
+                        this,
+                        false
+                    )}
+                    open={showEnrollmentConfirmationDialog}
                     style={preWrapStyle}
                 >
-                    <DialogTitle>{Dict.event_user_enrollment_confirmation_title}</DialogTitle>
+                    <DialogTitle>
+                        {Dict.event_user_enrollment_confirmation_title}
+                    </DialogTitle>
                     <DialogContent>
                         <DialogContentText style={preWrapStyle}>
                             {Dict.event_user_enrollment_confirmation_message}
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={this.showConfirmationDialog.bind(this, false)} color="primary">{Dict.label_cancel}</Button>
-                        <Button onClick={this.enroll} color="primary">{Dict.label_confirm}</Button>
+                        <Button
+                            onClick={setShowEnrollmentConfirmationDialog.bind(
+                                this,
+                                false
+                            )}
+                            color="primary"
+                        >
+                            {Dict.label_cancel}
+                        </Button>
+                        <Button onClick={enroll} color="primary">
+                            {Dict.label_confirm}
+                        </Button>
                     </DialogActions>
                 </Dialog>
             </>
         );
-    }
+    }, [
+        contentIndentationStyle,
+        enroll,
+        eventItem,
+        isCheckedIn,
+        isEnrolled,
+        lowerSeparatorStyle,
+        preWrapStyle,
+        renderedCheckInForm,
+        renderedEnrollmentForm,
+        showEnrollmentConfirmationDialog,
+    ]);
 
+    return notice ? renderedNotice : renderedForm;
+};
 
-    /* - fetch - */
-
-    private fetchEventEnrollment = (): void => {
-        if (!this.state.isLoggedIn) {
-            return;
-        }
-
-        this.fetchEventEnrollmentDataRequest = new FetchEventEnrollmentDataRequest(
-            this.props.eventItem[IEventItemKeys.eventId],
-            (response: IFetchEventEnrollmentDataResponse) => {
-                const errorMsg = response.errorMsg;
-
-                if (errorMsg) {
-                    this.setState(prevState => {
-                        return {
-                            ...prevState,
-                            notice: {
-                                message: errorMsg,
-                                type: Dict.error_type_account
-                            }
-                        }
-                    });
-                } else {
-                    let comment = "";
-                    let isEnrolled = false;
-
-                    const eventEnrollment = response.eventEnrollment;
-                    if (eventEnrollment) {
-                        isEnrolled = true;
-                        const eventEnrollmentComment = 
-                            eventEnrollment[IEventEnrollmentKeys.eventEnrollmentComment];
-                        
-                        if (eventEnrollmentComment) {
-                            comment = eventEnrollmentComment;
-                        }
-                    }
-
-                    const fetchedForm: IForm = {
-                        [IEventEnrollmentKeys.eventEnrollmentComment]: comment
-                    };
-
-                    this.setState(prevState => {
-                        return {
-                            ...prevState,
-                            fetchedForm,
-                            form: fetchedForm,
-                            formError: {
-                                [IEventEnrollmentKeys.eventEnrollmentComment]: null
-                            },
-                            isEnrolled,
-                            notice: null
-                        }
-                    });
-                }
-                this.fetchEventEnrollmentDataRequest = null;
-            },
-            () => {
-                this.setState(prevState => {
-                    return {
-                        ...prevState,
-                        notice: {
-                            message: Dict.error_message_try_later,
-                            type: Dict.error_type_network
-                        }
-                    }
-                });
-                this.fetchEventEnrollmentDataRequest = null;
-            }
-        );
-        this.fetchEventEnrollmentDataRequest.execute();
-
-        this.props.refetchEventItem();
-    }
-
-    /* - enroll - */
-
-    private showConfirmationDialog = (visible: boolean): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                showEnrollmentConfirmationDialog: visible
-            }
-        });
-    }
-
-    private enroll = (): void => {
-        if (!this.state.isLoggedIn || this.state.isEnrolled) {
-            return;
-        }
-
-        this.enrollEventDataRequest = new EnrollEventDataRequest(
-            this.props.eventItem[IEventItemKeys.eventId],
-            this.state.form[IEventEnrollmentKeys.eventEnrollmentComment],
-            (response: IResponse) => {
-                const errorMsg = response.errorMsg;
-
-                if (errorMsg) {
-                    if (errorMsg.indexOf(IEventEnrollmentKeys.eventEnrollmentComment) > -1) {
-                        this.setState(prevState => {
-                            return {
-                                ...prevState,
-                                formError: {
-                                    [IEventEnrollmentKeys.eventEnrollmentComment]: Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg
-                                },
-                                notice: null
-                            }
-                        });
-                    } else if (errorMsg === "event_user_enrollment_missing_account_data") {
-                        // TODO: replace with DictKeys from commons
-                        this.props.history.push(
-                            AppUrls.PROFILE
-                        );
-                        showNotification(errorMsg);
-                    } else {
-                        this.setState(prevState => {
-                            return {
-                                ...prevState,
-                                formError: {
-                                    [IEventEnrollmentKeys.eventEnrollmentComment]: null
-                                },
-                                notice: null
-                            }
-                        });
-                        showNotification(errorMsg);
-                    }
-                } else {
-                    this.setState(prevState => {
-                        return {
-                            ...prevState,
-                            formError: {
-                                [IEventEnrollmentKeys.eventEnrollmentComment]: null
-                            },
-                            notice: null
-                        }
-                    });
-
-                    this.fetchEventEnrollment();
-                }
-                this.enrollEventDataRequest = null;
-            },
-            () => {
-                this.setState(prevState => {
-                    return {
-                        ...prevState,
-                        notice: {
-                            message: Dict.error_message_try_later,
-                            type: Dict.error_type_network
-                        }
-                    }
-                });
-                this.enrollEventDataRequest = null;
-            }
-        );
-        this.enrollEventDataRequest.execute();
-        this.showConfirmationDialog(false);
-    }
-
-
-    /* - update - */
-
-    private updateEventEnrollmentData = (key: IFormKeys, value: string): void => {
-        if (!this.state.isLoggedIn
-            || !this.state.isEnrolled
-            || !this.state.fetchedForm
-            || this.state.fetchedForm[key] === value
-            || this.state.formError[key]) {
-            return;
-        }
-
-        this.updateEventEnrollmentCommentDataRequest = new UpdateEventEnrollmentCommentDataRequest(
-            this.props.eventItem[IEventItemKeys.eventId],
-            value,
-            (response: IResponse) => {
-                const errorMsg = response.errorMsg;
-                const successMsg = response.successMsg;
-
-                if (errorMsg) {
-                    if (errorMsg.indexOf(IEventEnrollmentKeys.eventEnrollmentComment) > -1) {
-                        this.setState(prevState => {
-                            return {
-                                ...prevState,
-                                formError: {
-                                    [IEventEnrollmentKeys.eventEnrollmentComment]: Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg
-                                },
-                                notice: null
-                            }
-                        });
-                    } else {
-                        this.setState(prevState => {
-                            return {
-                                ...prevState,
-                                formError: {
-                                    [key]: null
-                                },
-                                notice: null
-                            }
-                        });
-                        showNotification(errorMsg);
-                    }
-                } else {
-                    this.setState(prevState => {
-                        return {
-                            ...prevState,
-                            formError: {
-                                [key]: null
-                            },
-                            notice: null
-                        }
-                    });
-                    showNotification(successMsg);
-                }
-                this.updateEventEnrollmentCommentDataRequest = null;
-            },
-            () => {
-                this.setState(prevState => {
-                    return {
-                        ...prevState,
-                        notice: {
-                            message: Dict.error_message_try_later,
-                            type: Dict.error_type_network
-                        }
-                    }
-                });
-                this.updateEventEnrollmentCommentDataRequest = null;
-            }
-        );
-        this.updateEventEnrollmentCommentDataRequest.execute();
-    }
-
-    /* - disenroll - */
-
-    private disenroll = (): void => {
-        if (!this.state.isLoggedIn || !this.state.isEnrolled) {
-            return;
-        }
-
-        this.disenrollEventDataRequest = new DisenrollEventDataRequest(
-            this.props.eventItem[IEventItemKeys.eventId],
-            (response: IResponse) => {
-                const errorMsg = response.errorMsg;
-
-                if (errorMsg) {
-                    this.setState(prevState => {
-                        return {
-                            ...prevState,
-                            formError: {
-                                [IEventEnrollmentKeys.eventEnrollmentComment]: null
-                            },
-                            notice: null
-                        }
-                    });
-                    showNotification(errorMsg);
-                } else {
-                    this.setState(prevState => {
-                        return {
-                            ...prevState,
-                            formError: {
-                                [IEventEnrollmentKeys.eventEnrollmentComment]: null
-                            },
-                            notice: null
-                        }
-                    });
-                    this.fetchEventEnrollment();
-                }
-                this.disenrollEventDataRequest = null;
-            },
-            () => {
-                this.setState(prevState => {
-                    return {
-                        ...prevState,
-                        notice: {
-                            message: Dict.error_message_try_later,
-                            type: Dict.error_type_network
-                        }
-                    }
-                });
-                this.disenrollEventDataRequest = null;
-            }
-        );
-        this.disenrollEventDataRequest.execute();
-    }
-
-}
-
-export default withTheme(withRouter(EventEnrollmentForm));
-
-const preWrapStyle: React.CSSProperties = {
-    whiteSpace: "pre-wrap"
-}
+export default withTheme(EventEnrollmentForm);

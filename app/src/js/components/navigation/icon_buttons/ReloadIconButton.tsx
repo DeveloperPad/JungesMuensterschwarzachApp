@@ -1,25 +1,22 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { IconButton, Tooltip } from '@material-ui/core';
-import { Refresh } from '@material-ui/icons';
+import { IconButton, Tooltip } from "@material-ui/core";
+import { Refresh } from "@material-ui/icons";
 
-import Dict from '../../../constants/dict';
+import { Dict } from "../../../constants/dict";
 
-export default class ReloadIconButton extends React.Component {
+const ReloadIconButton = () => {
+    const reload = React.useCallback((): void => {
+        window.location.reload();
+    }, []);
 
-    public render(): React.ReactNode {
-        return (
-            <Tooltip title={Dict.navigation_reload}>
-                <IconButton
-                    onClick={this.reload}>
-                    <Refresh />
-                </IconButton>
-            </Tooltip>
-        );
-    }
+    return (
+        <Tooltip title={Dict.navigation_reload}>
+            <IconButton onClick={reload}>
+                <Refresh />
+            </IconButton>
+        </Tooltip>
+    );
+};
 
-    private reload = (): void => {
-        window.location.reload(true);
-    }
-
-}
+export default ReloadIconButton;

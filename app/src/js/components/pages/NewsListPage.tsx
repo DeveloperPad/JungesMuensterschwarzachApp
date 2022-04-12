@@ -1,171 +1,129 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
+import { useNavigate } from "react-router";
 
-import { withTheme, WithTheme } from '@material-ui/core';
+import { withTheme, WithTheme } from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import Formats from '../../constants/formats';
-import { AppUrls } from '../../constants/specific-urls';
-import { IUserKeys } from '../../networking/account_data/IUser';
-import INewsItem from '../../networking/news/INewsItem';
-import { INewsListResponse } from '../../networking/news/NewsListRequest';
-import NewsRequest from '../../networking/news/NewsRequest';
-import { CookieService } from '../../services/CookieService';
-import NewsListItem from '../list_items/NewsListItem';
-import Background from '../utilities/Background';
-import Pagination from '../utilities/Pagination';
+import { Dict } from "../../constants/dict";
+import Formats from "../../constants/formats";
+import { AppUrls } from "../../constants/specific-urls";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import INewsItem from "../../networking/news/INewsItem";
+import { INewsListResponse } from "../../networking/news/NewsListRequest";
+import NewsRequest from "../../networking/news/NewsRequest";
+import { CookieService } from "../../services/CookieService";
+import NewsListItem from "../list_items/NewsListItem";
+import Background from "../utilities/Background";
+import Pagination from "../utilities/Pagination";
+import { useStateRequest } from "../utilities/CustomHooks";
 
-type INewsListPageProps = RouteComponentProps<any, StaticContext> & WithTheme;
+type INewsListPageProps = WithTheme;
 
-interface INewsListPageState {
-    newsRequest: NewsRequest | null;
-    currentPage: number;
-    newsList: INewsItem[];
-    totalPages: number;
-}
+const NewsListPage = (props: INewsListPageProps) => {
+    const navigate = useNavigate();
+    const { theme } = props;
+    const [newsList, setNewsList] = React.useState<INewsItem[]>([]);
+    const [currentPage, setCurrentPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(1);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [newsRequest, setNewsRequest] = useStateRequest();
 
-class NewsListPage extends React.Component<INewsListPageProps, INewsListPageState> {
+    const onChangePage = React.useCallback(
+        (newPage: number): void => {
+            if (newPage < 0 || newPage >= totalPages) {
+                return;
+            }
+            setCurrentPage(newPage);
+        },
+        [totalPages]
+    );
+    const updateNewsList = React.useCallback((newsList: INewsItem[]): void => {
+        setNewsList(newsList);
+        setCurrentPage(0);
+        setTotalPages(
+            Math.ceil(newsList.length / Formats.ROWS.STANDARD.PAGINATION)
+        );
+    }, []);
 
-    private static newsItemTemplateLoading: INewsItem = {
-        newsId: -1,
-        postingDate: new Date(),
-        summary: Dict.label_wait,
-        title: Dict.label_loading
-    }
-    private static newsItemTemplateError: INewsItem = {
-        newsId: -1,
-        postingDate: new Date(),
-        summary: Dict.error_message_try_later,
-        title: Dict.error_type_network
-    }
-
-    private marginBottomStyle: React.CSSProperties = {
-        marginBottom: this.props.theme.spacing()
-    };
-
-    constructor(props: INewsListPageProps) {
-        super(props);
-
-        this.state = {
-            newsRequest: null,
-            currentPage: 0,
-            newsList: [NewsListPage.newsItemTemplateLoading],
-            totalPages: 1
-        };
-
+    React.useEffect(() => {
         CookieService.get<number>(IUserKeys.accessLevel)
-            .then(accessLevel => {
+            .then((accessLevel) => {
                 if (accessLevel === null) {
-                    this.props.history.push(
-                        AppUrls.LOGIN
-                    );
+                    navigate(AppUrls.LOGIN);
                 }
             })
-            .catch(error => {
-                this.props.history.push(
-                    AppUrls.LOGIN
-                );
+            .catch((error) => {
+                navigate(AppUrls.LOGIN);
             });
-    }
 
-    public componentDidMount(): void {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                newsRequest: new NewsRequest(
-                    {
-                    },
-                    (response: INewsListResponse) => {
-                        if (response.errorMsg) {
-                            const errorMsg = response.errorMsg;
+        setNewsRequest(
+            new NewsRequest(
+                {},
+                (response: INewsListResponse) => {
+                    if (response.errorMsg) {
+                        const errorMsg = response.errorMsg;
 
-                            this.setNewsList(
-                                [{
-                                    newsId: -1,
-                                    postingDate: new Date(),
-                                    summary: (Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg),
-                                    title: Dict.error_type_server
-                                }]
-                            );
-                        } else {
-                            this.setNewsList(
-                                response.news
-                            );
-                        }
-                    },
-                    (error: string) => {
-                        this.setNewsList(
-                            [
-                                NewsListPage.newsItemTemplateError
-                            ]
-                        );
+                        updateNewsList([
+                            {
+                                newsId: -1,
+                                postingDate: new Date(),
+                                summary: Dict[errorMsg] ?? errorMsg,
+                                title: Dict.error_type_server,
+                            },
+                        ]);
+                    } else {
+                        updateNewsList(response.news);
                     }
-                )
-            };
-        });
-    }
 
-    public componentDidUpdate(prevProps: INewsListPageProps, prevState: INewsListPageState): void {
-        if (this.state.newsRequest) {
-            this.state.newsRequest.execute();
-        }
-    }
+                    setNewsRequest(null);
+                },
+                (error: string) => {
+                    updateNewsList([
+                        {
+                            newsId: -1,
+                            postingDate: new Date(),
+                            summary: Dict.error_message_try_later,
+                            title: Dict.error_type_network,
+                        },
+                    ]);
+                    setNewsRequest(null);
+                }
+            )
+        );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    public componentWillUnmount(): void {
-        if (this.state.newsRequest) {
-            this.state.newsRequest.cancel();
-        }
-    }
+    const renderedNewsList = React.useMemo((): React.ReactElement<any>[] => {
+        const newRenderedNewsList: React.ReactElement<any>[] = [];
 
-    public render(): React.ReactNode {
-        const newsList: React.ReactNode[] = [];
-
-        for (let i = 0; i < this.state.newsList.length; i++) {
-            if (this.state.currentPage === Math.floor(i / Formats.ROWS.STANDARD.PAGINATION)) {
-                newsList.push((
+        for (let i = 0; i < newsList.length; i++) {
+            if (
+                currentPage === Math.floor(i / Formats.ROWS.STANDARD.PAGINATION)
+            ) {
+                newRenderedNewsList.push(
                     <NewsListItem
-                        key={this.state.newsList[i].newsId}
-                        newsItem={this.state.newsList[i]} />
-                ));
+                        key={newsList[i].newsId}
+                        newsItem={newsList[i]}
+                    />
+                );
             }
         }
 
-
-        return (
-            <Background theme={this.props.theme}>
-                {newsList}
-                <Pagination
-                    currentPage={this.state.currentPage}
-                    onChangePage={this.onChangePage}
-                    totalPages={this.state.totalPages}
-                    style={this.marginBottomStyle}
-                />
-            </Background>
+        newRenderedNewsList.push(
+            <Pagination
+                currentPage={currentPage}
+                key={-2}
+                onChangePage={onChangePage}
+                totalPages={totalPages}
+                style={{
+                    marginBottom: theme.spacing(),
+                }}
+            />
         );
-    }
 
-    private setNewsList = (newsList: INewsItem[]): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                newsRequest: null,
-                currentPage: 0,
-                newsList,
-                totalPages: Math.ceil(newsList.length / Formats.ROWS.STANDARD.PAGINATION)
-            };
-        });
-    }
+        return newRenderedNewsList;
+    }, [currentPage, newsList, onChangePage, theme, totalPages]);
 
-    private onChangePage = (newPage: number): void => {
-        if (newPage < 0 || newPage >= this.state.totalPages) {
-            return;
-        }
+    return <Background theme={theme}>{renderedNewsList}</Background>;
+};
 
-        this.setState({
-            currentPage: newPage
-        });
-    }
-
-}
-
-export default withTheme(withRouter(NewsListPage));
+export default withTheme(NewsListPage);

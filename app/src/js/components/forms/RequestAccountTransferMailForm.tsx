@@ -1,31 +1,27 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
 
-import { Typography, withTheme, WithTheme } from '@material-ui/core';
+import { Typography, withTheme, WithTheme } from "@material-ui/core";
 
-import Dict from '../../constants/dict';
+import { Dict } from "../../constants/dict";
 import {
-    grid1Style, grid6Style, successMsgTypographyStyle, ThemeTypes
-} from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
-import {
-    RequestAccountTransferMailRequest
-} from '../../networking/account_data/RequestAccountTransferMailRequest';
-import { IResponse } from '../../networking/Request';
-import EMailAddressInput from '../form_elements/EMailAddressInput';
-import SubmitButton from '../form_elements/SubmitButton';
-import Grid from '../utilities/Grid';
-import GridItem from '../utilities/GridItem';
-import { showNotification } from '../utilities/Notifier';
+    grid1Style,
+    grid6Style,
+    successMsgTypographyStyle,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import { RequestAccountTransferMailRequest } from "../../networking/account_data/RequestAccountTransferMailRequest";
+import { IResponse } from "../../networking/Request";
+import EMailAddressInput, {
+    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
+} from "../form_elements/EMailAddressInput";
+import SubmitButton from "../form_elements/SubmitButton";
+import { useStateRequest } from "../utilities/CustomHooks";
+import Grid from "../utilities/Grid";
+import GridItem from "../utilities/GridItem";
+import { showNotification } from "../utilities/Notifier";
 
-type IRequestAccountTransferMailFormProps = RouteComponentProps<any, StaticContext> & WithTheme;
-
-interface IRequestAccountTransferMailFormState {
-    form: IForm;
-    formError: IFormError;
-    requestAccountTransferMailRequest: RequestAccountTransferMailRequest | null;
-    successMsg: string | null;
-}
+type IRequestAccountTransferMailFormProps = WithTheme;
 
 type IFormKeys = IUserKeys.eMailAddress;
 
@@ -37,165 +33,156 @@ interface IFormError {
     [IUserKeys.eMailAddress]: string | null;
 }
 
-class RequestAccountTransferMailForm extends React.Component<IRequestAccountTransferMailFormProps, IRequestAccountTransferMailFormState> {
+const RequestAccountTransferMailForm = (
+    props: IRequestAccountTransferMailFormProps
+) => {
+    const { theme } = props;
+    const [form, setForm] = React.useState<IForm>({
+        [IUserKeys.eMailAddress]: "",
+    });
+    const [formError, setFormError] = React.useState<IFormError>({
+        [IUserKeys.eMailAddress]: null,
+    });
+    const [successMsg, setSuccessMsg] = React.useState<string>();
+    const [
+        requestAccountTransferMailRequest,
+        setRequestAccountTransferMailRequest,
+    ] = useStateRequest();
+    const suppressErrorMsgs = React.useRef<boolean>(true);
 
-    private accountTransferMailTypographyStyle: React.CSSProperties = {
-        color: "#ffffff",
-        display: "inline-block",
-        marginBottom: 3 * this.props.theme.spacing(),
-        textAlign: "center"
-    };
-    private marginTopStyle: React.CSSProperties = {
-        marginTop: 2 * this.props.theme.spacing()
-    };
-
-    constructor(props: IRequestAccountTransferMailFormProps) {
-        super(props);
-
-        this.state = {
-            form: {
-                [IUserKeys.eMailAddress]: ""
-            },
-            formError: {
-                [IUserKeys.eMailAddress]: null
-            },
-            requestAccountTransferMailRequest: null,
-            successMsg: null
-        };
-    }
-
-    public componentWillUnmount(): void {
-        if (this.state.requestAccountTransferMailRequest) {
-            this.state.requestAccountTransferMailRequest.cancel();
-        }
-    }
-
-    public render(): React.ReactNode {
-        if (this.state.requestAccountTransferMailRequest) {
-            this.state.requestAccountTransferMailRequest.execute();
-        }
-
-        return (
-            <Grid>
-                <GridItem
-                    style={grid6Style}>
-                    {this.state.successMsg ? this.showResponseGrid() : this.showRequestGrid()}
-                </GridItem>
-                <GridItem
-                    style={grid1Style} />
-            </Grid>
+    const accountTransferMailTypographyStyle: React.CSSProperties =
+        React.useMemo(
+            () => ({
+                color: "#ffffff",
+                display: "inline-block",
+                marginBottom: 3 * theme.spacing(),
+                textAlign: "center",
+            }),
+            [theme]
         );
-    }
+    const marginTopStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginTop: 2 * theme.spacing(),
+        }),
+        [theme]
+    );
 
-    private showRequestGrid = (): React.ReactNode => {
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string): void => {
+            setForm((form) => ({
+                ...form,
+                [key]: value,
+            }));
+            suppressErrorMsgs.current = false;
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const sendRequest = React.useCallback((): void => {
+        if (
+            formError[IUserKeys.eMailAddress] ===
+            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE
+        ) {
+            return;
+        }
+
+        setRequestAccountTransferMailRequest(
+            new RequestAccountTransferMailRequest(
+                form[IUserKeys.eMailAddress],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+                    const successMsg = response.successMsg;
+
+                    if (errorMsg) {
+                        if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
+                            updateFormError(
+                                IUserKeys.eMailAddress,
+                                Dict[errorMsg] ?? errorMsg
+                            );
+                        } else {
+                            showNotification(errorMsg);
+                        }
+                    } else if (successMsg) {
+                        setSuccessMsg(Dict[successMsg] ?? successMsg);
+                    }
+                    setRequestAccountTransferMailRequest(null);
+                },
+                (error: any) => {
+                    showNotification(Dict.error_message_timeout);
+                    setRequestAccountTransferMailRequest(null);
+                }
+            )
+        );
+    }, [
+        form,
+        formError,
+        setRequestAccountTransferMailRequest,
+        updateFormError,
+    ]);
+
+    const requestGrid = React.useMemo((): React.ReactElement<any> => {
         return (
             <Grid>
                 <Typography
                     variant="h5"
-                    style={this.accountTransferMailTypographyStyle}>
+                    style={accountTransferMailTypographyStyle}
+                >
                     <span>{Dict.navigation_request_account_transfer_mail}</span>
                 </Typography>
 
                 <EMailAddressInput
-                    errorMessage={this.state.formError[IUserKeys.eMailAddress]}
-                    onError={this.updateFormError}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
+                    errorMessage={formError[IUserKeys.eMailAddress]}
+                    onError={updateFormError}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
                     themeType={ThemeTypes.LIGHT}
-                    value={this.state.form[IUserKeys.eMailAddress]}
+                    value={form[IUserKeys.eMailAddress]}
                 />
 
                 <SubmitButton
-                    disabled={this.state.requestAccountTransferMailRequest !== null}
-                    onClick={this.sendRequest}
-                    style={this.marginTopStyle}
+                    disabled={!!requestAccountTransferMailRequest}
+                    onClick={sendRequest}
+                    style={marginTopStyle}
                 />
             </Grid>
         );
-    }
-
-    private showResponseGrid = (): React.ReactNode => {
+    }, [
+        accountTransferMailTypographyStyle,
+        form,
+        formError,
+        marginTopStyle,
+        requestAccountTransferMailRequest,
+        sendRequest,
+        updateForm,
+        updateFormError,
+    ]);
+    const responseGrid = React.useMemo((): React.ReactElement<any> => {
         return (
             <Grid>
-                <Typography
-                    variant="h5"
-                    style={successMsgTypographyStyle}>
-                    <span>{this.state.successMsg}</span>
+                <Typography variant="h5" style={successMsgTypographyStyle}>
+                    <span>{successMsg}</span>
                 </Typography>
             </Grid>
         );
-    }
+    }, [successMsg]);
+    return (
+        <Grid>
+            <GridItem style={grid6Style}>
+                {successMsg ? responseGrid : requestGrid}
+            </GridItem>
+            <GridItem style={grid1Style}>
+                <span />
+            </GridItem>
+        </Grid>
+    );
+};
 
-    public updateForm = (key: IFormKeys, value: string): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                form: {
-                    ...prevState.form,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    public updateFormError = (key: IFormKeys, value: string | null): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                formError: {
-                    ...prevState.formError,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    private sendRequest = (): void => {
-        if (this.state.formError[IUserKeys.eMailAddress] === EMailAddressInput.LOCAL_ERROR_MESSAGE) {
-            return;
-        }
-
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                requestAccountTransferMailRequest: new RequestAccountTransferMailRequest(
-                    this.state.form[IUserKeys.eMailAddress],
-                    (response: IResponse) => {
-                        const errorMsg = response.errorMsg;
-                        const successMsg = response.successMsg;
-                        const stateUpdateObj = {
-                            ...this.state
-                        };
-
-                        if (errorMsg) {
-                            if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
-                                stateUpdateObj.formError[IUserKeys.eMailAddress]
-                                    = Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg;
-                            } else {
-                                showNotification(errorMsg);
-                            }
-                        } else if (successMsg) {
-                            stateUpdateObj.successMsg = Dict.hasOwnProperty(successMsg) ? Dict[successMsg] : successMsg;
-                        }
-                        this.setState({
-                            ...stateUpdateObj,
-                            requestAccountTransferMailRequest: null
-                        });
-                    },
-                    (error: any) => {
-                        showNotification(Dict.error_message_timeout);
-                        this.setState(innerPrevState => {
-                            return {
-                                ...innerPrevState,
-                                requestAccountTransferMailRequest: null
-                            }
-                        });
-                    }
-                )
-            };
-        });
-    }
-
-}
-
-export default withTheme(withRouter(RequestAccountTransferMailForm));
+export default withTheme(RequestAccountTransferMailForm);

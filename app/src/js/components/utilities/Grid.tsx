@@ -1,35 +1,18 @@
-import * as React from 'react';
-
+import * as React from "react";
 
 interface IGridProps {
+    children: React.ReactElement<any> | React.ReactElement<any>[];
     style?: React.CSSProperties;
 }
 
-export default class Grid extends React.Component<IGridProps> {
+const Grid = (props: IGridProps) => {
+    const { children, style } = props;
 
-    private gridStyle: React.CSSProperties;
-    constructor(props: IGridProps) {
-        super(props);
-
-        this.gridStyle = {
-            ...this.getClassStyle(),
-            ...this.props.style
-        }
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <div
-                style={this.gridStyle}>
-                {this.props.children}
-            </div>
-        );
-    }
-
-    private getClassStyle = (): React.CSSProperties => {
-        const height = 
-            this.props.style && this.props.style.flexDirection &&
-                this.props.style.flexDirection !== "column" ? "auto" : "100%";
+    const classStyle = React.useMemo((): React.CSSProperties => {
+        const height =
+            style && style.flexDirection && style.flexDirection !== "column"
+                ? "auto"
+                : "100%";
         const width = height;
 
         // these default values are specific to a flex direction of "column*"
@@ -42,8 +25,20 @@ export default class Grid extends React.Component<IGridProps> {
             height,
             justifyContent: "center",
             margin: "auto",
-            width
+            width,
         };
-    }
+    }, [style]);
 
-}
+    return (
+        <div
+            style={{
+                ...classStyle,
+                ...style,
+            }}
+        >
+            {children}
+        </div>
+    );
+};
+
+export default Grid;

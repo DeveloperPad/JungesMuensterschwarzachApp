@@ -1,80 +1,62 @@
 import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
 
 import { Menu, MenuItem } from '@material-ui/core';
 
-import Dict from '../../../constants/dict';
+import { Dict } from '../../../constants/dict';
 import { AppUrls } from '../../../constants/specific-urls';
 import { ConfigService } from '../../../services/ConfigService';
+import { useNavigate } from 'react-router';
 
-type IAppMenuProps = RouteComponentProps<any, StaticContext> & {
+type IAppMenuProps = {
     isLoggedIn: boolean,
     open: boolean,
     toggleAppMenuVisibility: () => void
 };
 
-class AppMenu extends React.Component<IAppMenuProps> {
+const AppMenu = (props: IAppMenuProps) => {
+    const navigate = useNavigate();
+    const {isLoggedIn, open, toggleAppMenuVisibility} = props;
 
-    public render(): React.ReactNode {
-        return (
-            <Menu
-                anchorEl={this.getAnchorElement()}
-                anchorOrigin={anchorOrigin}
-                transformOrigin={transformOrigin}
-                onBackdropClick={this.props.toggleAppMenuVisibility}
-                onClick={this.props.toggleAppMenuVisibility}
-                onClose={this.props.toggleAppMenuVisibility}
-                open={this.props.open}>
-                <MenuItem
-                    button={true}
-                    onClick={this.forwardContact}>
-                    <span>{Dict.navigation_app_contact}</span>
-                </MenuItem>
-                <MenuItem
-                    button={true}
-                    onClick={this.forwardHelp}>
-                    <span>{Dict.navigation_app_help}</span>
-                </MenuItem>
-                {
-                    this.props.isLoggedIn &&
-                    <MenuItem
-                        button={true}
-                        onClick={this.forwardLogout}>
-                        <span>{Dict.account_sign_out}</span>
-                    </MenuItem>
-                }
-            </Menu>
-        );
-    }
-
-    private forwardContact = (): void => {
-        window.location.href = ConfigService.getConfig().BaseUrls.CONTACT_LINK;
-    }
-
-    private forwardHelp = (): void => {
-        this.props.history.push(
-            AppUrls.HELP
-        );
-    }
-
-    private forwardLogout = (): void => {
-        this.props.history.push(
-            AppUrls.LOGOUT
-        );
-    }
-
-    private getAnchorElement(): (HTMLElement | undefined) {
+    const getAnchorElement = React.useCallback((): (HTMLElement | undefined) => {
         return ((document.querySelector(".jma-app-menu-anchor") || undefined) as HTMLElement);
-    }
-}
+    }, []);
+    const forwardContact = React.useCallback((): void => {
+        window.location.href = ConfigService.getConfig().BaseUrls.CONTACT_LINK;
+    }, []);
 
-export default withRouter(AppMenu);
+    return (
+        <Menu
+            anchorEl={getAnchorElement()}
+            anchorOrigin={{
+                horizontal: "right",
+                vertical: "top"
+            }}
+            transformOrigin={{
+                horizontal: "right",
+                vertical: "top"
+            }}
+            onClick={toggleAppMenuVisibility}
+            open={open}>
+            <MenuItem
+                button={true}
+                onClick={forwardContact}>
+                <span>{Dict.navigation_app_contact}</span>
+            </MenuItem>
+            <MenuItem
+                button={true}
+                onClick={navigate.bind(this, AppUrls.HELP)}>
+                <span>{Dict.navigation_app_help}</span>
+            </MenuItem>
+            {
+                isLoggedIn &&
+                <MenuItem
+                    button={true}
+                    onClick={navigate.bind(this, AppUrls.LOGOUT)}>
+                    <span>{Dict.account_sign_out}</span>
+                </MenuItem>
+            }
+        </Menu>
+    );
+};
 
-const anchorOrigin: any = {
-    horizontal: "right",
-    vertical: "top"
-};
-const transformOrigin: any = {
-    horizontal: "right",
-    vertical: "top"
-};
+export default AppMenu;

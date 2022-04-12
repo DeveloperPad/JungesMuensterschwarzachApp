@@ -1,5 +1,4 @@
 /app/debug.*
-/app/package.json
 /tools/AutomationTools/build/*
 /tools/AutomationTools/AutomationTools.jar
 */build

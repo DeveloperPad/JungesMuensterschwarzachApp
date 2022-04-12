@@ -1,7 +1,7 @@
 import * as log from 'loglevel';
 
 import { showNotification } from '../components/utilities/Notifier';
-import Dict from '../constants/dict';
+import { Dict } from '../constants/dict';
 import { LogTags } from '../constants/log-tags';
 
 

@@ -1,44 +1,54 @@
-import * as log from 'loglevel';
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as log from "loglevel";
+import * as React from "react";
+import { useNavigate } from "react-router";
 
 import {
-    Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography,
-    withTheme, WithTheme
-} from '@material-ui/core';
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Typography,
+    withTheme,
+    WithTheme,
+} from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import { registerPushManager } from '../../constants/global-functions';
-import { LogTags } from '../../constants/log-tags';
-import { AppUrls } from '../../constants/specific-urls';
-import { CustomTheme, grid2Style, grid5Style, ThemeTypes } from '../../constants/theme';
-import { IUserKeys, IUserValues } from '../../networking/account_data/IUser';
-import { IAccountSessionResponse } from '../../networking/account_session/AccountSessionRequest';
-import EMailAddressInput from '../form_elements/EMailAddressInput';
-import ForwardButton from '../form_elements/ForwardButton';
-import PasswordInput from '../form_elements/PasswordInput';
-import SubmitButton from '../form_elements/SubmitButton';
-import Grid from '../utilities/Grid';
-import GridItem from '../utilities/GridItem';
-import { showNotification } from '../utilities/Notifier';
-import { AccountSessionSignInRequest } from '../../networking/account_session/AccountSessionSignInRequest';
-import { CookieService } from '../../services/CookieService';
+import { Dict } from "../../constants/dict";
+import { registerPushManager } from "../../constants/global-functions";
+import { LogTags } from "../../constants/log-tags";
+import { AppUrls } from "../../constants/specific-urls";
+import {
+    CustomTheme,
+    grid2Style,
+    grid5Style,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys, IUserValues } from "../../networking/account_data/IUser";
+import { IAccountSessionResponse } from "../../networking/account_session/AccountSessionRequest";
+import { AccountSessionSignInRequest } from "../../networking/account_session/AccountSessionSignInRequest";
+import { CookieService } from "../../services/CookieService";
+import EMailAddressInput, {
+    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
+} from "../form_elements/EMailAddressInput";
+import ForwardButton from "../form_elements/ForwardButton";
+import PasswordInput, {
+    PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
+} from "../form_elements/PasswordInput";
+import SubmitButton from "../form_elements/SubmitButton";
+import { useStateRequest } from "../utilities/CustomHooks";
+import Grid from "../utilities/Grid";
+import GridItem from "../utilities/GridItem";
+import { showNotification } from "../utilities/Notifier";
 
-type ILoginFormProps = RouteComponentProps<any, StaticContext> & WithTheme & {
+type ILoginFormProps = WithTheme & {
     setIsLoggedIn(isLoggedIn: boolean): void;
 };
 
-interface ILoginFormState {
-    form: IForm;
-    formError: IFormError;
-    showGuestSignInDialog: boolean;
-    signInRequest: AccountSessionSignInRequest | null;
-}
-
 type IFormKeys =
-    IUserKeys.eMailAddress |
-    IUserKeys.password |
-    IUserKeys.passwordRepetition;
+    | IUserKeys.eMailAddress
+    | IUserKeys.password
+    | IUserKeys.passwordRepetition;
 
 interface IForm {
     [IUserKeys.eMailAddress]: string;
@@ -50,239 +60,128 @@ interface IFormError {
     [IUserKeys.password]: string | null;
 }
 
-class LoginForm extends React.Component<ILoginFormProps, ILoginFormState> {
+const LoginForm = (props: ILoginFormProps) => {
+    const { setIsLoggedIn, theme } = props;
+    const [form, setForm] = React.useState<IForm>({
+        [IUserKeys.eMailAddress]: "",
+        [IUserKeys.password]: "",
+    });
+    const [formError, setFormError] = React.useState<IFormError>({
+        [IUserKeys.eMailAddress]: null,
+        [IUserKeys.password]: null,
+    });
+    const [showGuestSignInDialog, setShowGuestSignInDialog] =
+        React.useState<boolean>(false);
+    const [signInRequest, setSignInRequest] = useStateRequest();
+    const suppressErrorMsgs = React.useRef<boolean>(true);
+    const navigate = useNavigate();
 
-    private topMarginStyle: React.CSSProperties = {
-        marginTop: 2 * this.props.theme.spacing()
-    };
-    private passwordResetTypographyStyle: React.CSSProperties = {
-        color: CustomTheme.COLOR_WHITE,
-        cursor: "pointer",
-        display: "inline-block",
-        marginTop: this.props.theme.spacing(),
-        textAlign: "center"
-    }
-    private legalNoticeTypographyStyle: React.CSSProperties = {
-        color: CustomTheme.COLOR_LINK,
-        cursor: "pointer"
-    }
+    const topMarginStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginTop: 2 * theme.spacing(),
+        }),
+        [theme]
+    );
+    const passwordResetTypographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            color: CustomTheme.COLOR_WHITE,
+            cursor: "pointer",
+            display: "inline-block",
+            marginTop: theme.spacing(),
+            textAlign: "center",
+        }),
+        [theme]
+    );
+    const legalNoticeTypographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            color: CustomTheme.COLOR_LINK,
+            cursor: "pointer",
+        }),
+        []
+    );
 
-    constructor(props: ILoginFormProps) {
-        super(props);
-        this.state = {
-            form: {
-                [IUserKeys.eMailAddress]: "",
-                [IUserKeys.password]: ""
-            },
-            formError: {
-                [IUserKeys.eMailAddress]: null,
-                [IUserKeys.password]: null
-            },
-            showGuestSignInDialog: false,
-            signInRequest: null
-        };
-    }
-
-    public componentWillUnmount(): void {
-        if (this.state.signInRequest) {
-            this.state.signInRequest.cancel();
-        }
-    }
-
-    public render(): React.ReactNode {
-        if (this.state.signInRequest) {
-            this.state.signInRequest.execute();
-        }
-
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string): void => {
+            setForm((form: IForm) => ({
+                ...form,
+                [key]: value,
+            }));
+            suppressErrorMsgs.current = false;
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError: IFormError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const validate = React.useCallback((): boolean => {
         return (
-            <>
-                <Grid>
-
-                    <GridItem
-                        style={grid5Style}>
-                        <Grid>
-                            <EMailAddressInput
-                                errorMessage={this.state.formError[IUserKeys.eMailAddress]}
-                                onError={this.updateFormError}
-                                onUpdateValue={this.updateForm}
-                                showErrorMessageOnLoad={false}
-                                themeType={ThemeTypes.LIGHT}
-                                value={this.state.form[IUserKeys.eMailAddress]}
-                            />
-
-                            <PasswordInput
-                                errorMessage={this.state.formError[IUserKeys.password]}
-                                onError={this.updateFormError}
-                                onKeyPressEnter={this.signIn}
-                                onUpdateValue={this.updateForm}
-                                showErrorMessageOnLoad={false}
-                                style={this.topMarginStyle}
-                                themeType={ThemeTypes.LIGHT}
-                                value={this.state.form[IUserKeys.password]}
-                            />
-
-                            <Typography
-                                onClick={this.forwardToResetPassword}
-                                style={this.passwordResetTypographyStyle}>
-                                <span>{Dict.navigation_request_password_reset}</span>
-                            </Typography>
-
-                            <SubmitButton
-                                disabled={this.state.signInRequest !== null}
-                                label={Dict.account_sign_in}
-                                onClick={this.signIn}
-                                style={this.topMarginStyle}
-                            />
-
-                        </Grid>
-                    </GridItem>
-
-                    <GridItem
-                        style={grid2Style}>
-                        <div>
-                            <SubmitButton
-                                label={Dict.account_sign_in_guest}
-                                onClick={this.setGuestDialogVisible.bind(this, true)} />
-                        </div>
-                        <div
-                            style={this.topMarginStyle}>
-                            <ForwardButton
-                                forwardTo={AppUrls.REGISTER}
-                                label={Dict.account_sign_up} />
-                        </div>
-                    </GridItem>
-
-                </Grid >
-
-                <Dialog
-                    onClose={this.setGuestDialogVisible.bind(this, false)}
-                    open={this.state.showGuestSignInDialog!}
-                >
-                    <DialogTitle>{Dict.legal_notice_consent_heading}</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            {Dict.legal_notice_consent_paragraph_prefix}
-                            <span onClick={this.forwardToLegalInformation} style={this.legalNoticeTypographyStyle}>
-                                {Dict.legal_notice_heading}
-                            </span>
-                            {Dict.legal_notice_consent_paragraph_suffix}
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.setGuestDialogVisible.bind(this, false)} color="primary">{Dict.label_cancel}</Button>
-                        <Button onClick={this.signInAsGuest} color="primary">{Dict.label_confirm}</Button>
-                    </DialogActions>
-                </Dialog>
-            </>
+            formError[IUserKeys.eMailAddress] !==
+                E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE &&
+            formError[IUserKeys.password] !== PASSWORD_INPUT_LOCAL_ERROR_MESSAGE
         );
-    }
-
-    public updateForm = (key: IFormKeys, value: string): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                form: {
-                    ...prevState.form,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    public updateFormError = (key: IFormKeys, value: string | null): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                formError: {
-                    ...prevState.formError,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    private setGuestDialogVisible = (visible: boolean): void => {
-        this.setState({
-            showGuestSignInDialog: visible
-        });
-    }
-
-    private forwardToResetPassword = (): void => {
-        this.props.history.push(
-            AppUrls.HELP_RESET_PASSWORD
-        );
-    }
-
-    private forwardToLegalInformation = (): void => {
-        this.props.history.push(
-            AppUrls.LEGAL_INFORMATION
-        );
-    }
-
-    private signIn = (): void => {
-        this.scheduleLocalRevalidation();
-
-        if (!this.validate()) {
+    }, [formError]);
+    const signIn = React.useCallback((): void => {
+        if (!validate()) {
             return;
         }
 
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                signInRequest: new AccountSessionSignInRequest(
-                    this.state.form[IUserKeys.eMailAddress],
-                    this.state.form[IUserKeys.password],
-                    (response: IAccountSessionResponse) => {
-                        const errorMsg = response.errorMsg;
-                        const stateUpdateObj = {
-                            ...this.state
-                        }
-
-                        if (errorMsg) {
-                            let errorKey = null;
-
-                            if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
-                                errorKey = IUserKeys.eMailAddress;
-                            } else if (errorMsg.indexOf(IUserKeys.password) > -1) {
-                                errorKey = IUserKeys.password;
-                            }
-
-                            if (errorKey) {
-                                stateUpdateObj.formError[errorKey] = Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg;
-                            } else {
-                                showNotification(errorMsg);
-                            }
-                        } else {
-                            return registerPushManager()
-                                .catch(exc => {
-                                    log.warn(LogTags.PUSH_SUBSCRIPTION + exc);
-                                })
-                                .then(() => {
-                                    this.props.setIsLoggedIn(true);
-                                    this.props.history.push(AppUrls.HOME);
-                                });
-                        }
-
-                        this.setState({
-                            ...stateUpdateObj,
-                            signInRequest: null
-                        });
-                    },
-                    (error: any) => {
-                        showNotification(Dict.error_message_timeout);
-                        this.setState(innerPrevState => {
-                            return {
-                                ...innerPrevState,
-                                signInRequest: null
-                            }
-                        });
-                    }
-                )
-            }
+        setFormError({
+            [IUserKeys.eMailAddress]: null,
+            [IUserKeys.password]: null,
         });
-    }
+        setSignInRequest(
+            new AccountSessionSignInRequest(
+                form[IUserKeys.eMailAddress],
+                form[IUserKeys.password],
+                (response: IAccountSessionResponse) => {
+                    const errorMsg = response.errorMsg;
 
-    private signInAsGuest = (): void => {
+                    if (errorMsg) {
+                        let errorKey = null;
+
+                        if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
+                            errorKey = IUserKeys.eMailAddress;
+                        } else if (errorMsg.indexOf(IUserKeys.password) > -1) {
+                            errorKey = IUserKeys.password;
+                        }
+
+                        if (errorKey) {
+                            setFormError((formError) => {
+                                return {
+                                    ...formError,
+                                    [errorKey]: Dict[errorMsg] ?? errorMsg,
+                                };
+                            });
+                        } else {
+                            showNotification(errorMsg);
+                        }
+                    } else {
+                        registerPushManager()
+                            .catch((exc) => {
+                                log.warn(LogTags.PUSH_SUBSCRIPTION + exc);
+                            })
+                            .then(() => {
+                                setIsLoggedIn(true);
+                                navigate(AppUrls.HOME);
+                            });
+                    }
+
+                    setSignInRequest(null);
+                },
+                (error: any) => {
+                    showNotification(Dict.error_message_timeout);
+                    setSignInRequest(null);
+                }
+            )
+        );
+    }, [form, navigate, setIsLoggedIn, setSignInRequest, validate]);
+    const signInAsGuest = React.useCallback((): void => {
         Promise.all([
             CookieService.set(
                 IUserKeys.accessLevel,
@@ -290,38 +189,117 @@ class LoginForm extends React.Component<ILoginFormProps, ILoginFormState> {
             ),
             CookieService.set(
                 IUserKeys.accessIdentifier,
-                IUserValues[IUserKeys.accessIdentifier][IUserValues[IUserKeys.accessLevel].guest]
+                IUserValues[IUserKeys.accessIdentifier][
+                    IUserValues[IUserKeys.accessLevel].guest
+                ]
             ),
-            registerPushManager()
+            registerPushManager(),
         ])
-        .catch(exc => {
-            log.warn(LogTags.AUTHENTICATION + exc);
-        })
-        .then(values => {
-            this.props.setIsLoggedIn(true);
-            this.props.history.push(
-                AppUrls.HOME
-            );
-        });
-    }
+            .catch((exc) => {
+                log.warn(LogTags.AUTHENTICATION + exc);
+            })
+            .then((values) => {
+                setIsLoggedIn(true);
+                navigate(AppUrls.HOME);
+            });
+    }, [navigate, setIsLoggedIn]);
 
-    private scheduleLocalRevalidation = (): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                formError: {
-                    [IUserKeys.eMailAddress]: null,
-                    [IUserKeys.password]: null
-                },
-            };
-        });
-    }
+    return (
+        <>
+            <Grid>
+                <GridItem style={grid5Style}>
+                    <Grid>
+                        <EMailAddressInput
+                            errorMessage={formError[IUserKeys.eMailAddress]}
+                            onError={updateFormError}
+                            onUpdateValue={updateForm}
+                            suppressErrorMsg={suppressErrorMsgs.current}
+                            themeType={ThemeTypes.LIGHT}
+                            value={form[IUserKeys.eMailAddress]}
+                        />
 
-    private validate = (): boolean => {
-        return this.state.formError[IUserKeys.eMailAddress] !== EMailAddressInput.LOCAL_ERROR_MESSAGE
-            && this.state.formError[IUserKeys.password] !== PasswordInput.LOCAL_ERROR_MESSAGE;
-    }
+                        <PasswordInput
+                            errorMessage={formError[IUserKeys.password]}
+                            onError={updateFormError}
+                            onKeyPressEnter={signIn}
+                            onUpdateValue={updateForm}
+                            suppressErrorMsg={suppressErrorMsgs.current}
+                            style={topMarginStyle}
+                            themeType={ThemeTypes.LIGHT}
+                            value={form[IUserKeys.password]}
+                        />
 
-}
+                        <Typography
+                            onClick={navigate.bind(
+                                this,
+                                AppUrls.HELP_RESET_PASSWORD
+                            )}
+                            style={passwordResetTypographyStyle}
+                        >
+                            <span>
+                                {Dict.navigation_request_password_reset}
+                            </span>
+                        </Typography>
 
-export default withTheme(withRouter(LoginForm));
+                        <SubmitButton
+                            disabled={!!signInRequest}
+                            label={Dict.account_sign_in}
+                            onClick={signIn}
+                            style={topMarginStyle}
+                        />
+                    </Grid>
+                </GridItem>
+
+                <GridItem style={grid2Style}>
+                    <div>
+                        <SubmitButton
+                            label={Dict.account_sign_in_guest}
+                            onClick={setShowGuestSignInDialog.bind(this, true)}
+                        />
+                    </div>
+                    <div style={topMarginStyle}>
+                        <ForwardButton
+                            forwardTo={AppUrls.REGISTER}
+                            label={Dict.account_sign_up}
+                        />
+                    </div>
+                </GridItem>
+            </Grid>
+
+            <Dialog
+                onClose={setShowGuestSignInDialog.bind(this, false)}
+                open={showGuestSignInDialog}
+            >
+                <DialogTitle>{Dict.legal_notice_consent_heading}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        {Dict.legal_notice_consent_paragraph_prefix}
+                        <span
+                            onClick={navigate.bind(
+                                this,
+                                AppUrls.LEGAL_INFORMATION
+                            )}
+                            style={legalNoticeTypographyStyle}
+                        >
+                            {Dict.legal_notice_heading}
+                        </span>
+                        {Dict.legal_notice_consent_paragraph_suffix}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={setShowGuestSignInDialog.bind(this, false)}
+                        color="primary"
+                    >
+                        {Dict.label_cancel}
+                    </Button>
+                    <Button onClick={signInAsGuest} color="primary">
+                        {Dict.label_confirm}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
+    );
+};
+
+export default withTheme(LoginForm);

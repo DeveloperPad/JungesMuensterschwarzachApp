@@ -1,134 +1,78 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { TextField } from '@material-ui/core';
+import { TextField } from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import Formats from '../../constants/formats';
-import { grid1Style, textFieldInputProps } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
+import { Dict } from "../../constants/dict";
+import Formats from "../../constants/formats";
+import { grid1Style, textFieldInputProps } from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
 
 interface IPhoneNumberInputProps {
     errorMessage: string | null;
+    onBlur: (key: IUserKeys.phoneNumber, value: string | null) => void;
     onError: (key: IUserKeys.phoneNumber, value: string | null) => void;
     onUpdateValue: (key: IUserKeys.phoneNumber, value: string) => void;
-    onBlur: (key: IUserKeys.phoneNumber, value: string | null) => void;
     value: string;
 }
 
-interface IPhoneNumberInputState {
-    submit: boolean;
-}
+const PhoneNumberInput = (props: IPhoneNumberInputProps) => {
+    const LOCAL_ERROR_MESSAGE = Dict.account_phoneNumber_invalid;
 
-export default class PhoneNumberInput extends React.Component<IPhoneNumberInputProps, IPhoneNumberInputState> {
+    const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
 
-    public static LOCAL_ERROR_MESSAGE = Dict.account_phoneNumber_invalid;
-
-    constructor(props: IPhoneNumberInputProps) {
-        super(props);
-
-        this.state = {
-            submit: false
-        };
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <TextField
-                error={this.props.errorMessage != null}
-                helperText={this.props.errorMessage}
-                inputProps={phoneNumberInputProps}
-                label={Dict.account_phoneNumber}
-                margin="dense"
-                name={IUserKeys.phoneNumber}
-                onBlur={this.onBlur}
-                onChange={this.onChange}
-                style={grid1Style}
-                type="text"
-                value={this.props.value}
-                variant="outlined"
-            />
-        );
-    }
-
-    public componentDidMount() {
-        this.validate();
-    }
-
-    public shouldComponentUpdate(nextProps: IPhoneNumberInputProps, nextState: any, nextContext: any): boolean {
-        return this.props.errorMessage !== nextProps.errorMessage
-            || this.props.value !== nextProps.value
-            || this.state.submit !== nextState.submit;
-    }
-
-    public componentDidUpdate(prevProps: IPhoneNumberInputProps, prevState: IPhoneNumberInputState): void {
-        this.validate();
-
-        if (this.state.submit) {
-            if (this.props.onBlur) {
-                this.props.onBlur(
-                    IUserKeys.phoneNumber,
-                    this.props.value || null
-                );
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.phoneNumber, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.phoneNumber, value.trim());
             }
-            this.setState({
-                ...prevState,
-                submit: false
-            });
-        }
-    }
 
-    private onChange = (event: any): void => {
-        this.props.onError(
-            IUserKeys.phoneNumber,
-            null
-        );
-        this.props.onUpdateValue(
-            IUserKeys.phoneNumber,
-            event.target.value
-        );
-    }
+            onBlur(IUserKeys.phoneNumber, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    private onBlur = (_: any): void => {
-        this.trimValue();
-        this.validate();
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                submit: true
-            }
-        });
-    }
+    React.useEffect(() => {
+        const localErrorMessage =
+            !value ||
+            (value.length > 0 &&
+                value.length <= Formats.LENGTH.MAX.PHONE_NUMBER)
+                ? null
+                : LOCAL_ERROR_MESSAGE;
 
-    private trimValue = (): void => {
-        if (this.props.value) {
-            this.props.onUpdateValue(
-                IUserKeys.phoneNumber,
-                this.props.value.trim()
-            );
-        }
-    }
-
-    public validate = (): void => {
-        const phoneNumber = this.props.value;
-        const localErrorMessage = !phoneNumber 
-            || (phoneNumber.length > 0 && phoneNumber.length <= Formats.LENGTH.MAX.PHONE_NUMBER) ?
-            null : PhoneNumberInput.LOCAL_ERROR_MESSAGE;
-        
         // do not overwrite server side error messages
-        if (this.props.errorMessage && !localErrorMessage
-            && this.props.errorMessage !== PhoneNumberInput.LOCAL_ERROR_MESSAGE) {
-            return;
+        if (
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
+        ) {
+            onError(IUserKeys.phoneNumber, localErrorMessage);
         }
-        
-        this.props.onError(
-            IUserKeys.phoneNumber,
-            localErrorMessage
-        );
-    }
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
-}
+    return (
+        <TextField
+            error={errorMessage != null}
+            helperText={errorMessage}
+            inputProps={{
+                ...textFieldInputProps,
+                maxLength: Formats.LENGTH.MAX.PHONE_NUMBER,
+            }}
+            label={Dict.account_phoneNumber}
+            margin="dense"
+            name={IUserKeys.phoneNumber}
+            onBlur={onLocalBlur}
+            onChange={onChange}
+            style={grid1Style}
+            type="text"
+            value={value}
+            variant="outlined"
+        />
+    );
+};
 
-const phoneNumberInputProps = {
-    ...textFieldInputProps,
-    maxLength: Formats.LENGTH.MAX.PHONE_NUMBER
-}
+export default PhoneNumberInput;

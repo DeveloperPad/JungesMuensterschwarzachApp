@@ -1,10 +1,21 @@
-FROM node:lts-alpine
-RUN apk add git
+FROM node:16-slim
+
+# set up workdir
+RUN mkdir /api
 WORKDIR /api
-ENV PATH /api/node_modules/.bin:$PATH
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm ci
-COPY ./api ./api
-COPY ./commons ./commons
-ENTRYPOINT ["npm", "run", "start-api"]
+
+# install dependencies
+RUN npm install -g npm@latest
+COPY api/package*.json ./
+RUN npm install
+
+# build
+COPY api .
+RUN npm run build
+
+# exposing
+ENV HOST=0.0.0.0 PORT=3000
+EXPOSE ${PORT}
+
+# run
+CMD ["node", "."]

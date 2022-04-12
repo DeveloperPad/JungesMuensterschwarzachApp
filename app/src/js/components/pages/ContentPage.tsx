@@ -1,27 +1,29 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
 
-import { withTheme, WithTheme } from '@material-ui/core';
+import { withTheme, WithTheme } from "@material-ui/core";
 
-import { getContentHeight } from '../../constants/global-functions';
+import { getContentHeight } from "../../constants/global-functions";
+import { useLocation } from "react-router";
 
-type IContentPageProps = RouteComponentProps<any, StaticContext> & WithTheme;
+type IContentPageProps = WithTheme;
 
-class ContentPage extends React.Component<IContentPageProps> {
+const ContentPage = (props: IContentPageProps) => {
+    const location = useLocation();
+    const { theme } = props;
 
-    public render(): React.ReactNode {
-        const contentPageStyle: React.CSSProperties = {
-            backgroundColor: this.props.theme.palette.secondary.main,
-            height: getContentHeight()
-        };
+    const contentPageStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            backgroundColor: theme.palette.secondary.main,
+            height: getContentHeight(),
+        }),
+        [theme]
+    );
 
-        return (
-            <div style={contentPageStyle}>
-                <span>{this.props.location.pathname}</span>
-            </div>
-        );
-    }
+    return (
+        <div style={contentPageStyle}>
+            <span>{location.pathname}</span>
+        </div>
+    );
+};
 
-}
-
-export default withTheme(withRouter(ContentPage));
+export default withTheme(ContentPage);

@@ -1,35 +1,44 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
+import { useNavigate } from "react-router";
 
-import { Card, CardContent, CardHeader, Typography, withTheme, WithTheme } from '@material-ui/core';
-
-import Dict from '../../constants/dict';
 import {
-    grid1Style, grid6Style, linkMsgTypographyStyle, successMsgTypographyStyle, ThemeTypes
-} from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
+    Card,
+    CardContent,
+    CardHeader,
+    Typography,
+    withTheme,
+    WithTheme,
+} from "@material-ui/core";
+
+import { Dict } from "../../constants/dict";
+import { AppUrls } from "../../constants/specific-urls";
 import {
-    NewsletterSubscriptionRequest
-} from '../../networking/newsletter/NewsletterSubscriptionRequest';
-import { IResponse } from '../../networking/Request';
-import EMailAddressInput from '../form_elements/EMailAddressInput';
-import SubmitButton from '../form_elements/SubmitButton';
-import Grid from '../utilities/Grid';
-import GridItem from '../utilities/GridItem';
-import { showNotification } from '../utilities/Notifier';
-import { AppUrls } from '../../constants/specific-urls';
-import LegalInformationConsentCheckbox, { ILegalInformationConsentCheckBoxKeys } from '../form_elements/LegalInformationConsentCheckbox';
+    grid1Style,
+    grid6Style,
+    linkMsgTypographyStyle,
+    successMsgTypographyStyle,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import { NewsletterSubscriptionRequest } from "../../networking/newsletter/NewsletterSubscriptionRequest";
+import { IResponse } from "../../networking/Request";
+import EMailAddressInput, {
+    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
+} from "../form_elements/EMailAddressInput";
+import LegalInformationConsentCheckbox, {
+    ILegalInformationConsentCheckBoxKeys,
+} from "../form_elements/LegalInformationConsentCheckbox";
+import SubmitButton from "../form_elements/SubmitButton";
+import { useStateRequest } from "../utilities/CustomHooks";
+import Grid from "../utilities/Grid";
+import GridItem from "../utilities/GridItem";
+import { showNotification } from "../utilities/Notifier";
 
-type INewsletterSubscriptionFormProps = RouteComponentProps<any, StaticContext> & WithTheme;
+type INewsletterSubscriptionFormProps = WithTheme;
 
-interface INewsletterSubscriptionFormState {
-    form: IForm;
-    formError: IFormError;
-    subscriptionRequest: NewsletterSubscriptionRequest | null;
-    successMsg: string | null;
-}
-
-type IFormKeys = IUserKeys.eMailAddress | ILegalInformationConsentCheckBoxKeys.LegalInformationConsent;
+type IFormKeys =
+    | IUserKeys.eMailAddress
+    | ILegalInformationConsentCheckBoxKeys.LegalInformationConsent;
 
 interface IForm {
     [IUserKeys.eMailAddress]: string;
@@ -38,118 +47,181 @@ interface IForm {
 
 interface IFormError {
     [IUserKeys.eMailAddress]: string | null;
-    [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: string | null;
+    [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]:
+        | string
+        | null;
 }
 
-class NewsletterSubscriptionForm 
-    extends React.Component<INewsletterSubscriptionFormProps, INewsletterSubscriptionFormState> {
+const NewsletterSubscriptionForm = (
+    props: INewsletterSubscriptionFormProps
+) => {
+    const navigate = useNavigate();
+    const { theme } = props;
+    const [form, setForm] = React.useState<IForm>({
+        [IUserKeys.eMailAddress]: "",
+        [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: false,
+    });
+    const [formError, setFormError] = React.useState<IFormError>({
+        [IUserKeys.eMailAddress]: null,
+        [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: null,
+    });
+    const [successMsg, setSuccessMsg] = React.useState<string>();
+    const [subscriptionRequest, setSubscriptionRequest] = useStateRequest();
+    const suppressErrorMsgs = React.useRef<boolean>(true);
 
-    private marginTopStyle: React.CSSProperties = {
-        marginTop: 2 * this.props.theme.spacing()
-    };
-    private cardHeaderStyle: React.CSSProperties = {
-        backgroundColor: "#cccccc",
-        color: "#ff0000",
-        padding: "4px 8px"
-    }
-    private cardContentStyle: React.CSSProperties = {
-        backgroundColor: "#eeeeee",
-        padding: "4px 8px"
-    }
-    private cardTypographyStyle: React.CSSProperties = {
-        display: "inline-block",
-        textAlign: "center"
-    }
-    private typographyStyle: React.CSSProperties = {
-        color: "#ffffff",
-        display: "inline-block",
-        textAlign: "center"
-    };
+    const marginTopStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginTop: 2 * theme.spacing(),
+        }),
+        [theme]
+    );
+    const cardHeaderStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            backgroundColor: "#cccccc",
+            color: "#ff0000",
+            padding: "4px 8px",
+        }),
+        []
+    );
+    const cardContentStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            backgroundColor: "#eeeeee",
+            padding: "4px 8px",
+        }),
+        []
+    );
+    const cardTypographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            display: "inline-block",
+            textAlign: "center",
+        }),
+        []
+    );
+    const typographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            color: "#ffffff",
+            display: "inline-block",
+            textAlign: "center",
+        }),
+        []
+    );
 
-    constructor(props: INewsletterSubscriptionFormProps) {
-        super(props);
-
-        this.state = {
-            form: {
-                [IUserKeys.eMailAddress]: "",
-                [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: false
-            },
-            formError: {
-                [IUserKeys.eMailAddress]: null,
-                [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: null
-            },
-            subscriptionRequest: null,
-            successMsg: null
-        };
-    }
-
-    public componentWillUnmount(): void {
-        if (this.state.subscriptionRequest) {
-            this.state.subscriptionRequest.cancel();
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string | boolean): void => {
+            setForm((form) => ({
+                ...form,
+                [key]: value,
+            }));
+            suppressErrorMsgs.current = false;
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const sendRequest = React.useCallback((): void => {
+        if (
+            formError[IUserKeys.eMailAddress] ===
+            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE
+        ) {
+            return;
         }
-    }
 
-    public render(): React.ReactNode {
-        if (this.state.subscriptionRequest) {
-            this.state.subscriptionRequest.execute();
-        }
+        setSubscriptionRequest(
+            new NewsletterSubscriptionRequest(
+                form[IUserKeys.eMailAddress],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+                    const successMsg = response.successMsg;
 
-        return (
-            <Grid>
-                <GridItem
-                    style={grid6Style}>
-                    {this.state.successMsg ? this.showResponseGrid() : this.showRequestGrid()}
-                </GridItem>
-                <GridItem
-                    style={grid1Style} />
-            </Grid>
+                    if (errorMsg) {
+                        if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
+                            updateFormError(
+                                IUserKeys.eMailAddress,
+                                Dict[errorMsg] ?? errorMsg
+                            );
+                        } else {
+                            showNotification(errorMsg);
+                        }
+                    } else if (successMsg) {
+                        setSuccessMsg(Dict[successMsg] ?? successMsg);
+                    }
+
+                    setSubscriptionRequest(null);
+                },
+                (error: any) => {
+                    showNotification(Dict.error_message_timeout);
+                    setSubscriptionRequest(null);
+                }
+            )
         );
-    }
+    }, [form, formError, setSubscriptionRequest, updateFormError]);
 
-    private showRequestGrid = (): React.ReactNode => {
+    const requestGrid = React.useMemo((): React.ReactElement<any> => {
         return (
             <Grid>
-                <div style={this.marginTopStyle}/>
-                <Typography
-                    style={this.typographyStyle}
-                    variant="h5">
+                <div style={marginTopStyle} />
+                <Typography style={typographyStyle} variant="h5">
                     <span>{Dict.navigation_newsletter_subscribe}</span>
                 </Typography>
 
-                <div style={this.marginTopStyle}/>
-                <Typography
-                    style={this.typographyStyle}>
+                <div style={marginTopStyle} />
+                <Typography style={typographyStyle}>
                     <span>{Dict.account_allowNewsletter_registration}</span>
                 </Typography>
 
                 <EMailAddressInput
-                    errorMessage={this.state.formError[IUserKeys.eMailAddress]}
-                    onError={this.updateFormError}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
+                    errorMessage={formError[IUserKeys.eMailAddress]}
+                    onError={updateFormError}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
                     themeType={ThemeTypes.LIGHT}
-                    value={this.state.form[IUserKeys.eMailAddress]}
+                    value={form[IUserKeys.eMailAddress]}
                 />
 
                 <LegalInformationConsentCheckbox
-                    checked={this.state.form[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]}
-                    errorMessage={this.state.formError[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]}
-                    onError={this.updateFormError}
-                    onForwardToLegalInformation={this.forwardToLegalInformation}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
-                    style={this.marginTopStyle}
+                    checked={
+                        form[
+                            ILegalInformationConsentCheckBoxKeys
+                                .LegalInformationConsent
+                        ]
+                    }
+                    errorMessage={
+                        formError[
+                            ILegalInformationConsentCheckBoxKeys
+                                .LegalInformationConsent
+                        ]
+                    }
+                    onError={updateFormError}
+                    onForwardToLegalInformation={navigate.bind(
+                        this,
+                        AppUrls.LEGAL_INFORMATION
+                    )}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
+                    style={marginTopStyle}
                 />
 
                 <SubmitButton
-                    disabled={this.state.subscriptionRequest !== null || 
-                        this.state.form[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent] === false}
+                    disabled={
+                        !!subscriptionRequest ||
+                        form[
+                            ILegalInformationConsentCheckBoxKeys
+                                .LegalInformationConsent
+                        ] === false
+                    }
                     label={Dict.account_sign_in}
-                    onClick={this.sendRequest}
-                    style={this.marginTopStyle}
+                    onClick={sendRequest}
+                    style={marginTopStyle}
                 />
 
-                <Card variant="outlined" style={this.marginTopStyle}>
+                <Card variant="outlined" style={marginTopStyle}>
                     <CardHeader
                         disableTypography={true}
                         title={
@@ -157,11 +229,15 @@ class NewsletterSubscriptionForm
                                 {Dict.label_notice}
                             </Typography>
                         }
-                        style={this.cardHeaderStyle} />
-                    <CardContent style={this.cardContentStyle}>
-                        <Typography style={this.cardTypographyStyle}>
+                        style={cardHeaderStyle}
+                    />
+                    <CardContent style={cardContentStyle}>
+                        <Typography style={cardTypographyStyle}>
                             {Dict.account_allowNewsletter_account_notice_prefix}
-                            <span onClick={this.forwardToProfile} style={linkMsgTypographyStyle}>
+                            <span
+                                onClick={navigate.bind(this, AppUrls.PROFILE)}
+                                style={linkMsgTypographyStyle}
+                            >
                                 {Dict.navigation_profile}
                             </span>
                             {Dict.account_allowNewsletter_account_notice_suffix}
@@ -170,103 +246,39 @@ class NewsletterSubscriptionForm
                 </Card>
             </Grid>
         );
-    }
-
-    private forwardToLegalInformation = (): void => {
-        this.props.history.push(
-            AppUrls.LEGAL_INFORMATION
-        );
-    }
-
-    private forwardToProfile = (): void => {
-        this.props.history.push(
-            AppUrls.PROFILE
-        );
-    }
-
-    private showResponseGrid = (): React.ReactNode => {
+    }, [
+        cardContentStyle,
+        cardHeaderStyle,
+        cardTypographyStyle,
+        form,
+        formError,
+        marginTopStyle,
+        navigate,
+        sendRequest,
+        subscriptionRequest,
+        typographyStyle,
+        updateForm,
+        updateFormError,
+    ]);
+    const responseGrid = React.useMemo((): React.ReactElement<any> => {
         return (
             <Grid>
-                <Typography
-                    variant="h5"
-                    style={successMsgTypographyStyle}>
-                    <span>{this.state.successMsg}</span>
+                <Typography variant="h5" style={successMsgTypographyStyle}>
+                    <span>{successMsg}</span>
                 </Typography>
             </Grid>
         );
-    }
+    }, [successMsg]);
+    return (
+        <Grid>
+            <GridItem style={grid6Style}>
+                {successMsg ? responseGrid : requestGrid}
+            </GridItem>
+            <GridItem style={grid1Style}>
+                <span />
+            </GridItem>
+        </Grid>
+    );
+};
 
-    public updateForm = (key: IFormKeys, value: string|boolean): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                form: {
-                    ...prevState.form,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    public updateFormError = (key: IFormKeys, value: string | null): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                formError: {
-                    ...prevState.formError,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    private sendRequest = (): void => {
-        if (this.state.formError[IUserKeys.eMailAddress] === EMailAddressInput.LOCAL_ERROR_MESSAGE) {
-            return;
-        }
-
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                subscriptionRequest: new NewsletterSubscriptionRequest(
-                    this.state.form[IUserKeys.eMailAddress],
-                    (response: IResponse) => {
-                        const errorMsg = response.errorMsg;
-                        const successMsg = response.successMsg;
-                        const stateUpdateObj = {
-                            ...this.state
-                        };
-    
-                        if (errorMsg) {
-                            if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
-                                stateUpdateObj.formError[IUserKeys.eMailAddress]
-                                    = Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg;
-                            } else {
-                                showNotification(errorMsg);
-                            }
-                        } else if (successMsg) {
-                            stateUpdateObj.successMsg = Dict.hasOwnProperty(successMsg) ? Dict[successMsg] : successMsg;
-                        }
-    
-                        this.setState({
-                            ...stateUpdateObj,
-                            subscriptionRequest: null
-                        });
-                    },
-                    (error: any) => {
-                        showNotification(Dict.error_message_timeout);
-                        this.setState(innerPrevState => {
-                            return {
-                                ...innerPrevState,
-                                subscriptionRequest: null
-                            }
-                        });
-                    }
-                )
-            }
-        });
-    }
-
-}
-
-export default withTheme(withRouter(NewsletterSubscriptionForm));
+export default withTheme(NewsletterSubscriptionForm);

@@ -452,7 +452,7 @@
 
 		private static function appendParticipantsList($event) {
 			$stmt = DatabaseModule::getInstance()->prepare(
-				"SELECT ad.userId, ee.eventEnrollmentComment, ee.enrollmentDate 
+				"SELECT ad.userId, ee.eventEnrollmentComment, ee.enrollmentDate, ee.checkInDate, ee.eventEnrollmentPublicMediaUsageConsent 
 				 FROM account_data ad, event_enrollments ee 
 				 WHERE ee.eventId=? AND ad.userId=ee.userId  
 				 ORDER BY ee.enrollmentDate"
@@ -492,7 +492,7 @@
 			}
 			
 			$stmt = DatabaseModule::getInstance()->prepare(
-				"SELECT ee.eventEnrollmentComment 
+				"SELECT ee.eventEnrollmentComment, ee.eventEnrollmentPublicMediaUsageConsent 
 				 FROM events e, event_enrollments ee 
 				 WHERE ee.eventId=? AND ee.userId=? AND e.requiredAccessLevel<=? AND e.eventId=ee.eventId"
 			);
@@ -804,6 +804,53 @@
 			AlexaNotificationModule::sendEventDisenrollmentNotification($eventId, $userId);
 		}
 
+		public static function checkIn($userId, $eventId, $eventEnrollmentPublicMediaUsageConsent, $ownAccessLevel) {
+			self::validateEventAccess($eventId, $ownAccessLevel);
+			self::validateEventEnrollmentUserRequirements($userId, $ownAccessLevel);
+			self::validateEventEnrollmentEventRequirements($eventId, $ownAccessLevel);
+			self::validateEventEnrollmentPublicMediaUsageConsent($eventEnrollmentPublicMediaUsageConsent);
+
+			if (self::isUserEnrolled($userId, $eventId) === false) {
+				throw new Exception("event_user_enrolled_not");
+			}
+
+			$stmt = DatabaseModule::getInstance()->prepare(
+				"UPDATE event_enrollments
+				 SET checkInDate=NOW(), eventEnrollmentPublicMediaUsageConsent=?
+				 WHERE userId=? AND eventId=?"
+			);
+			$stmt->bind_param("iii", $eventEnrollmentPublicMediaUsageConsent, $userId, $eventId);
+
+			$result = $stmt->execute();
+			$stmt->close();
+
+			if ($result === false) {
+				throw new Exception("error_message_try_later");
+			}
+		}
+
+		public static function updateEventEnrollmentPublicMediaUsageConsent($userId, $eventId, $eventEnrollmentPublicMediaUsageConsent, $ownAccessLevel) {
+			self::validateEventAccess($eventId, $ownAccessLevel);
+			self::validateEventEnrollmentPublicMediaUsageConsent($eventEnrollmentPublicMediaUsageConsent);
+
+			if (self::isUserEnrolled($userId, $eventId) === false) {
+				throw new Exception("event_user_enrolled_not");
+			}
+
+			$stmt = DatabaseModule::getInstance()->prepare(
+				"UPDATE event_enrollments
+				 SET eventEnrollmentPublicMediaUsageConsent=?
+				 WHERE userId=? AND eventId=?"
+			);
+			$stmt->bind_param("iii", $eventEnrollmentPublicMediaUsageConsent, $userId, $eventId);
+			$result = $stmt->execute();
+			$stmt->close();
+
+			if ($result === false) {
+				throw new Exception("error_message_try_later");
+			}
+		}
+
 		public static function deleteEvent($eventId, $ownAccessLevel) {
 			self::validateEventAccess($eventId, $ownAccessLevel);
 
@@ -1063,6 +1110,16 @@
 		private static function validateEventEnrollmentComment($eventEnrollmentComment) {
 			if (strlen($eventEnrollmentComment) > EVENT_ENROLLMENT_COMMENT_LENGTH_MAX) {
 				throw new Exception("event_eventEnrollmentComment_invalid");
+			}
+		}
+
+		private static function validateEventEnrollmentPublicMediaUsageConsent($eventEnrollmentPublicMediaUsageConsent) {
+			try {
+				if (intval($eventEnrollmentPublicMediaUsageConsent) !== 1 && intval($eventEnrollmentPublicMediaUsageConsent) !== 0) {
+					throw new Exception("stub");
+				}
+			} catch (Exception $exc) {
+				throw new Exception("event_eventEnrollmentPublicMediaUsageConsent_invalid");
 			}
 		}
 

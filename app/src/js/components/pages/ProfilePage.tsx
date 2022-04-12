@@ -1,44 +1,40 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
+import { useNavigate } from "react-router";
 
-import { withTheme, WithTheme } from '@material-ui/core';
+import { withTheme, WithTheme } from "@material-ui/core";
 
-import { AppUrls } from '../../constants/specific-urls';
-import { IUserKeys, IUserValues } from '../../networking/account_data/IUser';
-import { CookieService } from '../../services/CookieService';
-import ProfileForm from '../forms/ProfileForm';
-import Background from '../utilities/Background';
+import { AppUrls } from "../../constants/specific-urls";
+import { IUserKeys, IUserValues } from "../../networking/account_data/IUser";
+import { CookieService } from "../../services/CookieService";
+import ProfileForm from "../forms/ProfileForm";
+import Background from "../utilities/Background";
 
-type IProfilePageProps = RouteComponentProps<any, StaticContext> & WithTheme;
+type IProfilePageProps = WithTheme;
 
-class ProfilePage extends React.Component<IProfilePageProps> {
+const ProfilePage = (props: IProfilePageProps) => {
+    const navigate = useNavigate();
+    const { theme } = props;
 
-    constructor(props: IProfilePageProps) {
-        super(props);
-
+    React.useEffect(() => {
         CookieService.get<number>(IUserKeys.accessLevel)
-            .then(accessLevel => {
-                if (accessLevel === null || accessLevel === IUserValues[IUserKeys.accessLevel].guest) {
-                    this.props.history.push(
-                        AppUrls.LOGIN
-                    );
+            .then((accessLevel) => {
+                if (
+                    accessLevel === null ||
+                    accessLevel === IUserValues[IUserKeys.accessLevel].guest
+                ) {
+                    navigate(AppUrls.LOGIN);
                 }
             })
-            .catch(error => {
-                this.props.history.push(
-                    AppUrls.LOGIN
-                );
+            .catch((error) => {
+                navigate(AppUrls.LOGIN);
             });
-    }
+    }, [navigate]);
 
-    public render(): React.ReactNode {
-        return (
-            <Background theme={this.props.theme}>
-                <ProfileForm />
-            </Background>
-        );
-    }
+    return (
+        <Background theme={theme}>
+            <ProfileForm />
+        </Background>
+    );
+};
 
-}
-
-export default withTheme(withRouter(ProfilePage));
+export default withTheme(ProfilePage);

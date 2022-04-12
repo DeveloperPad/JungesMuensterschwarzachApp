@@ -1,34 +1,32 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
 
-import { Typography, withTheme, WithTheme } from '@material-ui/core';
+import { Typography, withTheme, WithTheme } from "@material-ui/core";
 
-import Dict from '../../constants/dict';
+import { Dict } from "../../constants/dict";
 import {
-    grid1Style, grid6Style, infoMessageTypographyStyle, ThemeTypes
-} from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
-import { UpdateAccountDataRequest } from '../../networking/account_data/UpdateAccountDataRequest';
-import { IResponse } from '../../networking/Request';
-import PasswordInput from '../form_elements/PasswordInput';
-import SubmitButton from '../form_elements/SubmitButton';
-import Grid from '../utilities/Grid';
-import GridItem from '../utilities/GridItem';
-import { showNotification } from '../utilities/Notifier';
+    grid1Style,
+    grid6Style,
+    infoMessageTypographyStyle,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import { UpdateAccountDataRequest } from "../../networking/account_data/UpdateAccountDataRequest";
+import { IResponse } from "../../networking/Request";
+import PasswordInput, {
+    PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
+} from "../form_elements/PasswordInput";
+import SubmitButton from "../form_elements/SubmitButton";
+import { useStateRequest } from "../utilities/CustomHooks";
+import Grid from "../utilities/Grid";
+import GridItem from "../utilities/GridItem";
+import { showNotification } from "../utilities/Notifier";
 
-type IProfilePasswordChangeFormProps = RouteComponentProps<any, StaticContext> & WithTheme;
+type IProfilePasswordChangeFormProps = WithTheme;
 
-interface IProfilePasswordChangeFormState {
-    infoMsg?: string | null;
-    form: IForm;
-    formError: IFormError;
-    updateAccountDataRequest?: UpdateAccountDataRequest | null;
-}
-
-type IFormKeys = 
-    IUserKeys.password | 
-    IUserKeys.passwordRepetition | 
-    IUserKeys.eMailAddress;
+type IFormKeys =
+    | IUserKeys.password
+    | IUserKeys.passwordRepetition
+    | IUserKeys.eMailAddress;
 
 interface IForm {
     [IUserKeys.password]: string;
@@ -40,206 +38,68 @@ interface IFormError {
     [IUserKeys.passwordRepetition]: string | null;
 }
 
-class ProfilePasswordChangeForm extends React.Component<IProfilePasswordChangeFormProps, IProfilePasswordChangeFormState> {
+const ProfilePasswordChangeForm = (props: IProfilePasswordChangeFormProps) => {
+    const { theme } = props;
+    const [form, setForm] = React.useState<IForm>({
+        [IUserKeys.password]: "",
+        [IUserKeys.passwordRepetition]: "",
+    });
+    const [formError, setFormError] = React.useState<IFormError>({
+        [IUserKeys.password]: null,
+        [IUserKeys.passwordRepetition]: null,
+    });
+    const [infoMsg, setInfoMsg] = React.useState<string>();
+    const [updateAccountDataRequest, setUpdateAccountDataRequest] =
+        useStateRequest();
+    const suppressErrorMsgs = React.useRef<boolean>(true);
 
-    private topMarginStyle: React.CSSProperties = {
-        marginTop: 2 * this.props.theme.spacing()
-    }
-    private newPasswortTypographyStyle: React.CSSProperties = {
-        color: "#ffffff",
-        display: "inline-block",
-        marginBottom: 3 * this.props.theme.spacing(),
-        textAlign: "center"
-    }
+    const topMarginStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginTop: 2 * theme.spacing(),
+        }),
+        [theme]
+    );
+    const newPasswortTypographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            color: "#ffffff",
+            display: "inline-block",
+            marginBottom: 3 * theme.spacing(),
+            textAlign: "center",
+        }),
+        [theme]
+    );
 
-    constructor(props: IProfilePasswordChangeFormProps) {
-        super(props);
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string): void => {
+            setForm((form) => ({
+                ...form,
+                [key]: value,
+            }));
+            suppressErrorMsgs.current = false;
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const validate = React.useCallback((): boolean => {
+        let valid = true;
 
-        this.state = {
-            form: {
-                [IUserKeys.password]: "",
-                [IUserKeys.passwordRepetition]: ""
-            },
-            formError: {
-                [IUserKeys.password]: null,
-                [IUserKeys.passwordRepetition]: null
-            },
-            infoMsg: null,
-            updateAccountDataRequest: null
-        };
-    }
-
-    public componentWillUnmount(): void {
-        if (this.state.updateAccountDataRequest) {
-            this.state.updateAccountDataRequest.cancel();
-        }
-    }
-
-    public render(): React.ReactNode {
-        if (this.state.updateAccountDataRequest) {
-            this.state.updateAccountDataRequest.execute();
-        }
-
-        return (
-            <Grid>
-                <GridItem
-                    style={grid6Style}>
-                    {this.state.infoMsg ? this.showResponseGrid() : this.showRequestGrid()}
-                </GridItem>
-                <GridItem
-                    style={grid1Style}
-                />
-            </Grid>
-        );
-    }
-
-    public updateForm = (key: IFormKeys, value: string): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                form: {
-                    ...prevState.form,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    public updateFormError = (key: IFormKeys, value: string | null): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                formError: {
-                    ...prevState.formError,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    private showRequestGrid = (): React.ReactNode => {
-        return (
-            <Grid>
-                <Typography
-                    variant="h5"
-                    style={this.newPasswortTypographyStyle}>
-                    <span>{Dict.account_password_new}</span>
-                </Typography>
-
-                <PasswordInput
-                    errorMessage={this.state.formError[IUserKeys.password]}
-                    onError={this.updateFormError}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
-                    themeType={ThemeTypes.LIGHT}
-                    value={this.state.form[IUserKeys.password]}
-                />
-
-                <PasswordInput
-                    errorMessage={this.state.formError[IUserKeys.passwordRepetition]}
-                    name={IUserKeys.passwordRepetition}
-                    onError={this.updateFormError}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
-                    style={this.topMarginStyle}
-                    themeType={ThemeTypes.LIGHT}
-                    value={this.state.form[IUserKeys.passwordRepetition]}
-                />
-
-                <SubmitButton
-                    disabled={this.state.updateAccountDataRequest !== null}
-                    onClick={this.sendRequest}
-                    style={this.topMarginStyle}
-                />
-            </Grid>
-        );
-    }
-
-    private showResponseGrid = (): React.ReactNode => {
-        return (
-            <Grid>
-                <Typography
-                    variant="h5"
-                    style={infoMessageTypographyStyle}>
-                    <span>{this.state.infoMsg}</span>
-                </Typography>
-            </Grid>
-        );
-    }
-
-    private sendRequest = (): void => {
-        this.scheduleLocalRevalidation();
-
-        if (!this.validate()) {
-            return;
-        }
-        
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                updateAccountDataRequest: new UpdateAccountDataRequest(
-                    IUserKeys.password,
-                    this.state.form[IUserKeys.password],
-                    (response: IResponse) => {
-                        const errorMsg = response.errorMsg;
-                        const stateUpdateObj = {
-                            ...this.state
-                        };
-
-                        if (errorMsg) {
-                            if (errorMsg.indexOf(IUserKeys.passwordRepetition) > -1) {
-                                stateUpdateObj.formError[IUserKeys.passwordRepetition] = 
-                                    Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg;
-                            } else if (errorMsg.indexOf(IUserKeys.password) > -1) {
-                                stateUpdateObj.formError[IUserKeys.password] = 
-                                    Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg;
-                            } else {
-                                showNotification(errorMsg);
-                            }
-                        } else {
-                            stateUpdateObj.infoMsg = Dict.account_password_updated;
-                        }
-
-                        this.setState({
-                            ...stateUpdateObj,
-                            updateAccountDataRequest: null
-                        });
-                    },
-                    () => {
-                        showNotification(Dict.error_message_timeout);
-                        this.setState(innerPrevState => {
-                            return {
-                                ...innerPrevState,
-                                updateAccountDataRequest: null
-                            }
-                        });
-                    }
-                )
-            }
-        });
-    }
-
-    private scheduleLocalRevalidation = (): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                formError: {
-                    [IUserKeys.password]: null,
-                    [IUserKeys.passwordRepetition]: null
-                }
-            };
-        });
-    }
-
-    private validate = (): boolean => {
-        let valid = true
-
-        if (this.state.formError[IUserKeys.passwordRepetition] === PasswordInput.LOCAL_ERROR_MESSAGE
-            || this.state.formError[IUserKeys.password] === PasswordInput.LOCAL_ERROR_MESSAGE) {
+        if (
+            formError[IUserKeys.passwordRepetition] ===
+                PASSWORD_INPUT_LOCAL_ERROR_MESSAGE ||
+            formError[IUserKeys.password] === PASSWORD_INPUT_LOCAL_ERROR_MESSAGE
+        ) {
             valid = false;
         }
-        if (this.state.form[IUserKeys.password] !== this.state.form[IUserKeys.passwordRepetition]) {
-            this.updateFormError(
+        if (form[IUserKeys.password] !== form[IUserKeys.passwordRepetition]) {
+            updateFormError(
                 IUserKeys.passwordRepetition,
                 Dict.account_passwordRepetition_incorrect
             );
@@ -247,8 +107,119 @@ class ProfilePasswordChangeForm extends React.Component<IProfilePasswordChangeFo
         }
 
         return valid;
-    }
+    }, [form, formError, updateFormError]);
+    const sendRequest = React.useCallback((): void => {
+        setFormError({
+            [IUserKeys.password]: null,
+            [IUserKeys.passwordRepetition]: null,
+        });
 
-}
+        if (!validate()) {
+            return;
+        }
 
-export default withTheme(withRouter(ProfilePasswordChangeForm));
+        setUpdateAccountDataRequest(
+            new UpdateAccountDataRequest(
+                IUserKeys.password,
+                form[IUserKeys.password],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+
+                    if (errorMsg) {
+                        if (
+                            errorMsg.indexOf(IUserKeys.passwordRepetition) > -1
+                        ) {
+                            setFormError((formError) => ({
+                                ...formError,
+                                [IUserKeys.passwordRepetition]:
+                                    Dict[errorMsg] ?? errorMsg,
+                            }));
+                        } else if (errorMsg.indexOf(IUserKeys.password) > -1) {
+                            setFormError((formError) => ({
+                                ...formError,
+                                [IUserKeys.password]:
+                                    Dict[errorMsg] ?? errorMsg,
+                            }));
+                        } else {
+                            showNotification(errorMsg);
+                        }
+                    } else {
+                        setInfoMsg(Dict.account_password_updated);
+                    }
+
+                    setUpdateAccountDataRequest(null);
+                },
+                () => {
+                    showNotification(Dict.error_message_timeout);
+                    setUpdateAccountDataRequest(null);
+                }
+            )
+        );
+    }, [form, setUpdateAccountDataRequest, validate]);
+
+    const requestGrid = React.useMemo((): React.ReactElement<any> => {
+        return (
+            <Grid>
+                <Typography variant="h5" style={newPasswortTypographyStyle}>
+                    <span>{Dict.account_password_new}</span>
+                </Typography>
+
+                <PasswordInput
+                    errorMessage={formError[IUserKeys.password]}
+                    onError={updateFormError}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
+                    themeType={ThemeTypes.LIGHT}
+                    value={form[IUserKeys.password]}
+                />
+
+                <PasswordInput
+                    errorMessage={formError[IUserKeys.passwordRepetition]}
+                    name={IUserKeys.passwordRepetition}
+                    onError={updateFormError}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
+                    style={topMarginStyle}
+                    themeType={ThemeTypes.LIGHT}
+                    value={form[IUserKeys.passwordRepetition]}
+                />
+
+                <SubmitButton
+                    disabled={!!updateAccountDataRequest}
+                    onClick={sendRequest}
+                    style={topMarginStyle}
+                />
+            </Grid>
+        );
+    }, [
+        form,
+        formError,
+        newPasswortTypographyStyle,
+        sendRequest,
+        topMarginStyle,
+        updateAccountDataRequest,
+        updateForm,
+        updateFormError,
+    ]);
+    const responseGrid = React.useMemo((): React.ReactElement<any> => {
+        return (
+            <Grid>
+                <Typography variant="h5" style={infoMessageTypographyStyle}>
+                    <span>{infoMsg}</span>
+                </Typography>
+            </Grid>
+        );
+    }, [infoMsg]);
+    return (
+        <Grid>
+            <GridItem style={grid6Style}>
+                {infoMsg ? responseGrid : requestGrid}
+            </GridItem>
+            <GridItem style={grid1Style}>
+                <span />
+            </GridItem>
+        </Grid>
+    );
+};
+
+export default withTheme(ProfilePasswordChangeForm);

@@ -1,29 +1,26 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
+import { useLocation } from "react-router";
 
-import { Typography, withTheme, WithTheme } from '@material-ui/core';
+import { Typography, withTheme, WithTheme } from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import { AppUrls } from '../../constants/specific-urls';
+import { Dict } from "../../constants/dict";
+import { AppUrls } from "../../constants/specific-urls";
 import {
-    grid1Style, grid6Style, successMsgTypographyStyle, ThemeTypes
-} from '../../constants/theme';
-import { NewsletterRedemptionRequest } from '../../networking/newsletter/NewsletterRedemptionRequest';
-import { IResponse } from '../../networking/Request';
-import SubmitButton from '../form_elements/SubmitButton';
-import TokenInput, { ITokenInputKeys } from '../form_elements/TokenInput';
-import Grid from '../utilities/Grid';
-import GridItem from '../utilities/GridItem';
-import { showNotification } from '../utilities/Notifier';
+    grid1Style,
+    grid6Style,
+    successMsgTypographyStyle,
+    ThemeTypes,
+} from "../../constants/theme";
+import { NewsletterRedemptionRequest } from "../../networking/newsletter/NewsletterRedemptionRequest";
+import { IResponse } from "../../networking/Request";
+import SubmitButton from "../form_elements/SubmitButton";
+import TokenInput, { ITokenInputKeys } from "../form_elements/TokenInput";
+import { useStateRequest } from "../utilities/CustomHooks";
+import Grid from "../utilities/Grid";
+import GridItem from "../utilities/GridItem";
+import { showNotification } from "../utilities/Notifier";
 
-type INewsletterRedemptionFormProps = RouteComponentProps<any, StaticContext> & WithTheme;
-
-interface INewsletterRedemptionFormState {
-    form: IForm;
-    formError: IFormError;
-    successMsg: string | null;
-    redemptionRequest: NewsletterRedemptionRequest | null;
-}
+type INewsletterRedemptionFormProps = WithTheme;
 
 type IFormKeys = ITokenInputKeys.tokenCode;
 
@@ -35,164 +32,151 @@ interface IFormError {
     [ITokenInputKeys.tokenCode]: string | null;
 }
 
-class NewsletterRedemptionForm 
-    extends React.Component<INewsletterRedemptionFormProps, INewsletterRedemptionFormState> {
+const NewsletterRedemptionForm = (props: INewsletterRedemptionFormProps) => {
+    const location = useLocation();
+    const { theme } = props;
+    const [successMsg, setSuccessMsg] = React.useState<string>();
+    const tokenCode = React.useMemo(
+        () =>
+            decodeURI(
+                location.pathname.slice(
+                    AppUrls.HELP_NEWSLETTER_REDEEM.slice(0, -1).length
+                )
+            ),
+        [location.pathname]
+    );
+    const [form, setForm] = React.useState<IForm>({
+        [ITokenInputKeys.tokenCode]: tokenCode,
+    });
+    const [formError, setFormError] = React.useState<IFormError>({
+        [ITokenInputKeys.tokenCode]: null,
+    });
+    const [redemptionRequest, setRedemptionRequest] = useStateRequest();
 
-    private typographyStyle: React.CSSProperties = {
-        color: "#ffffff",
-        display: "inline-block",
-        marginBottom: 3 * this.props.theme.spacing(),
-        textAlign: "center"
-    };
-    private marginTopStyle: React.CSSProperties = {
-        marginTop: 2 * this.props.theme.spacing()
-    };
+    const typographyStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            color: "#ffffff",
+            display: "inline-block",
+            marginBottom: 3 * theme.spacing(),
+            textAlign: "center",
+        }),
+        [theme]
+    );
+    const marginTopStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginTop: 2 * theme.spacing(),
+        }),
+        [theme]
+    );
 
-    constructor(props: INewsletterRedemptionFormProps) {
-        super(props);
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string): void => {
+            setForm((form) => ({
+                ...form,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string): void => {
+            setFormError((formError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const sendRequest = React.useCallback((): void => {
+        setRedemptionRequest(
+            new NewsletterRedemptionRequest(
+                form[ITokenInputKeys.tokenCode],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+                    const successMsg = response.successMsg;
 
-        this.state = {
-            form: {
-                [ITokenInputKeys.tokenCode]: this.getTokenCode()
-            },
-            formError: {
-                [ITokenInputKeys.tokenCode]: null
-            },
-            successMsg: null,
-            redemptionRequest: null
-        };
-    }
+                    if (errorMsg) {
+                        if (errorMsg.indexOf("token") > -1) {
+                            updateFormError(
+                                ITokenInputKeys.tokenCode,
+                                Dict[errorMsg] ?? errorMsg
+                            );
+                        } else {
+                            showNotification(errorMsg);
+                        }
+                    } else if (successMsg) {
+                        setSuccessMsg(Dict[successMsg] ?? successMsg);
+                    }
 
-    public componentDidMount(): void {
-        if (this.state.form[ITokenInputKeys.tokenCode] 
-            && this.state.form[ITokenInputKeys.tokenCode].trim().length > 0) {
-            this.sendRequest();
-        }
-    }
-
-    public componentWillUnmount(): void {
-        if (this.state.redemptionRequest) {
-            this.state.redemptionRequest.cancel();
-        }
-    }
-
-    public render(): React.ReactNode {
-        if (this.state.redemptionRequest) {
-            this.state.redemptionRequest.execute();
-        }
-
-        return (
-            <Grid>
-                <GridItem
-                    style={grid6Style}>
-                    {this.state.successMsg ? this.showResponseGrid() : this.showRequestGrid()}
-                </GridItem>
-                <GridItem
-                    style={grid1Style} />
-            </Grid>
+                    setRedemptionRequest(null);
+                },
+                (error: any) => {
+                    showNotification(Dict.error_message_timeout);
+                    setRedemptionRequest(null);
+                }
+            )
         );
-    }
+    }, [form, setRedemptionRequest, updateFormError]);
 
-    private showRequestGrid = (): React.ReactNode => {
+    React.useEffect(() => {
+        if (
+            form[ITokenInputKeys.tokenCode] &&
+            form[ITokenInputKeys.tokenCode].trim().length > 0
+        ) {
+            sendRequest();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const requestGrid = React.useMemo((): React.ReactElement<any> => {
         return (
             <Grid>
-                <Typography
-                    variant="h5"
-                    style={this.typographyStyle}>
+                <Typography variant="h5" style={typographyStyle}>
                     <span>{Dict.navigation_redeem_token}</span>
                 </Typography>
 
                 <TokenInput
-                    errorMessage={this.state.formError[ITokenInputKeys.tokenCode]}
-                    onUpdateValue={this.updateForm}
+                    errorMessage={formError[ITokenInputKeys.tokenCode]}
+                    onUpdateValue={updateForm}
                     themeType={ThemeTypes.LIGHT}
-                    value={this.state.form[ITokenInputKeys.tokenCode]}
+                    value={form[ITokenInputKeys.tokenCode]}
                 />
 
                 <SubmitButton
-                    disabled={this.state.redemptionRequest !== null}
-                    onClick={this.sendRequest}
-                    style={this.marginTopStyle}
+                    disabled={!!redemptionRequest}
+                    onClick={sendRequest}
+                    style={marginTopStyle}
                 />
             </Grid>
         );
-    }
-
-    private showResponseGrid = (): React.ReactNode => {
+    }, [
+        form,
+        formError,
+        marginTopStyle,
+        redemptionRequest,
+        sendRequest,
+        typographyStyle,
+        updateForm,
+    ]);
+    const responseGrid = React.useMemo((): React.ReactElement<any> => {
         return (
             <Grid>
-                <Typography
-                    variant="h5"
-                    style={successMsgTypographyStyle}>
-                    <span>{this.state.successMsg}</span>
+                <Typography variant="h5" style={successMsgTypographyStyle}>
+                    <span>{successMsg}</span>
                 </Typography>
             </Grid>
         );
-    }
+    }, [successMsg]);
+    return (
+        <Grid>
+            <GridItem style={grid6Style}>
+                {successMsg ? responseGrid : requestGrid}
+            </GridItem>
+            <GridItem style={grid1Style}>
+                <span />
+            </GridItem>
+        </Grid>
+    );
+};
 
-    public updateForm = (key: IFormKeys, value: string): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                form: {
-                    ...prevState.form,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    private sendRequest = (): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                redemptionRequest: this.createRedemptionRequest()
-            }
-        });
-    }
-
-    private createRedemptionRequest = (): NewsletterRedemptionRequest => {
-        return new NewsletterRedemptionRequest(
-            this.state.form[ITokenInputKeys.tokenCode],
-            (response: IResponse) => {
-                const errorMsg = response.errorMsg;
-                const successMsg = response.successMsg;
-                const stateUpdateObj = {
-                    ...this.state
-                };
-
-                if (errorMsg) {
-                    if (errorMsg.indexOf("token") > -1) {
-                        stateUpdateObj.formError[ITokenInputKeys.tokenCode] =
-                            Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg;
-                    } else {
-                        showNotification(errorMsg);
-                    }
-                } else if (successMsg) {
-                    stateUpdateObj.successMsg = Dict.hasOwnProperty(successMsg) ? Dict[successMsg] : successMsg;
-                }
-
-                this.setState({
-                    ...stateUpdateObj,
-                    redemptionRequest: null
-                });
-            },
-            (error: any) => {
-                showNotification(Dict.error_message_timeout);
-                this.setState(innerPrevState => {
-                    return {
-                        ...innerPrevState,
-                        redemptionRequest: null
-                    }
-                });
-            }
-        );
-    }
-
-    private getTokenCode = (): string => {
-        return decodeURI(this.props.location.pathname.slice((AppUrls.HELP_NEWSLETTER_REDEEM + "/").length));
-    }
-
-}
-
-export default withTheme(withRouter(NewsletterRedemptionForm));
+export default withTheme(NewsletterRedemptionForm);

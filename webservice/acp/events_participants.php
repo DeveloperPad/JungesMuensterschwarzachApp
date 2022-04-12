@@ -55,7 +55,8 @@
 					<thead>
 						<tr class="d-flex">
 							<th class="col-2">
-								<span><strong><?php echo($GLOBALS["dict"]["event_eventEnrollmentDate"]);?></strong></span>
+								<span><strong><?php echo($GLOBALS["dict"]["event_eventEnrollmentDate"]);?></strong></span><br/>
+								<span>+ <?php echo($GLOBALS["dict"]["event_checkInDate"]); ?></span>
 							</th>
 							<th class="col-3">
 								<span><strong><?php echo($GLOBALS["dict"]["account_data_contact"]);?></strong></span>
@@ -85,7 +86,11 @@
 						<?php foreach ($event["eventParticipants"] as $participant) { ?>
 							<tr class="d-flex">
 								<td class="col-2">
-									<span><?php echo(GlobalFunctions::formatDate($participant["enrollmentDate"]));?></span>
+									<span><?php echo(GlobalFunctions::formatDateTime($participant["enrollmentDate"]));?></span>
+									<?php if ($participant["checkInDate"]) { ?>
+										<br/>
+										<span><?php echo(GlobalFunctions::formatDateTime($participant["checkInDate"])); ?></span>
+									<?php } ?>
 								</td>
 								<td class="col-3">
 									<div><?php echo($participant["firstName"] . " " . $participant["lastName"]);?></div>
@@ -102,6 +107,11 @@
 								<td class="col-2">
 									<div class="badge badge-pill badge-<?php echo($participant["allowPost"] ? "success" : "danger");?>"><?php echo($GLOBALS["dict"]["account_allowPost_label"]);?></div>
 									<div class="badge badge-pill badge-<?php echo($participant["allowNewsletter"] ? "success" : "danger");?>"><?php echo($GLOBALS["dict"]["account_allowNewsletter_label"]);?></div>
+									<?php if ($participant["checkInDate"]) { ?>
+										<div class="badge badge-pill badge-<?php echo($participant["eventEnrollmentPublicMediaUsageConsent"] ? "success" : "danger");?>">
+											<?php echo($GLOBALS["dict"]["event_eventEnrollmentPublicMediaUsageConsent_short"]);?>
+										</div>
+									<?php } ?>
 									<?php if (isset($participant["phoneNumber"])) { ?>
 										<div><?php echo($participant["phoneNumber"]);?></div>
 									<?php } ?>
