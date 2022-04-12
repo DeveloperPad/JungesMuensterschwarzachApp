@@ -14,10 +14,11 @@ type AppDrawerProps = {
 
 const AppDrawer = (props: AppDrawerProps) => {
     const { open, toggleAppDrawerVisibility } = props;
+
     return (
         <SwipeableDrawer
             onClick={toggleAppDrawerVisibility}
-            onClose={toggleAppDrawerVisibility}
+            onClose={() => {}}
             onOpen={() => {}}
             open={open}
             PaperProps={{

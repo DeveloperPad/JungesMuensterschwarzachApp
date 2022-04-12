@@ -36,7 +36,6 @@ const AppMenu = (props: IAppMenuProps) => {
                 vertical: "top"
             }}
             onClick={toggleAppMenuVisibility}
-            onClose={toggleAppMenuVisibility}
             open={open}>
             <MenuItem
                 button={true}
