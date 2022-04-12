@@ -1,26 +1,23 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Typography } from '@material-ui/core';
+import { Typography } from "@material-ui/core";
 
 interface IErrorMessageTypographyProps {
     value: string | null;
 }
 
-export default class ErrorMessageTypography extends React.PureComponent<IErrorMessageTypographyProps> {
+const ErrorMessageTypography = (props: IErrorMessageTypographyProps) => {
+    const { value } = props;
 
-    public render(): React.ReactNode {
-        if (this.props.value !== null) {
-            return (
-                <Typography
-                    align="center"
-                    color="error"
-                >
-                    {this.props.value}
-                </Typography>
-            );
-        } else {
-            return null;
-        }
+    if (!value) {
+        return null;
     }
 
-}
+    return (
+        <Typography align="center" color="error">
+            {value}
+        </Typography>
+    );
+};
+
+export default ErrorMessageTypography;

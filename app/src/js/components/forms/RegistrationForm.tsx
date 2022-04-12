@@ -1,40 +1,47 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
+import { useNavigate } from "react-router";
 
-import { Typography, withTheme, WithTheme } from '@material-ui/core';
+import { Typography, withTheme, WithTheme } from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import { AppUrls } from '../../constants/specific-urls';
-import { grid7Style, successMsgTypographyStyle, ThemeTypes } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
-import { SignUpRequest } from '../../networking/account_data/SignUpRequest';
-import { IResponse } from '../../networking/Request';
-import AllowNewsletterCheckbox from '../form_elements/AllowNewsletterCheckbox';
-import DisplayNameInput from '../form_elements/DisplayNameInput';
-import EMailAddressInput from '../form_elements/EMailAddressInput';
-import LegalInformationConsentCheckbox, { ILegalInformationConsentCheckBoxKeys } from '../form_elements/LegalInformationConsentCheckbox';
-import PasswordInput from '../form_elements/PasswordInput';
-import SubmitButton from '../form_elements/SubmitButton';
-import Grid from '../utilities/Grid';
-import GridItem from '../utilities/GridItem';
-import { showNotification } from '../utilities/Notifier';
+import { Dict } from "../../constants/dict";
+import { AppUrls } from "../../constants/specific-urls";
+import {
+    grid7Style,
+    successMsgTypographyStyle,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import { SignUpRequest } from "../../networking/account_data/SignUpRequest";
+import { IResponse } from "../../networking/Request";
+import AllowNewsletterCheckbox from "../form_elements/AllowNewsletterCheckbox";
+import DisplayNameInput, {
+    DISPLAY_NAME_INPUT_LOCAL_ERROR_MESSAGE,
+} from "../form_elements/DisplayNameInput";
+import EMailAddressInput, {
+    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
+} from "../form_elements/EMailAddressInput";
+import LegalInformationConsentCheckbox, {
+    ILegalInformationConsentCheckBoxKeys,
+    LEGAL_INFORMATION_CONSENT_CHECKBOX_LOCAL_ERROR_MESSAGE,
+} from "../form_elements/LegalInformationConsentCheckbox";
+import PasswordInput, {
+    PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
+} from "../form_elements/PasswordInput";
+import SubmitButton from "../form_elements/SubmitButton";
+import { useStateRequest } from "../utilities/CustomHooks";
+import Grid from "../utilities/Grid";
+import GridItem from "../utilities/GridItem";
+import { showNotification } from "../utilities/Notifier";
 
-type IRegistrationFormProps = RouteComponentProps<any, StaticContext> & WithTheme;
+type IRegistrationFormProps = WithTheme;
 
-interface IRegistrationFormState {
-    form: IForm;
-    formError: IFormError;
-    signUpRequest: SignUpRequest | null;
-    successMsg: string | null;
-}
-
-type IFormKeys = 
-    IUserKeys.displayName |
-    IUserKeys.eMailAddress |
-    IUserKeys.allowNewsletter | 
-    ILegalInformationConsentCheckBoxKeys.LegalInformationConsent |
-    IUserKeys.password |
-    IUserKeys.passwordRepetition;
+type IFormKeys =
+    | IUserKeys.displayName
+    | IUserKeys.eMailAddress
+    | IUserKeys.allowNewsletter
+    | ILegalInformationConsentCheckBoxKeys.LegalInformationConsent
+    | IUserKeys.password
+    | IUserKeys.passwordRepetition;
 
 interface IForm {
     [IUserKeys.displayName]: string;
@@ -49,276 +56,82 @@ interface IFormError {
     [IUserKeys.displayName]: string | null;
     [IUserKeys.eMailAddress]: string | null;
     [IUserKeys.allowNewsletter]: string | null;
-    [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: string | null;
+    [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]:
+        | string
+        | null;
     [IUserKeys.password]: string | null;
     [IUserKeys.passwordRepetition]: string | null;
 }
 
-class RegistrationForm extends React.Component<IRegistrationFormProps, IRegistrationFormState> {
+const RegistrationForm = (props: IRegistrationFormProps) => {
+    const navigate = useNavigate();
+    const { theme } = props;
+    const [form, setForm] = React.useState<IForm>({
+        [IUserKeys.displayName]: "",
+        [IUserKeys.eMailAddress]: "",
+        [IUserKeys.allowNewsletter]: 0,
+        [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: false,
+        [IUserKeys.password]: "",
+        [IUserKeys.passwordRepetition]: "",
+    });
+    const [formError, setFormError] = React.useState<IFormError>({
+        [IUserKeys.displayName]: null,
+        [IUserKeys.eMailAddress]: null,
+        [IUserKeys.allowNewsletter]: null,
+        [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: null,
+        [IUserKeys.password]: null,
+        [IUserKeys.passwordRepetition]: null,
+    });
+    const [successMsg, setSuccessMsg] = React.useState<string>();
+    const suppressErrorMsgs = React.useRef<boolean>(true);
+    const [signUpRequest, setSignUpRequest] = useStateRequest();
 
-    private upperInputStyle: React.CSSProperties = {
-        marginTop: this.props.theme.spacing(2)
-    };
+    const upperInputStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            marginTop: theme.spacing(2),
+        }),
+        [theme]
+    );
 
-    constructor(props: IRegistrationFormProps) {
-        super(props);
+    const updateForm = React.useCallback(
+        (key: IFormKeys, value: string | number | boolean): void => {
+            setForm((form) => ({
+                ...form,
+                [key]: value,
+            }));
+            suppressErrorMsgs.current = false;
+        },
+        []
+    );
+    const updateFormError = React.useCallback(
+        (key: IFormKeys, value: string | null): void => {
+            setFormError((formError) => ({
+                ...formError,
+                [key]: value,
+            }));
+        },
+        []
+    );
+    const validate = React.useCallback((): boolean => {
+        let valid = true;
 
-        this.state = {
-            form: {
-                [IUserKeys.displayName]: "",
-                [IUserKeys.eMailAddress]: "",
-                [IUserKeys.allowNewsletter]: 0,
-                [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: false,
-                [IUserKeys.password]: "",
-                [IUserKeys.passwordRepetition]: ""
-            },
-            formError: {
-                [IUserKeys.displayName]: null,
-                [IUserKeys.eMailAddress]: null,
-                [IUserKeys.allowNewsletter]: null,
-                [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: null,
-                [IUserKeys.password]: null,
-                [IUserKeys.passwordRepetition]: null
-            },
-            signUpRequest: null,
-            successMsg: null
-        };
-    }
-
-    public componentWillUnmount(): void {
-        if (this.state.signUpRequest) {
-            this.state.signUpRequest.cancel();
-        }
-    }
-
-    public render(): React.ReactNode {
-        if (this.state.signUpRequest) {
-            this.state.signUpRequest.execute();
-        }
-
-        return (
-            <Grid>
-
-                <GridItem
-                    style={grid7Style}>
-                    {this.state.successMsg ? this.showResponseGrid() : this.showRequestGrid()}
-                </GridItem>
-
-            </Grid >
-        );
-    }
-
-    private showRequestGrid = (): React.ReactNode => {
-        return (
-            <Grid>
-
-                <DisplayNameInput
-                    errorMessage={this.state.formError[IUserKeys.displayName]}
-                    onError={this.updateFormError}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
-                    style={this.upperInputStyle}
-                    themeType={ThemeTypes.LIGHT}
-                    value={this.state.form[IUserKeys.displayName]}
-                />
-
-                <EMailAddressInput
-                    errorMessage={this.state.formError[IUserKeys.eMailAddress]}
-                    onError={this.updateFormError}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
-                    style={this.upperInputStyle}
-                    themeType={ThemeTypes.LIGHT}
-                    value={this.state.form[IUserKeys.eMailAddress]}
-                />
-
-                <PasswordInput
-                    errorMessage={this.state.formError[IUserKeys.password]}
-                    onError={this.updateFormError}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
-                    style={this.upperInputStyle}
-                    themeType={ThemeTypes.LIGHT}
-                    value={this.state.form[IUserKeys.password]}
-                />
-
-                <PasswordInput
-                    errorMessage={this.state.formError[IUserKeys.passwordRepetition]}
-                    name={IUserKeys.passwordRepetition}
-                    onError={this.updateFormError}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
-                    style={this.upperInputStyle}
-                    themeType={ThemeTypes.LIGHT}
-                    value={this.state.form[IUserKeys.passwordRepetition]}
-                />
-
-                <AllowNewsletterCheckbox
-                    checked={this.state.form[IUserKeys.allowNewsletter] === 1}
-                    errorMessage={this.state.formError[IUserKeys.allowNewsletter]}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
-                    style={this.upperInputStyle}
-                    themeType={ThemeTypes.LIGHT}
-                />
-
-                <LegalInformationConsentCheckbox
-                    checked={this.state.form[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]}
-                    errorMessage={this.state.formError[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]}
-                    onError={this.updateFormError}
-                    onForwardToLegalInformation={this.forwardToLegalInformation}
-                    onUpdateValue={this.updateForm}
-                    showErrorMessageOnLoad={false}
-                    style={this.upperInputStyle}
-                />
-
-                <SubmitButton
-                    disabled={this.state.signUpRequest !== null}
-                    label={Dict.account_sign_up}
-                    onClick={this.signUp}
-                    style={this.upperInputStyle}
-                />
-
-            </Grid>
-        );
-    }
-
-    private showResponseGrid = (): React.ReactNode => {
-        return (
-            <Grid>
-                <Typography
-                    variant="h5"
-                    style={successMsgTypographyStyle}>
-                    <span>{this.state.successMsg}</span>
-                </Typography>
-            </Grid>
-        );
-    }
-
-    private forwardToLegalInformation = (): void => {
-        this.props.history.push(
-            AppUrls.LEGAL_INFORMATION
-        );
-    }
-
-    public updateForm = (key: IFormKeys, value: string | number | boolean): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                form: {
-                    ...prevState.form,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    public updateFormError = (key: IFormKeys, value: string | null): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                formError: {
-                    ...prevState.formError,
-                    [key]: value
-                }
-            }
-        });
-    }
-
-    private signUp = (): void => {
-        this.scheduleLocalRevalidation();
-
-        if (!this.validate()) {
-            return;
-        }
-
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                signUpRequest: new SignUpRequest(
-                    this.state.form[IUserKeys.displayName],
-                    this.state.form[IUserKeys.eMailAddress],
-                    this.state.form[IUserKeys.password],
-                    this.state.form[IUserKeys.allowNewsletter],
-                    (response: IResponse) => {
-                        const errorMsg = response.errorMsg;
-                        const successMsg = response.successMsg;
-                        const stateUpdateObj = {
-                            ...this.state
-                        };
-    
-                        if (errorMsg) {
-                            let errorKey = null;
-                            
-                            if (errorMsg.indexOf(IUserKeys.displayName) > -1) {
-                                errorKey = IUserKeys.displayName;
-                            } else if (errorMsg.indexOf(IUserKeys.eMailAddress) > -1) {
-                                errorKey = IUserKeys.eMailAddress;
-                            } else if (errorMsg.indexOf(IUserKeys.passwordRepetition) > -1) {
-                                errorKey = IUserKeys.passwordRepetition;
-                            } else if (errorMsg.indexOf(IUserKeys.password) > -1) {
-                                errorKey = IUserKeys.password;
-                            } else if (errorMsg.indexOf(IUserKeys.allowNewsletter) > -1) {
-                                errorKey = IUserKeys.allowNewsletter;
-                            }
-    
-                            if (errorKey) {
-                                stateUpdateObj.formError[errorKey] = Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg;
-                            } else {
-                                showNotification(errorMsg);
-                            }
-                        } else if (successMsg) {
-                            stateUpdateObj.successMsg = Dict.hasOwnProperty(successMsg) ? Dict[successMsg] : successMsg;
-                        }
-    
-                        this.setState({
-                            ...stateUpdateObj,
-                            signUpRequest: null
-                        });
-                    },
-                    (error: any) => {
-                        showNotification(Dict.error_message_timeout);
-                        this.setState(innerPrevState => {
-                            return {
-                                ...innerPrevState,
-                                signUpRequest: null
-                            }
-                        });
-                    }
-                )
-            }
-        });
-    }
-
-    private scheduleLocalRevalidation = (): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                formError: {
-                    [IUserKeys.displayName]: null,
-                    [IUserKeys.eMailAddress]: null,
-                    [IUserKeys.allowNewsletter]: null,
-                    [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: null,
-                    [IUserKeys.password]: null,
-                    [IUserKeys.passwordRepetition]: null
-                },
-            };
-        });
-    }
-
-    private validate = (): boolean => {
-        let valid = true
-
-        if (this.state.formError[IUserKeys.displayName] === DisplayNameInput.LOCAL_ERROR_MESSAGE
-            || this.state.formError[IUserKeys.eMailAddress] === EMailAddressInput.LOCAL_ERROR_MESSAGE
-            || this.state.formError[IUserKeys.passwordRepetition] === PasswordInput.LOCAL_ERROR_MESSAGE
-            || this.state.formError[IUserKeys.password] === PasswordInput.LOCAL_ERROR_MESSAGE
-            || this.state.formError[ILegalInformationConsentCheckBoxKeys.LegalInformationConsent] 
-                === LegalInformationConsentCheckbox.LOCAL_ERROR_MESSAGE) {
+        if (
+            formError[IUserKeys.displayName] ===
+                DISPLAY_NAME_INPUT_LOCAL_ERROR_MESSAGE ||
+            formError[IUserKeys.eMailAddress] ===
+                E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE ||
+            formError[IUserKeys.passwordRepetition] ===
+                PASSWORD_INPUT_LOCAL_ERROR_MESSAGE ||
+            formError[IUserKeys.password] ===
+                PASSWORD_INPUT_LOCAL_ERROR_MESSAGE ||
+            formError[
+                ILegalInformationConsentCheckBoxKeys.LegalInformationConsent
+            ] === LEGAL_INFORMATION_CONSENT_CHECKBOX_LOCAL_ERROR_MESSAGE
+        ) {
             valid = false;
         }
-        if (this.state.form[IUserKeys.password] !== this.state.form[IUserKeys.passwordRepetition]) {
-            this.updateFormError(
+        if (form[IUserKeys.password] !== form[IUserKeys.passwordRepetition]) {
+            updateFormError(
                 IUserKeys.passwordRepetition,
                 Dict.account_passwordRepetition_incorrect
             );
@@ -326,8 +139,186 @@ class RegistrationForm extends React.Component<IRegistrationFormProps, IRegistra
         }
 
         return valid;
-    }
+    }, [form, formError, updateFormError]);
+    const signUp = React.useCallback((): void => {
+        if (!validate()) {
+            return;
+        }
 
-}
+        setFormError({
+            [IUserKeys.displayName]: null,
+            [IUserKeys.eMailAddress]: null,
+            [IUserKeys.allowNewsletter]: null,
+            [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]:
+                null,
+            [IUserKeys.password]: null,
+            [IUserKeys.passwordRepetition]: null,
+        });
+        setSignUpRequest(
+            new SignUpRequest(
+                form[IUserKeys.displayName],
+                form[IUserKeys.eMailAddress],
+                form[IUserKeys.password],
+                form[IUserKeys.allowNewsletter],
+                (response: IResponse) => {
+                    const errorMsg = response.errorMsg;
+                    const successMsg = response.successMsg;
 
-export default withTheme(withRouter(RegistrationForm));
+                    if (errorMsg) {
+                        let errorKey = null;
+
+                        if (errorMsg.indexOf(IUserKeys.displayName) > -1) {
+                            errorKey = IUserKeys.displayName;
+                        } else if (
+                            errorMsg.indexOf(IUserKeys.eMailAddress) > -1
+                        ) {
+                            errorKey = IUserKeys.eMailAddress;
+                        } else if (
+                            errorMsg.indexOf(IUserKeys.passwordRepetition) > -1
+                        ) {
+                            errorKey = IUserKeys.passwordRepetition;
+                        } else if (errorMsg.indexOf(IUserKeys.password) > -1) {
+                            errorKey = IUserKeys.password;
+                        } else if (
+                            errorMsg.indexOf(IUserKeys.allowNewsletter) > -1
+                        ) {
+                            errorKey = IUserKeys.allowNewsletter;
+                        }
+
+                        if (errorKey) {
+                            setFormError((formError) => {
+                                return {
+                                    ...formError,
+                                    [errorKey]: Dict[errorMsg] ?? errorMsg,
+                                };
+                            });
+                        } else {
+                            showNotification(errorMsg);
+                        }
+                    } else if (successMsg) {
+                        setSuccessMsg(Dict[successMsg] ?? successMsg);
+                    }
+
+                    setSignUpRequest(null);
+                },
+                (error: any) => {
+                    showNotification(Dict.error_message_timeout);
+                    setSignUpRequest(null);
+                }
+            )
+        );
+    }, [form, setSignUpRequest, validate]);
+
+    const showRequestGrid = React.useCallback((): React.ReactElement<any> => {
+        return (
+            <Grid>
+                <DisplayNameInput
+                    errorMessage={formError[IUserKeys.displayName]}
+                    onError={updateFormError}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
+                    style={upperInputStyle}
+                    themeType={ThemeTypes.LIGHT}
+                    value={form[IUserKeys.displayName]}
+                />
+
+                <EMailAddressInput
+                    errorMessage={formError[IUserKeys.eMailAddress]}
+                    onError={updateFormError}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
+                    style={upperInputStyle}
+                    themeType={ThemeTypes.LIGHT}
+                    value={form[IUserKeys.eMailAddress]}
+                />
+
+                <PasswordInput
+                    errorMessage={formError[IUserKeys.password]}
+                    onError={updateFormError}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
+                    style={upperInputStyle}
+                    themeType={ThemeTypes.LIGHT}
+                    value={form[IUserKeys.password]}
+                />
+
+                <PasswordInput
+                    errorMessage={formError[IUserKeys.passwordRepetition]}
+                    name={IUserKeys.passwordRepetition}
+                    onError={updateFormError}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
+                    style={upperInputStyle}
+                    themeType={ThemeTypes.LIGHT}
+                    value={form[IUserKeys.passwordRepetition]}
+                />
+
+                <AllowNewsletterCheckbox
+                    checked={form[IUserKeys.allowNewsletter] === 1}
+                    errorMessage={formError[IUserKeys.allowNewsletter]}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
+                    style={upperInputStyle}
+                    themeType={ThemeTypes.LIGHT}
+                />
+
+                <LegalInformationConsentCheckbox
+                    checked={
+                        form[
+                            ILegalInformationConsentCheckBoxKeys
+                                .LegalInformationConsent
+                        ]
+                    }
+                    errorMessage={
+                        formError[
+                            ILegalInformationConsentCheckBoxKeys
+                                .LegalInformationConsent
+                        ]
+                    }
+                    onError={updateFormError}
+                    onForwardToLegalInformation={navigate.bind(
+                        this,
+                        AppUrls.LEGAL_INFORMATION
+                    )}
+                    onUpdateValue={updateForm}
+                    suppressErrorMsg={suppressErrorMsgs.current}
+                    style={upperInputStyle}
+                />
+
+                <SubmitButton
+                    disabled={!!signUpRequest}
+                    label={Dict.account_sign_up}
+                    onClick={signUp}
+                    style={upperInputStyle}
+                />
+            </Grid>
+        );
+    }, [
+        form,
+        formError,
+        navigate,
+        signUp,
+        signUpRequest,
+        updateForm,
+        updateFormError,
+        upperInputStyle,
+    ]);
+    const showResponseGrid = React.useCallback((): React.ReactElement<any> => {
+        return (
+            <Grid>
+                <Typography variant="h5" style={successMsgTypographyStyle}>
+                    <span>{successMsg}</span>
+                </Typography>
+            </Grid>
+        );
+    }, [successMsg]);
+    return (
+        <Grid>
+            <GridItem style={grid7Style}>
+                {successMsg ? showResponseGrid() : showRequestGrid()}
+            </GridItem>
+        </Grid>
+    );
+};
+
+export default withTheme(RegistrationForm);

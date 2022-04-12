@@ -1,11 +1,11 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { TextField } from '@material-ui/core';
+import { TextField } from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import Formats from '../../constants/formats';
-import { grid1Style, textFieldInputProps } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
+import { Dict } from "../../constants/dict";
+import Formats from "../../constants/formats";
+import { grid1Style, textFieldInputProps } from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
 
 interface IZipCodeInputProps {
     errorMessage: string | null;
@@ -16,120 +16,67 @@ interface IZipCodeInputProps {
     value: string;
 }
 
-interface IZipCodeInputState {
-    submit: boolean;
-}
+const ZipCodeInput = (props: IZipCodeInputProps) => {
+    const LOCAL_ERROR_MESSAGE = Dict.account_zipCode_invalid;
 
-export default class ZipCodeInput extends React.Component<IZipCodeInputProps, IZipCodeInputState> {
+    const { errorMessage, onBlur, onError, onUpdateValue, style, value } =
+        props;
 
-    public static LOCAL_ERROR_MESSAGE = Dict.account_zipCode_invalid;
-
-    constructor(props: IZipCodeInputProps) {
-        super(props);
-
-        this.state = {
-            submit: false
-        };
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <TextField
-                error={this.props.errorMessage != null}
-                helperText={this.props.errorMessage}
-                inputProps={zipCodeInputProps}
-                label={Dict.account_zipCode}
-                margin="dense"
-                name={IUserKeys.zipCode}
-                onBlur={this.onBlur}
-                onChange={this.onChange}
-                style={grid1Style}
-                type="text"
-                value={this.props.value}
-                variant="outlined"
-            />
-        );
-    }
-
-    public componentDidMount() {
-        this.validate();
-    }
-
-    public shouldComponentUpdate(nextProps: IZipCodeInputProps, nextState: any, nextContext: any): boolean {
-        return this.props.errorMessage !== nextProps.errorMessage
-            || this.props.value !== nextProps.value
-            || this.state.submit !== nextState.submit;
-    }
-
-    public componentDidUpdate(prevProps: IZipCodeInputProps, prevState: IZipCodeInputState): void {
-        this.validate();
-
-        if (this.state.submit) {
-            if (this.props.onBlur) {
-                this.props.onBlur(
-                    IUserKeys.zipCode,
-                    this.props.value.trim()
-                );
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.zipCode, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.zipCode, value.trim());
             }
-            this.setState({
-                ...prevState,
-                submit: false
-            });
-        }
-    }
 
-    private onChange = (event: any): void => {
-        this.props.onError(
-            IUserKeys.zipCode,
-            null
-        );
-        this.props.onUpdateValue(
-            IUserKeys.zipCode, 
-            event.target.value
-        );
-    }
+            onBlur(IUserKeys.zipCode, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    private onBlur = (_: any): void => {
-        this.trimValue();
-        this.validate();
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                submit: true
-            }
-        });
-    }
+    React.useEffect(() => {
+        const localErrorMessage =
+            !value ||
+            (value.length > 0 && value.length <= Formats.LENGTH.MAX.ZIP_CODE)
+                ? null
+                : LOCAL_ERROR_MESSAGE;
 
-    private trimValue = (): void => {
-        if (this.props.value) {
-            this.props.onUpdateValue(
-                IUserKeys.zipCode,
-                this.props.value.trim()
-            );
-        }
-    }
-
-    public validate = (): void => {
-        const zipCode = this.props.value;
-        const localErrorMessage = !zipCode 
-            || (zipCode.length > 0 && zipCode.length <= Formats.LENGTH.MAX.ZIP_CODE) ?
-            null : ZipCodeInput.LOCAL_ERROR_MESSAGE;
-        
         // do not overwrite server side error messages
-        if (this.props.errorMessage && !localErrorMessage
-            && this.props.errorMessage !== ZipCodeInput.LOCAL_ERROR_MESSAGE) {
-            return;
+        if (
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
+        ) {
+            onError(IUserKeys.zipCode, localErrorMessage);
         }
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
-        this.props.onError(
-            IUserKeys.zipCode,
-            localErrorMessage
-        );
-    }
+    return (
+        <TextField
+            error={errorMessage != null}
+            helperText={errorMessage}
+            inputProps={{
+                ...textFieldInputProps,
+                maxLength: Formats.LENGTH.MAX.ZIP_CODE,
+            }}
+            label={Dict.account_zipCode}
+            margin="dense"
+            name={IUserKeys.zipCode}
+            onBlur={onLocalBlur}
+            onChange={onChange}
+            style={{
+                ...grid1Style,
+                ...style,
+            }}
+            type="text"
+            value={value}
+            variant="outlined"
+        />
+    );
+};
 
-}
-
-const zipCodeInputProps = {
-    ...textFieldInputProps,
-    maxLength: Formats.LENGTH.MAX.ZIP_CODE
-}
+export default ZipCodeInput;

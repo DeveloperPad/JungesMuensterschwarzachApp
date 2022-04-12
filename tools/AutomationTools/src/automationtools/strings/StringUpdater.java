@@ -1,85 +1,80 @@
 package automationtools.strings;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import org.apache.commons.text.StringEscapeUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 /**
- * @author Pad (02.04.2018)
+ * @author Pad (02.11.2021)
  */
-public class StringUpdater {
+public abstract class StringUpdater {
 
-    private static final String ENDPOINT_STRINGS
-            = "http://172.16.1.241/endpoints/strings.php";
-    private static final String ENCODING = StandardCharsets.UTF_8.displayName();
-
-    private final String destination;
-    private final String mode;
     private final String language;
+    private final String[] destinations;
 
-    public StringUpdater(String destination, String mode, String language) {
-        this.destination = destination;
-        this.mode = mode;
-        this.language = language;
+    public StringUpdater(String language, String[] destinations) throws Exception {
+        this.language = language.toUpperCase();
+        this.destinations = destinations;
+        this.run();
     }
 
-    public void run() {
-        System.out.println("-- Starting string update for:");
-        System.out.println("---- Destination: " + destination);
-        System.out.println("---- Mode: " + mode);
-        System.out.println("---- Language: " + language);
-        downloadDictionary();
-        System.out.println("-- Finished string update!\n");
+    private void run() throws Exception {
+        System.out.println("String update for language: " + this.language);
+        System.out.println("-- Download (REST --> JSON)");
+        JSONArray jsonDict = this.downloadDictionary();
+        System.out.println("-- Transform (JSON --> "+this.language+")");
+        String langDict = this.transformDictionary(jsonDict);
+        System.out.println("-- Writing ("+this.language+" --> FILES)");
+        for (String destination : destinations) {
+            this.writeDictionary(destination, langDict);
+            System.out.println("----> " + destination);
+        }
     }
 
-    private void downloadDictionary() {
-        InputStream in = null;
-        OutputStream out = null;
+    private JSONArray downloadDictionary() throws Exception {
+        try (BufferedReader inR = new BufferedReader(new InputStreamReader(
+            new URL(Main.ENDPOINT).openStream()
+        ))) {
+            StringBuilder builder = new StringBuilder();
 
-        try {
-            URL source = new URL(ENDPOINT_STRINGS
-                    + "?mode=" + URLEncoder.encode(mode, ENCODING)
-                    + "&language=" + URLEncoder.encode(language, ENCODING));
-            in = source.openStream();
-            out = new FileOutputStream(destination);
-            BufferedReader inR = new BufferedReader(new InputStreamReader(in));
-            BufferedWriter outW = new BufferedWriter(new OutputStreamWriter(out));
-            String line;
-
+            String line = null;
             while ((line = inR.readLine()) != null) {
-                outW.write(StringEscapeUtils.unescapeXml(line));
-                outW.newLine();
+                builder.append(line);
             }
-            outW.flush();
+
+            JSONParser parser = new JSONParser();
+            try {
+                return (JSONArray)parser.parse(builder.toString());
+            } catch (Exception jsonExc) {
+                JSONObject jsonObj = (JSONObject)((JSONObject)parser.parse(builder.toString())).get("error");
+
+                throw new IOException(
+                    jsonObj.get("name").toString() + " - " + jsonObj.get("message").toString()
+                );
+            }
+        }
+    }
+
+    protected abstract String transformDictionary(JSONArray jsonDict);
+
+    private void writeDictionary(String file, String langDict) {
+        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file))) {
+            out.write(langDict);
+            out.flush();
         } catch (IOException ioExc) {
             ioExc.printStackTrace();
             System.exit(1);
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException ioExc) {
-                ioExc.printStackTrace();
-            }
-
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException ioExc) {
-                ioExc.printStackTrace();
-            }
         }
+    }
+
+    protected static String addSlashes(String s) {
+        return s.replaceAll("\"", "\\\\\"").replaceAll("\'", "\\\\\'");
     }
 
 }

@@ -13,6 +13,8 @@ services:
       - ${JMA_IMAGES}:/workspace/storedImages
       - ./tools/database_update_scripts:/workspace/database_update_scripts
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
+    networks:
+      - jenkins
   jma-app:
     container_name: jma-app
     image: jungesmuensterschwarzach/jma-app:${JMA_BUILD_TYPE}
@@ -36,16 +38,18 @@ services:
     networks:
       jenkins:
         ipv4_address: 172.16.1.241
-  # jma-api:
-  #   container_name: jma-api
-  #   image: jungesmuensterschwarzach/jma-api:${JMA_BUILD_TYPE}
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.api
-  #   restart: always
-  #   networks:
-  #     jenkins:
-  #       ipv4_address: 172.16.1.242
+  jma-api:
+    container_name: jma-api
+    image: jungesmuensterschwarzach/jma-api:${JMA_BUILD_TYPE}
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: always
+    volumes:
+      - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
+    networks:
+      jenkins:
+        ipv4_address: 172.16.1.242
   jma-cron:
     container_name: jma-cron
     image: jungesmuensterschwarzach/jma-cron:${JMA_BUILD_TYPE}
@@ -55,9 +59,8 @@ services:
     restart: always
     volumes:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
+    networks:
+      - jenkins
 networks:
-  default:
-    external:
-      name: jenkins
   jenkins:
     external: true

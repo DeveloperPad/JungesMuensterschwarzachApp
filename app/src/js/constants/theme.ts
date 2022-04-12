@@ -1,5 +1,5 @@
 import { InputBaseComponentProps } from '@material-ui/core/InputBase';
-import { createMuiTheme, Theme } from '@material-ui/core/styles';
+import { createTheme, Theme } from '@material-ui/core/styles';
 import React from 'react';
 import { IUserKeys, IUserValues } from '../networking/account_data/IUser';
 
@@ -43,7 +43,7 @@ export default function getTheme(): Theme {
     return theme;
 }
 
-const theme: Theme = createMuiTheme({
+const theme: Theme = createTheme({
     overrides: {
         MuiButton: {
             containedPrimary: {
@@ -124,7 +124,7 @@ export function getTextFieldTheme(style: ThemeTypes | undefined): Theme {
     }
 }
 
-const textFieldLightTheme: Theme = createMuiTheme({
+const textFieldLightTheme: Theme = createTheme({
     overrides: {
         MuiFormLabel: {
             root: {

@@ -1,137 +1,82 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { TextField } from '@material-ui/core';
+import { TextField } from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import Formats from '../../constants/formats';
-import {
-    grid1Style, textFieldInputProps
-} from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
+import { Dict } from "../../constants/dict";
+import Formats from "../../constants/formats";
+import { grid1Style, textFieldInputProps } from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
 
 interface IStreetNameInputProps {
     errorMessage: string | null;
+    onBlur: (key: IUserKeys.streetName, value: string | null) => void;
     onError: (key: IUserKeys.streetName, value: string | null) => void;
     onUpdateValue: (key: IUserKeys.streetName, value: string) => void;
-    onBlur: (key: IUserKeys.streetName, value: string | null) => void;
     style?: React.CSSProperties;
     value: string;
 }
 
-interface IStreetNameInputState {
-    submit: boolean;
-}
+const StreetNameInput = (props: IStreetNameInputProps) => {
+    const LOCAL_ERROR_MESSAGE = Dict.account_streetName_invalid;
 
-export default class StreetNameInput extends React.Component<IStreetNameInputProps, IStreetNameInputState> {
+    const { errorMessage, onBlur, onError, onUpdateValue, style, value } =
+        props;
 
-    public static LOCAL_ERROR_MESSAGE = Dict.account_streetName_invalid;
-
-    constructor(props: IStreetNameInputProps) {
-        super(props);
-
-        this.state = {
-            submit: false
-        };
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <TextField
-                error={this.props.errorMessage != null}
-                helperText={this.props.errorMessage}
-                inputProps={streetNameInputProps}
-                label={Dict.account_streetName}
-                margin="dense"
-                name={IUserKeys.streetName}
-                onBlur={this.onBlur}
-                onChange={this.onChange}
-                style={grid1Style}
-                type="text"
-                value={this.props.value}
-                variant="outlined"
-            />
-        );
-    }
-
-    public componentDidMount() {
-        this.validate();
-    }
-
-    public shouldComponentUpdate(nextProps: IStreetNameInputProps, nextState: any, nextContext: any): boolean {
-        return this.props.errorMessage !== nextProps.errorMessage
-            || this.props.value !== nextProps.value
-            || this.state.submit !== nextState.submit;
-    }
-
-    public componentDidUpdate(prevProps: IStreetNameInputProps, prevState: IStreetNameInputState): void {
-        this.validate();
-
-        if (this.state.submit) {
-            if (this.props.onBlur) {
-                this.props.onBlur(
-                    IUserKeys.streetName,
-                    this.props.value || null
-                );
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(IUserKeys.streetName, event.target.value);
+        },
+        [onUpdateValue]
+    );
+    const onLocalBlur = React.useCallback(
+        (_: any): void => {
+            if (value) {
+                onUpdateValue(IUserKeys.streetName, value.trim());
             }
-            this.setState({
-                ...prevState,
-                submit: false
-            });
-        }
-    }
 
-    private onChange = (event: any): void => {
-        this.props.onError(
-            IUserKeys.streetName,
-            null
-        );
-        this.props.onUpdateValue(
-            IUserKeys.streetName,
-            event.target.value
-        );
-    }
+            onBlur(IUserKeys.streetName, value);
+        },
+        [onBlur, onUpdateValue, value]
+    );
 
-    private onBlur = (_: any): void => {
-        this.trimValue();
-        this.validate();
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                submit: true
-            }
-        });
-    }
-
-    private trimValue = (): void => {
-        if (this.props.value) {
-            this.props.onUpdateValue(
-                IUserKeys.streetName,
-                this.props.value.trim()
-            );
-        }
-    }
-
-    private validate = (): void => {
-        const streetName = this.props.value;
-        const localErrorMessage = !streetName 
-            || (streetName.length > 0 && streetName.length <= Formats.LENGTH.MAX.STREET_NAME) ?
-            null : StreetNameInput.LOCAL_ERROR_MESSAGE;
+    React.useEffect(() => {
+        const localErrorMessage =
+            !value ||
+            (value.length > 0 && value.length <= Formats.LENGTH.MAX.STREET_NAME)
+                ? null
+                : LOCAL_ERROR_MESSAGE;
 
         // do not overwrite server side error messages
-        if (this.props.errorMessage && !localErrorMessage
-            && this.props.errorMessage !== StreetNameInput.LOCAL_ERROR_MESSAGE) {
-            return;
+        if (
+            errorMessage !== localErrorMessage &&
+            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
+        ) {
+            onError(IUserKeys.streetName, localErrorMessage);
         }
-        
-        this.props.onError(
-            IUserKeys.streetName,
-            localErrorMessage
-        );
-    }
+    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
 
-}
+    return (
+        <TextField
+            error={errorMessage != null}
+            helperText={errorMessage}
+            inputProps={{
+                ...textFieldInputProps,
+                maxLength: Formats.LENGTH.MAX.STREET_NAME,
+            }}
+            label={Dict.account_streetName}
+            margin="dense"
+            name={IUserKeys.streetName}
+            onBlur={onLocalBlur}
+            onChange={onChange}
+            style={{
+                ...grid1Style,
+                ...style,
+            }}
+            type="text"
+            value={value}
+            variant="outlined"
+        />
+    );
+};
 
-const streetNameInputProps = {
-    ...textFieldInputProps,
-    maxLength: Formats.LENGTH.MAX.STREET_NAME
-}
+export default StreetNameInput;

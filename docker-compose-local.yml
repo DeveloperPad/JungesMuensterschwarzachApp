@@ -10,6 +10,8 @@ services:
       - 80:80
       - 443:443
     restart: always
+    networks:
+      - jenkins
   database:
     container_name: database
     image: mysql:latest
@@ -17,9 +19,13 @@ services:
       MYSQL_ROOT_PASSWORD_FILE: /var/data/mysql/secrets/root_pass
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    ports:
+      - "3306:3306"
     volumes:
       - ${JMA_DATABASE}:/var/lib/mysql
       - ${MYSQL_SECRETS}:/var/data/mysql/secrets
+    networks:
+      - jenkins
   jma-app:
     environment:
       CHOKIDAR_USEPOLLING: "true"
@@ -29,24 +35,12 @@ services:
   jma-webservice:
     volumes:
       - ./webservice:/var/www/html
-  # jma-api:
-  #   volumes:
-  #     - ./api:/api/api
-  #     - ./commons:/api/commons
-  #     - /api/node_modules
-  #   entrypoint: "npm run start-api-dev"
   jma-cron:
     volumes:
       - ./webservice:/var/www/html
-  jma-dictionary-updater:
-    container_name: jma-dictionary-updater
-    image: jungesmuensterschwarzach/jma-dictionary-updater:latest
-    build:
-      context: .
-      dockerfile: Dockerfile.dictionary_updater
-    restart: on-failure
-    volumes:
-      - .:/workspace/project
+  # jma-api:
+  #   profiles:
+  #     - donotstart
   jma-phpmyadmin:
     container_name: jma-phpmyadmin
     image: phpmyadmin:latest
@@ -62,9 +56,9 @@ services:
     networks:
       jenkins:
         ipv4_address: 172.16.1.30
+  jma-database-backup-updater:
+    profiles:
+      - donotstart
 networks:
-  default:
-    external:
-      name: jenkins
   jenkins:
     external: true

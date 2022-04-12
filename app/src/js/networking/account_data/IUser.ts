@@ -1,4 +1,4 @@
-import Dict from "../../constants/dict"
+import { Dict } from "../../constants/dict"
 
 // this enum defines the user object's keys
 export enum IUserKeys {

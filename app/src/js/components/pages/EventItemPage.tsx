@@ -1,179 +1,189 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
+import { useNavigate, useParams } from "react-router";
 
-import { BottomNavigationAction, Icon, withTheme, WithTheme } from '@material-ui/core';
-
-import Dict from '../../constants/dict';
-import { AppUrls } from '../../constants/specific-urls';
 import {
-    FetchEventItemDataRequest, IFetchEventItemDataResponse
-} from '../../networking/events/FetchEventItemDataRequest';
+    BottomNavigationAction,
+    Icon,
+    Tooltip,
+    withTheme,
+    WithTheme,
+} from "@material-ui/core";
+
+import { Dict } from "../../constants/dict";
+import { AppUrls } from "../../constants/specific-urls";
+import {
+    FetchEventItemDataRequest,
+    IFetchEventItemDataResponse,
+} from "../../networking/events/FetchEventItemDataRequest";
 import IEventItem, {
-    deserializeEventItem, IEventItemKeys
-} from '../../networking/events/IEventItem';
-import EventListError from '../list_items/EventListError';
-import EventListItem from '../list_items/EventListItem';
-import AppBottomNavigation from '../navigation/menus/AppBottomNavigation';
-import EventEnrollmentSubPage from '../subpages/EventEnrollmentSubPage';
-import EventImagesSubPage from '../subpages/EventImagesSubPage';
-import EventInfoSubPage from '../subpages/EventInfoSubPage';
-import EventLocationSubPage from '../subpages/EventLocationSubPage';
-import Background from '../utilities/Background';
+    deserializeEventItem,
+    IEventItemKeys,
+} from "../../networking/events/IEventItem";
+import EventListError from "../list_items/EventListError";
+import EventListItem from "../list_items/EventListItem";
+import AppBottomNavigation from "../navigation/menus/AppBottomNavigation";
+import EventEnrollmentSubPage from "../subpages/EventEnrollmentSubPage";
+import EventImagesSubPage from "../subpages/EventImagesSubPage";
+import EventInfoSubPage from "../subpages/EventInfoSubPage";
+import EventLocationSubPage from "../subpages/EventLocationSubPage";
+import Background from "../utilities/Background";
+import { useStateRequest } from "../utilities/CustomHooks";
+import TwoWayMap from "../utilities/TwoWayMap";
 
-type IEventItemPageProps = RouteComponentProps<any, StaticContext> & WithTheme;
+type IEventItemPageProps = WithTheme & {
+    isLoggedIn: boolean;
+};
 
-interface IEventItemPageState {
-    fetchEventItemDataRequest: FetchEventItemDataRequest | null;
-    eventItem: IEventItem | null;
-    eventItemError: IEventItem | null;
-    tab: number;
-}
+const EventItemPage = (props: IEventItemPageProps) => {
+    const navigate = useNavigate();
+    const params = useParams();
+    const { isLoggedIn, theme } = props;
+    const [eventItem, setEventItem] = React.useState<IEventItem>(null);
+    const [eventItemError, setEventItemError] = React.useState<IEventItem>({
+        [IEventItemKeys.eventStart]: new Date(),
+        [IEventItemKeys.eventTitle]: Dict.label_loading,
+        [IEventItemKeys.eventTopic]: Dict.label_wait,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [eventRequest, setEventRequest] = useStateRequest();
 
-class EventItemPage extends React.Component<IEventItemPageProps, IEventItemPageState> {
+    const tabMap = React.useMemo(
+        () =>
+            new TwoWayMap({
+                0: "info",
+                1: "enrollment",
+                2: "images",
+                3: "location",
+            }),
+        []
+    );
+    const eventId = React.useMemo(() => parseInt(params.id, 10), [params.id]);
+    const tabId = React.useMemo(
+        () => parseInt(tabMap.revGet(params.tab) ?? 0, 10),
+        [params.tab, tabMap]
+    );
+    const changeTab = React.useCallback(
+        (event: React.ChangeEvent<{}>, value: number): void => {
+            navigate(
+                AppUrls.EVENTS_ITEM_TAB.replace(
+                    ":id",
+                    eventId.toString()
+                ).replace(":tab", tabMap.get(value))
+            );
+        },
+        [eventId, navigate, tabMap]
+    );
+    const fetchEventItem = React.useCallback((): void => {
+        setEventRequest(
+            new FetchEventItemDataRequest(
+                eventId,
+                (response: IFetchEventItemDataResponse) => {
+                    const errorMsg = response.errorMsg;
 
-    constructor(props: IEventItemPageProps) {
-        super(props);
-
-        this.state = {
-            fetchEventItemDataRequest: null,
-            eventItem: null,
-            eventItemError: {
-                [IEventItemKeys.eventStart]: new Date(),
-                [IEventItemKeys.eventTitle]: Dict.label_loading,
-                [IEventItemKeys.eventTopic]: Dict.label_wait
-            },
-            tab: 0
-        };
-    }
-
-    public componentDidMount(): void {
-        this.fetchEventItem();
-    }
-
-    public componentDidUpdate(prevProps: IEventItemPageProps, prevState: IEventItemPageState): void {
-        if (this.state.fetchEventItemDataRequest) {
-            this.state.fetchEventItemDataRequest.execute();
-        }
-    }
-
-    public componentWillUnmount(): void {
-        if (this.state.fetchEventItemDataRequest) {
-            this.state.fetchEventItemDataRequest.cancel();
-        }
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <>
-                <Background theme={this.props.theme} withBottomNavigation={true}>
-                    {this.state.eventItemError ? this.showEventError() : this.showEventItem()}
-                </Background>
-
-                <AppBottomNavigation
-                    activeTab={this.state.tab}
-                    changeTab={this.changeTab}>
-                    <BottomNavigationAction icon={<Icon>info</Icon>} />
-                    <BottomNavigationAction icon={<Icon>people</Icon>} />
-                    <BottomNavigationAction icon={<Icon>panorama</Icon>} />
-                    <BottomNavigationAction icon={<Icon>location_on</Icon>} />
-                </AppBottomNavigation>
-            </>
-        );
-    }
-
-    private showEventError = (): React.ReactNode => {
-        return (
-            <EventListError
-                eventItemError={this.state.eventItemError!}
-            />
-        );
-    }
-
-    private showEventItem = (): React.ReactNode => {
-        if (this.state.tab === 0) {
-            return <EventInfoSubPage eventItem={this.state.eventItem!} />
-        } else if (this.state.tab === 1) {
-            return <EventEnrollmentSubPage eventItem={this.state.eventItem!} refetchEventItem={this.fetchEventItem} />
-        } else if (this.state.tab === 2) {
-            return <EventImagesSubPage eventItem={this.state.eventItem!} />
-        } else if (this.state.tab === 3) {
-            return <EventLocationSubPage eventItem={this.state.eventItem!} />
-        } else {
-            return <EventListItem eventItem={this.state.eventItem!} />
-        }
-    }
-
-    private fetchEventItem = (): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                fetchEventItemDataRequest: new FetchEventItemDataRequest(
-                    this.getCurrentEventId(),
-                    (response: IFetchEventItemDataResponse) => {
-                        const errorMsg = response.errorMsg;
-        
-                        if (errorMsg) {
-                            this.setState(prevState => {
-                                return {
-                                    ...prevState,
-                                    fetchEventItemDataRequest: null,
-                                    eventItem: null,
-                                    eventItemError: {
-                                        [IEventItemKeys.eventStart]: new Date(),
-                                        [IEventItemKeys.eventTitle]: Dict.error_type_server,
-                                        [IEventItemKeys.eventTopic]: Dict.hasOwnProperty(errorMsg) ? Dict[errorMsg] : errorMsg
-                                    },
-                                };
-                            });
-                        } else {
-                            const eventList = response.eventList;
-        
-                            this.setState(prevState => {
-                                return {
-                                    ...prevState,
-                                    fetchEventItemDataRequest: null,
-                                    eventItem: eventList.length > 0 ? deserializeEventItem(eventList[0]) : null,
-                                    eventItemError: eventList.length > 0 ? null : {
-                                        [IEventItemKeys.eventStart]: new Date(),
-                                        [IEventItemKeys.eventTitle]: Dict.error_type_parsing,
-                                        [IEventItemKeys.eventTopic]: Dict.error_message_try_later
-                                    }
-                                };
-                            });
-                        }
-                    },
-                    () => {
-                        this.setState(prevState => {
-                            return {
-                                ...prevState,
-                                fetchEventItemDataRequest: null,
-                                eventItem: null,
-                                eventItemError: {
-                                    [IEventItemKeys.eventStart]: new Date(),
-                                    [IEventItemKeys.eventTitle]: Dict.error_type_network,
-                                    [IEventItemKeys.eventTopic]: Dict.error_message_try_later
-                                }
-                            }
+                    if (errorMsg) {
+                        setEventItem(null);
+                        setEventItemError({
+                            [IEventItemKeys.eventStart]: new Date(),
+                            [IEventItemKeys.eventTitle]: Dict.error_type_server,
+                            [IEventItemKeys.eventTopic]:
+                                Dict[errorMsg] ?? errorMsg,
                         });
+                    } else {
+                        const eventList = response.eventList;
+
+                        setEventItem(
+                            eventList.length > 0
+                                ? deserializeEventItem(eventList[0])
+                                : null
+                        );
+                        setEventItemError(
+                            eventList.length > 0
+                                ? null
+                                : {
+                                      [IEventItemKeys.eventStart]: new Date(),
+                                      [IEventItemKeys.eventTitle]:
+                                          Dict.error_type_parsing,
+                                      [IEventItemKeys.eventTopic]:
+                                          Dict.error_message_try_later,
+                                  }
+                        );
                     }
-                )
-            }
-        });
-    }
 
-    private getCurrentEventId = (): number => {
-        return parseInt(this.props.location.pathname.slice((AppUrls.EVENTS + "/").length), 10);
-    }
+                    setEventRequest(null);
+                },
+                () => {
+                    setEventItem(null);
+                    setEventItemError({
+                        [IEventItemKeys.eventStart]: new Date(),
+                        [IEventItemKeys.eventTitle]: Dict.error_type_network,
+                        [IEventItemKeys.eventTopic]:
+                            Dict.error_message_try_later,
+                    });
+                    setEventRequest(null);
+                }
+            )
+        );
+    }, [eventId, setEventRequest]);
 
-    private changeTab = (event: React.ChangeEvent, value: number): void => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                tab: value
-            }
-        });
-    }
+    React.useEffect(() => {
+        if (Number.isNaN(eventId)) {
+            setEventItem(null);
+            setEventItemError({
+                [IEventItemKeys.eventStart]: new Date(),
+                [IEventItemKeys.eventTitle]: Dict.error_type_client,
+                [IEventItemKeys.eventTopic]: Dict.event_eventId_invalid,
+            });
+        } else {
+            fetchEventItem();
+        }
+    }, [eventId, fetchEventItem]);
 
-}
+    const renderedEventItem = React.useMemo((): React.ReactElement<any> => {
+        if (!eventItem) {
+            return null;
+        } else if (tabId === 0) {
+            return <EventInfoSubPage eventItem={eventItem} />;
+        } else if (tabId === 1) {
+            return (
+                <EventEnrollmentSubPage
+                    eventItem={eventItem}
+                    isLoggedIn={isLoggedIn}
+                    refetchEventItem={fetchEventItem}
+                />
+            );
+        } else if (tabId === 2) {
+            return <EventImagesSubPage eventItem={eventItem} />;
+        } else if (tabId === 3) {
+            return <EventLocationSubPage eventItem={eventItem} />;
+        } else {
+            return <EventListItem eventItem={eventItem} />;
+        }
+    }, [eventItem, fetchEventItem, isLoggedIn, tabId]);
+    const renderedEventError = React.useMemo((): React.ReactElement<any> => {
+        return <EventListError eventItemError={eventItemError} />;
+    }, [eventItemError]);
+    return (
+        <>
+            <Background theme={theme} withBottomNavigation={true}>
+                {eventItemError ? renderedEventError : renderedEventItem}
+            </Background>
 
-export default withTheme(withRouter(EventItemPage));
+            <AppBottomNavigation activeTabId={tabId} changeTab={changeTab}>
+                <Tooltip title={Dict.event_eventDetails}>
+                    <BottomNavigationAction icon={<Icon>info</Icon>} />
+                </Tooltip>
+                <Tooltip title={Dict.event_eventEnrollment + " & " + Dict.event_participants_list}>
+                    <BottomNavigationAction icon={<Icon>people</Icon>} />
+                </Tooltip>
+                <Tooltip title={Dict.image_available}>
+                    <BottomNavigationAction icon={<Icon>panorama</Icon>} />
+                </Tooltip>
+                <Tooltip title={Dict.event_eventLocation}>
+                    <BottomNavigationAction icon={<Icon>location_on</Icon>} />
+                </Tooltip>
+            </AppBottomNavigation>
+        </>
+    );
+};
+
+export default withTheme(EventItemPage);

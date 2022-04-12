@@ -5,7 +5,7 @@ import { IUserKeys } from '../networking/account_data/IUser';
 import AccountPushSubscriptionSubscribeRequest from '../networking/account_push_subscriptions/AccountPushSubscriptionSubscribeRequest';
 import AccountPushSubscriptionUnsubscribeRequest from '../networking/account_push_subscriptions/AccountPushSubscriptionUnsubscribeRequest';
 import { CookieService } from '../services/CookieService';
-import Dict from './dict';
+import { Dict } from './dict';
 import { LogTags } from './log-tags';
 import { ConfigService } from '../services/ConfigService';
 

@@ -1,64 +1,70 @@
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
-import * as React from 'react';
-import { Carousel } from 'react-responsive-carousel';
+import * as React from "react";
+import { Carousel } from "react-responsive-carousel";
 
-import { withTheme, WithTheme } from '@material-ui/core';
+import { withTheme, WithTheme } from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import IImage from '../../networking/images/IImage';
-import { ConfigService } from '../../services/ConfigService';
+import { Dict } from "../../constants/dict";
+import IImage from "../../networking/images/IImage";
+import { ConfigService } from "../../services/ConfigService";
 
 type IImageCarouselProps = WithTheme & {
     images?: IImage[];
     style?: React.CSSProperties;
-}
+};
 
-class ImageCarousel extends React.Component<IImageCarouselProps> {
+const ImageCarousel = (props: IImageCarouselProps) => {
+    const { images, style, theme } = props;
 
-    private carouselContainerStyle: React.CSSProperties = {
-        ...this.props.style,
-        marginBottom: this.props.theme.spacing(2)
-    };
-
-    public render(): React.ReactNode {
-        if (!this.props.images || this.props.images.length === 0) {
-            return null;
-        }
-
-        const showIndicators: boolean = this.props.images.length > 1;
-        const imageDivs: React.ReactNode = this.props.images.map(image => (
-            <div
-                key={image.imageId}
-            >
-                <img src={this.getImagePath(image)} alt="" />
-            </div>
-        ));
-
-        return (
-            <div
-                style={this.carouselContainerStyle}
-            >
-                <Carousel
-                    dynamicHeight={true}
-                    showIndicators={false}
-                    showStatus={showIndicators}
-                    showThumbs={showIndicators}
-                    statusFormatter={this.statusFormatter}>
-                    {imageDivs}
-                </Carousel>
-            </div>
-        );
-    }
-
-    private getImagePath = (image: IImage): string => {
+    const getImagePath = React.useCallback((image: IImage): string => {
         return ConfigService.getConfig().BaseUrls.WEBSERVICE + "/" + image.path;
+    }, []);
+    const statusFormatter = React.useCallback(
+        (current: any, total: any): string => {
+            return current + Dict.image_navigation_counter_infix + total;
+        },
+        []
+    );
+
+    const showIndicators: boolean = React.useMemo(
+        () => images && images.length > 1,
+        [images]
+    );
+    const imageDivs: React.ReactElement<any>[] = React.useMemo(
+        () =>
+            images
+                ? images.map((image) => (
+                      <div key={image.imageId}>
+                          <img src={getImagePath(image)} alt="" />
+                      </div>
+                  ))
+                : [],
+        [getImagePath, images]
+    );
+
+    if (!images || images.length === 0) {
+        return null;
     }
 
-    private statusFormatter = (current: any, total: any): string => {
-        return current + Dict.image_navigation_counter_infix + total;
-    }
-
-}
+    return (
+        <div
+            style={{
+                ...style,
+                marginBottom: theme.spacing(2),
+            }}
+        >
+            <Carousel
+                dynamicHeight={true}
+                showIndicators={false}
+                showStatus={showIndicators}
+                showThumbs={showIndicators}
+                statusFormatter={statusFormatter}
+            >
+                {imageDivs}
+            </Carousel>
+        </div>
+    );
+};
 
 export default withTheme(ImageCarousel);

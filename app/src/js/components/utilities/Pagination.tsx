@@ -1,117 +1,91 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Button, withTheme, WithTheme } from '@material-ui/core';
+import { Button } from "@material-ui/core";
 
-import { CustomTheme } from '../../constants/theme';
+import { CustomTheme } from "../../constants/theme";
 
-type IPaginationProps = WithTheme & {
+type IPaginationProps = {
     currentPage: number;
     onChangePage: (newPage: number) => void;
     style?: React.CSSProperties;
     totalPages: number;
-}
+};
 
-class Pagination extends React.Component<IPaginationProps> {
+const Pagination = (props: IPaginationProps) => {
+    const { currentPage, onChangePage, style, totalPages } = props;
 
-    private paginationStyle: React.CSSProperties = {
-        ...this.props.style,
-        textAlign: "center",
-        width: "100%"
-    };
-
-    public render(): React.ReactNode {
-
-        return (
-            <div
-                style={this.paginationStyle}
-            >
-                {this.getPageNavigationButtons()}
-            </div>
-        );
-    }
-
-    private getPageNavigationButtons = (): React.ReactNode[] => {
-        const navigationButtons: React.ReactNode[] = [];
-
-        navigationButtons.push(this.getJumpToFirstPageButton());
-        navigationButtons.push(this.getJumpBackThreePagesButton());
-        navigationButtons.push.apply(navigationButtons, this.getJumpToSpecificPageButtons());
-        navigationButtons.push(this.getJumpForwardThreePagesButton());
-        navigationButtons.push(this.getJumpToLastPageButton());
-
-        return navigationButtons;
-    }
-
-    private getMaxPage = (): number => {
-        return Math.max(0, this.props.totalPages - 1);
-    }
-
-    /* Page Button Types */
-
-    private getJumpToFirstPageButton = (): React.ReactNode => {
+    const maxPage = React.useMemo((): number => {
+        return Math.max(0, totalPages - 1);
+    }, [totalPages]);
+    const baseButtonStyle = React.useMemo((): React.CSSProperties => {
+        return {
+            backgroundColor: CustomTheme.COLOR_PAGINATION_BUTTONS_BACKGROUND,
+            boxShadow: `1px 0 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER},
+                 0 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER},
+                 1px 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER}, 
+                 1px 0 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER} inset,
+                 0 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER} inset`,
+            minWidth: "10%",
+            width: "10%",
+        };
+    }, []);
+    const middleButtonStyle = React.useMemo((): React.CSSProperties => {
+        return {
+            ...baseButtonStyle,
+            borderRadius: "0px",
+        };
+    }, [baseButtonStyle]);
+    const getJumpToEdgePageButton = React.useCallback((
+        key: number,
+        page: number,
+        style: React.CSSProperties,
+        icon: string
+    ): React.ReactNode => {
         return (
             <Button
-                key={-4}
-                onClick={
-                    this.props.onChangePage.bind(
-                        this,
-                        0
-                    )
-                }
-                style={this.getFirstButtonStyle()}
+                key={key}
+                onClick={onChangePage.bind(this, page)}
+                style={style}
             >
-                &laquo;
+                {icon}
             </Button>
         );
-    }
-
-    private getJumpBackThreePagesButton = (): React.ReactNode => {
-        return (
-            <Button
-                key={-3}
-                onClick={
-                    this.props.onChangePage.bind(
-                        this,
-                        Math.max(0, this.props.currentPage - 3)
-                    )
-                }
-                style={this.getMiddleButtonStyle()}
-            >
-                &lt;
-            </Button>
-        );
-    }
-
+    }, [onChangePage]);
     /* Algorithm explanation:
         - usually, show only previous, current and next page
         - except when on first page: show current and two next pages
         - except when on last page: show two previous and current page
     */
-    private getJumpToSpecificPageButtons = (): React.ReactNode[] => {
+    const getJumpToMiddlePageButtons = React.useCallback((): React.ReactNode[] => {
         const navigationButtons: React.ReactNode[] = [];
-        const isCurrentPageFirstPage: boolean = this.props.currentPage === 0;
-        const isCurrentPageLastPage: boolean = this.props.currentPage === this.getMaxPage();
+        const isCurrentPageFirstPage: boolean = currentPage === 0;
+        const isCurrentPageLastPage: boolean = currentPage === maxPage;
 
         for (
-            let i = this.props.currentPage - (isCurrentPageLastPage ? 2 : 1);
-            i <= this.props.currentPage + (isCurrentPageFirstPage ? 2 : 1);
+            let i = currentPage - (isCurrentPageLastPage ? 2 : 1);
+            i <= currentPage + (isCurrentPageFirstPage ? 2 : 1);
             i++
         ) {
-            if (i < 0 || i > this.getMaxPage()) {
+            if (i < 0 || i > maxPage) {
                 continue;
             }
 
             navigationButtons.push(
                 <Button
                     key={i}
-                    onClick={
-                        this.props.onChangePage.bind(
-                            this,
-                            i
-                        )
-                    }
+                    onClick={onChangePage.bind(this, i)}
                     style={
-                        i === this.props.currentPage ? this.getCurrentButtonStyle() : this.getMiddleButtonStyle()
+                        i === currentPage
+                            ? {
+                                  ...middleButtonStyle,
+                                  borderRadius: "0px",
+                                  boxShadow: `1px 0 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER},
+                                 0 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER_ACTIVE},
+                                 1px 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER_ACTIVE}, 
+                                 1px 0 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER} inset,
+                                 0 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER_ACTIVE} inset`,
+                              }
+                            : middleButtonStyle
                     }
                 >
                     {i + 1}
@@ -120,94 +94,69 @@ class Pagination extends React.Component<IPaginationProps> {
         }
 
         return navigationButtons;
-    }
+    }, [currentPage, middleButtonStyle, maxPage, onChangePage]);
+    const getPageNavigationButtons = React.useCallback((): React.ReactNode[] => {
+        const navigationButtons: React.ReactNode[] = [];
 
-    private getJumpForwardThreePagesButton = (): React.ReactNode => {
-        return (
-            <Button
-                key={-2}
-                onClick={
-                    this.props.onChangePage.bind(
-                        this,
-                        Math.min(this.getMaxPage(), this.props.currentPage + 3)
-                    )
-                }
-                style={this.getMiddleButtonStyle()}
-            >
-                &gt;
-            </Button>
+        navigationButtons.push(
+            getJumpToEdgePageButton(
+                -4,
+                0,
+                {
+                    ...baseButtonStyle,
+                    borderBottomRightRadius: 0,
+                    borderTopRightRadius: 0,
+                },
+                "<<"
+            )
         );
-    }
-
-    private getJumpToLastPageButton = (): React.ReactNode => {
-        return (
-            <Button
-                key={-1}
-                onClick={
-                    this.props.onChangePage.bind(
-                        this,
-                        this.getMaxPage()
-                    )
-                }
-                style={this.getLastButtonStyle()}
-            >
-                &raquo;
-            </Button>
+        navigationButtons.push(
+            getJumpToEdgePageButton(
+                -3,
+                Math.max(0, currentPage - 3),
+                middleButtonStyle,
+                "<"
+            )
         );
-    }
+        navigationButtons.push.apply(
+            navigationButtons,
+            getJumpToMiddlePageButtons()
+        );
+        navigationButtons.push(
+            getJumpToEdgePageButton(
+                -2,
+                Math.min(maxPage, currentPage + 3),
+                middleButtonStyle,
+                ">"
+            )
+        );
+        navigationButtons.push(
+            getJumpToEdgePageButton(
+                -1,
+                maxPage,
+                {
+                    ...baseButtonStyle,
+                    borderBottomLeftRadius: 0,
+                    borderTopLeftRadius: 0,
+                },
+                ">>"
+            )
+        );
 
-    /* CSS */
+        return navigationButtons;
+    }, [getJumpToEdgePageButton, baseButtonStyle, currentPage, middleButtonStyle, getJumpToMiddlePageButtons, maxPage]);
 
-    private getBaseButtonStyle = (): React.CSSProperties => {
-        return {
-            backgroundColor: CustomTheme.COLOR_PAGINATION_BUTTONS_BACKGROUND,
-            boxShadow:
-                `1px 0 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER},
-                 0 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER},
-                 1px 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER}, 
-                 1px 0 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER} inset,
-                 0 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER} inset`,
-            minWidth: "10%",
-            width: "10%"
-        };
-    }
+    return (
+        <div
+            style={{
+                ...style,
+                textAlign: "center",
+                width: "100%",
+            }}
+        >
+            {getPageNavigationButtons()}
+        </div>
+    );
+};
 
-    private getFirstButtonStyle = (): React.CSSProperties => {
-        return {
-            ...this.getBaseButtonStyle(),
-            borderBottomRightRadius: 0,
-            borderTopRightRadius: 0
-        };
-    }
-
-    private getMiddleButtonStyle = (): React.CSSProperties => {
-        return {
-            ...this.getBaseButtonStyle(),
-            borderRadius: "0px",
-        };
-    }
-
-    private getCurrentButtonStyle = (): React.CSSProperties => {
-        return {
-            ...this.getMiddleButtonStyle(),
-            borderRadius: "0px",
-            boxShadow:
-                `1px 0 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER},
-                 0 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER_ACTIVE},
-                 1px 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER_ACTIVE}, 
-                 1px 0 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER} inset,
-                 0 1px 0 0 ${CustomTheme.COLOR_PAGINATION_BUTTONS_BORDER_ACTIVE} inset`
-        };
-    }
-
-    private getLastButtonStyle = (): React.CSSProperties => {
-        return {
-            ...this.getBaseButtonStyle(),
-            borderBottomLeftRadius: 0,
-            borderTopLeftRadius: 0
-        };
-    }
-
-}
-
-export default withTheme(Pagination);
+export default Pagination;

@@ -1,72 +1,79 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
 
 import {
-    Accordion, AccordionDetails, AccordionSummary, Card, CardContent, CardHeader, Typography,
-    withTheme, WithTheme
-} from '@material-ui/core';
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Card,
+    CardContent,
+    CardHeader,
+    Typography,
+    withTheme,
+    WithTheme,
+} from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import Background from '../utilities/Background';
+import { Dict } from "../../constants/dict";
+import Background from "../utilities/Background";
 
-type IChangelogPageProps = RouteComponentProps<any, StaticContext> & WithTheme;
+type IChangelogPageProps = WithTheme;
 
-class ChangelogPage extends React.Component<IChangelogPageProps> {
+const ChangelogPage = (props: IChangelogPageProps) => {
+    const { theme } = props;
 
-    public render(): React.ReactNode {
-        return (
-            <Background theme={this.props.theme}>
-                <Card>
-                    <CardHeader title={Dict.changelog} />
-                    <CardContent>
-                        <Accordion
-                            expanded={true}
-                        >
-                            <AccordionSummary>
-                                <Typography variant="h5">{Dict.changelog_upcoming}</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                                <div style={preFormattedStyle}>
-                                    {Dict.changelog_upcoming_paragraph}
-                                </div>
-                            </AccordionDetails>
-                        </Accordion>
+    const preFormattedStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            whiteSpace: "pre-wrap",
+        }),
+        []
+    );
 
-                        <Accordion
-                            expanded={true}
-                        >
-                            <AccordionSummary>
-                                <Typography variant="h5">{Dict.version_1_1_0}</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                                <div style={preFormattedStyle}>
-                                    {Dict.changelog_1_1_0}
-                                </div>
-                            </AccordionDetails>
-                        </Accordion>
+    return (
+        <Background theme={theme}>
+            <Card>
+                <CardHeader title={Dict.changelog} />
+                <CardContent>
+                    <Accordion expanded={true}>
+                        <AccordionSummary>
+                            <Typography variant="h5">
+                                {Dict.changelog_upcoming}
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <div style={preFormattedStyle}>
+                                {Dict.changelog_upcoming_paragraph}
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
 
-                        <Accordion
-                            expanded={true}
-                        >
-                            <AccordionSummary>
-                                <Typography variant="h5">{Dict.version_1_0_0}</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                                <div style={preFormattedStyle}>
-                                    {Dict.changelog_1_0_0}
-                                </div>
-                            </AccordionDetails>
-                        </Accordion>
-                    </CardContent>
-                </Card>
-            </Background>
-        );
-    }
+                    <Accordion expanded={true}>
+                        <AccordionSummary>
+                            <Typography variant="h5">
+                                {Dict.version_1_1_0}
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <div style={preFormattedStyle}>
+                                {Dict.changelog_1_1_0}
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
 
-}
+                    <Accordion expanded={true}>
+                        <AccordionSummary>
+                            <Typography variant="h5">
+                                {Dict.version_1_0_0}
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <div style={preFormattedStyle}>
+                                {Dict.changelog_1_0_0}
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
+                </CardContent>
+            </Card>
+        </Background>
+    );
+};
 
-export default withTheme(withRouter(ChangelogPage));
-
-const preFormattedStyle: React.CSSProperties = {
-    whiteSpace: "pre-wrap"
-}
+export default withTheme(ChangelogPage);

@@ -1,44 +1,36 @@
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
-import * as React from 'react';
+import * as React from "react";
 
-import { Chip, withTheme, WithTheme } from '@material-ui/core';
+import { Chip } from "@material-ui/core";
 
-import { IUserKeys, IUserValues } from '../../networking/account_data/IUser';
-import { getAccessLevelBadgeStyle } from '../../constants/theme';
+import { IUserKeys, IUserValues } from "../../networking/account_data/IUser";
+import { getAccessLevelBadgeStyle } from "../../constants/theme";
 
-type IBadgeProps = WithTheme & {
+type IBadgeProps = {
     accessLevel: number;
     small?: boolean;
-}
+};
 
-class Badge extends React.Component<IBadgeProps> {
+const Badge = (props: IBadgeProps) => {
+    const { accessLevel, small } = props;
 
-    private style: React.CSSProperties;
-
-    constructor(props: IBadgeProps) {
-        super(props);
-
-        this.style = getAccessLevelBadgeStyle(this.props.accessLevel);
-        if (this.props.small) {
-            this.style = {
-                fontSize: "85%",
-                display: "inline",
-                ...this.style
-            };
-        }
+    let style = getAccessLevelBadgeStyle(accessLevel);
+    if (small) {
+        style = {
+            fontSize: "85%",
+            display: "inline",
+            ...style,
+        };
     }
 
-    public render(): React.ReactNode {
-        return (
-            <Chip
-                label={IUserValues[IUserKeys.accessIdentifier][this.props.accessLevel]}
-                size="small"
-                style={this.style}
-            />
-        );
-    }
+    return (
+        <Chip
+            label={IUserValues[IUserKeys.accessIdentifier][accessLevel]}
+            size="small"
+            style={style}
+        />
+    );
+};
 
-}
-
-export default withTheme(Badge);
+export default Badge;

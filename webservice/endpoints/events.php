@@ -78,6 +78,24 @@
 		$response->setSuccessMsg("event_user_disenrolled");
 	}
 
+	function checkIn($ownUser, $response) {
+		if ($ownUser === null) {
+			throw new Exception("error_message_account_required");
+		}
+
+		EventModule::checkIn($ownUser["userId"], $_POST["eventId"], $_POST["eventEnrollmentPublicMediaUsageConsent"], $ownUser["accessLevel"]);
+		$response->setSuccessMsg("event_user_checked_in");
+	}
+
+	function updateEventEnrollmentPublicMediaUsageConsent($ownUser, $response) {
+		if ($ownUser === null) {
+			throw new Exception("error_message_account_required");
+		}
+
+		EventModule::updateEventEnrollmentPublicMediaUsageConsent($ownUser["userId"], $_POST["eventId"], $_POST["eventEnrollmentPublicMediaUsageConsent"], $ownUser["accessLevel"]);
+		$response->setSuccessMsg("event_eventEnrollmentPublicMediaUsageConsent_updated");
+	}
+
 	function maskAndSortParticipants($participants) {
 		$participants = array_map(function($user) {
 			return UserModule::maskPublic($user);

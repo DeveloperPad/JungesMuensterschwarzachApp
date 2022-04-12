@@ -1,108 +1,102 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { MuiThemeProvider, TextField } from '@material-ui/core';
+import { MuiThemeProvider, TextField } from "@material-ui/core";
 
-import Dict from '../../constants/dict';
-import { getTextFieldTheme, textFieldInputProps, ThemeTypes } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
+import { Dict } from "../../constants/dict";
+import {
+    getTextFieldTheme,
+    textFieldInputProps,
+    ThemeTypes,
+} from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
 
 interface IPasswordInputProps {
     errorMessage: string | null;
     name?: IUserKeys.password | IUserKeys.passwordRepetition | null;
-    onError: (key: IUserKeys.password | IUserKeys.passwordRepetition, value: string) => void;
+    onError: (
+        key: IUserKeys.password | IUserKeys.passwordRepetition,
+        value: string
+    ) => void;
     onKeyPressEnter?: () => void;
-    onUpdateValue: (key: IUserKeys.password | IUserKeys.passwordRepetition, value: string) => void;
-    showErrorMessageOnLoad?: boolean; // default: true
+    onUpdateValue: (
+        key: IUserKeys.password | IUserKeys.passwordRepetition,
+        value: string
+    ) => void;
+    suppressErrorMsg?: boolean;
     style?: React.CSSProperties;
     themeType?: ThemeTypes;
     value: string;
 }
 
-interface IPasswordInputState {
-    showErrorMessage: boolean;
-}
+export const PASSWORD_INPUT_LOCAL_ERROR_MESSAGE = Dict.account_password_invalid;
 
-export default class PasswordInput extends React.Component<IPasswordInputProps, IPasswordInputState> {
+const PasswordInput = (props: IPasswordInputProps) => {
+    const {
+        errorMessage,
+        name,
+        onError,
+        onKeyPressEnter,
+        onUpdateValue,
+        suppressErrorMsg,
+        style,
+        themeType,
+        value,
+    } = props;
 
-    public static LOCAL_ERROR_MESSAGE = Dict.account_password_invalid;
+    const onKeyPress = React.useCallback(
+        (event: React.KeyboardEvent<HTMLDivElement>): void => {
+            if (onKeyPressEnter && event.key === "Enter") {
+                onKeyPressEnter();
+            }
+        },
+        [onKeyPressEnter]
+    );
+    const onChange = React.useCallback(
+        (event: any): void => {
+            onUpdateValue(name ? name : IUserKeys.password, event.target.value);
+        },
+        [name, onUpdateValue]
+    );
 
-    constructor(props: IPasswordInputProps) {
-        super(props);
+    React.useEffect(() => {
+        const localErrorMessage =
+            value && value.length >= 4
+                ? null
+                : PASSWORD_INPUT_LOCAL_ERROR_MESSAGE;
 
-        this.state = {
-            showErrorMessage: props.showErrorMessageOnLoad === undefined || props.showErrorMessageOnLoad
-        }
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <MuiThemeProvider theme={getTextFieldTheme(this.props.themeType)}>
-                <TextField
-                    error={this.state.showErrorMessage && this.props.errorMessage != null}
-                    fullWidth={true}
-                    helperText={this.state.showErrorMessage ? this.props.errorMessage : null}
-                    inputProps={textFieldInputProps}
-                    label={this.props.name && this.props.name === IUserKeys.passwordRepetition ? Dict.account_passwordRepetition : Dict.account_password}
-                    margin="dense"
-                    name={this.props.name ? this.props.name : IUserKeys.password}
-                    onChange={this.onChange}
-                    onKeyPress={this.onKeyPress}
-                    style={this.props.style}
-                    type="password"
-                    value={this.props.value}
-                    variant="outlined"
-                />
-            </MuiThemeProvider>
-        );
-    }
-
-    public componentDidMount(): void {
-        this.validate();
-    }
-
-    public shouldComponentUpdate(nextProps: IPasswordInputProps, nextState: IPasswordInputState, nextContext: any): boolean {
-        return this.props.errorMessage !== nextProps.errorMessage
-            || this.props.value !== nextProps.value;
-    }
-
-    public componentDidUpdate(prevProps: IPasswordInputProps, prevState: IPasswordInputState): void {
-        this.validate();
-
-        if (!this.state.showErrorMessage) {
-            this.setState({
-                ...prevState,
-                showErrorMessage: true
-            });
-        }
-    }
-
-    private onChange = (event: any): void => {
-        this.props.onUpdateValue(
-            this.props.name ? this.props.name : IUserKeys.password, 
-            event.target.value
-        );
-    }
-
-    private onKeyPress = (event: React.KeyboardEvent<HTMLDivElement>): void => {
-        if (this.props.onKeyPressEnter && event.key === "Enter") {
-            this.props.onKeyPressEnter();
-        }
-    }
-
-    public validate = (): void => {
-        const localErrorMessage = this.props.value && this.props.value.length >= 4 ?
-            null : PasswordInput.LOCAL_ERROR_MESSAGE;
-        
         // do not overwrite combined and server side error messages
-        if (this.props.errorMessage && !localErrorMessage
-            && this.props.errorMessage !== PasswordInput.LOCAL_ERROR_MESSAGE) {
-            return;
+        if (
+            errorMessage !== localErrorMessage &&
+            (!errorMessage ||
+                errorMessage === PASSWORD_INPUT_LOCAL_ERROR_MESSAGE)
+        ) {
+            onError(name ? name : IUserKeys.password, localErrorMessage);
         }
+    }, [errorMessage, name, onError, value]);
 
-        this.props.onError(
-            this.props.name ? this.props.name : IUserKeys.password,
-            localErrorMessage
-        );
-    }
+    return (
+        <MuiThemeProvider theme={getTextFieldTheme(themeType)}>
+            <TextField
+                error={errorMessage != null && !suppressErrorMsg}
+                fullWidth={true}
+                helperText={suppressErrorMsg ? null : errorMessage}
+                inputProps={textFieldInputProps}
+                label={
+                    name && name === IUserKeys.passwordRepetition
+                        ? Dict.account_passwordRepetition
+                        : Dict.account_password
+                }
+                margin="dense"
+                name={name ? name : IUserKeys.password}
+                onChange={onChange}
+                onKeyPress={onKeyPress}
+                style={style}
+                type="password"
+                value={value}
+                variant="outlined"
+            />
+        </MuiThemeProvider>
+    );
+};
 
-}
+export default PasswordInput;

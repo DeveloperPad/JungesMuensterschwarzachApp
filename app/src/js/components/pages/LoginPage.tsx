@@ -1,66 +1,57 @@
-import * as React from 'react';
-import { RouteComponentProps, StaticContext, withRouter } from 'react-router';
+import * as React from "react";
 
-import { withTheme, WithTheme } from '@material-ui/core';
+import { withTheme, WithTheme } from "@material-ui/core";
 
-import { AppUrls } from '../../constants/specific-urls';
-import { grid5Style, grid7Style } from '../../constants/theme';
-import { IUserKeys } from '../../networking/account_data/IUser';
-import { CookieService } from '../../services/CookieService';
-import LoginForm from '../forms/LoginForm';
-import WhiteLogoIcon from '../navigation/icons/WhiteLogoIcon';
-import Background from '../utilities/Background';
-import Grid from '../utilities/Grid';
-import GridItem from '../utilities/GridItem';
+import { AppUrls } from "../../constants/specific-urls";
+import { grid5Style, grid7Style } from "../../constants/theme";
+import { IUserKeys } from "../../networking/account_data/IUser";
+import { CookieService } from "../../services/CookieService";
+import LoginForm from "../forms/LoginForm";
+import WhiteLogoIcon from "../navigation/icons/WhiteLogoIcon";
+import Background from "../utilities/Background";
+import Grid from "../utilities/Grid";
+import GridItem from "../utilities/GridItem";
+import { useNavigate } from "react-router";
 
-type ILoginPageProps = RouteComponentProps<any, StaticContext> & WithTheme & {
+type ILoginPageProps = WithTheme & {
     setIsLoggedIn(isLoggedIn: boolean): void;
 };
 
-class LoginPage extends React.Component<ILoginPageProps> {
+const LoginPage = (props: ILoginPageProps) => {
+    const navigate = useNavigate();
+    const { setIsLoggedIn, theme } = props;
 
-    constructor(props: ILoginPageProps) {
-        super(props);
+    const loginPageStyle: React.CSSProperties = React.useMemo(
+        () => ({
+            flex: 1,
+            textAlign: "center",
+            width: "70%",
+        }),
+        []
+    );
 
-        CookieService.get<number>(IUserKeys.accessLevel)
-            .then(accessLevel => {
-                if (accessLevel !== null) {
-                    this.props.history.push(
-                        AppUrls.HOME
-                    );
-                }
-            });
-    }
+    CookieService.get<number>(IUserKeys.accessLevel).then((accessLevel) => {
+        if (accessLevel !== null) {
+            navigate(AppUrls.HOME);
+            return;
+        }
+    });
 
-    public render(): React.ReactNode {
-        return (
-            <Background theme={this.props.theme}>
-                <Grid
-                    style={loginPageStyle}>
+    return (
+        <Background theme={theme}>
+            <Grid style={loginPageStyle}>
+                <GridItem style={grid5Style}>
+                    <Grid>
+                        <WhiteLogoIcon />
+                    </Grid>
+                </GridItem>
 
-                    <GridItem
-                        style={grid5Style}>
-                        <Grid>
-                            <WhiteLogoIcon />
-                        </Grid>
-                    </GridItem>
+                <GridItem style={grid7Style}>
+                    <LoginForm setIsLoggedIn={setIsLoggedIn} />
+                </GridItem>
+            </Grid>
+        </Background>
+    );
+};
 
-                    <GridItem
-                        style={grid7Style}>
-                        <LoginForm setIsLoggedIn={this.props.setIsLoggedIn}/>
-                    </GridItem>
-                </Grid>
-            </Background>
-        );
-    }
-
-}
-
-export default withTheme(withRouter(LoginPage));
-
-
-const loginPageStyle: React.CSSProperties = {
-    flex: 1,
-    textAlign: "center",
-    width: "70%"
-}
+export default withTheme(LoginPage);
