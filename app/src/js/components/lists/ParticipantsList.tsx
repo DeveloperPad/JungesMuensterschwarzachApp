@@ -12,15 +12,17 @@ import IUser, { IUserKeys } from "../../networking/account_data/IUser";
 import Badge from "../utilities/Badge";
 
 type IParticipantsListProps = {
+    emptyMsg?: string;
     participants: IUser[];
+    title?: string;
 };
 
 const ParticipantsList = (props: IParticipantsListProps) => {
-    const { participants } = props;
+    const { emptyMsg, participants, title } = props;
     const emptyRow = React.useMemo((): React.ReactNode => {
         return (
             <TableRow>
-                <TableCell>{Dict.event_participants_list_empty}</TableCell>
+                <TableCell>{emptyMsg ?? Dict.event_participants_list_empty}</TableCell>
             </TableRow>
         );
     }, []);
@@ -45,7 +47,7 @@ const ParticipantsList = (props: IParticipantsListProps) => {
     return (
         <>
             <Typography variant="body1">
-                {Dict.event_participants_list +
+                {(title ?? Dict.event_participants_list) +
                     " (" +
                     participants.length +
                     ")"}

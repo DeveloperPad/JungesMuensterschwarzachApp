@@ -6,9 +6,11 @@ import {
     WithTheme,
 } from "@material-ui/core";
 import * as React from "react";
+import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";
 import { formatDate } from "../../constants/global-functions";
 import { CustomTheme } from "../../constants/theme";
+import { IUserKeys, IUserValues } from "../../networking/account_data/IUser";
 import IEventItem, { IEventItemKeys } from "../../networking/events/IEventItem";
 import EventEnrollmentForm from "../forms/EventEnrollmentForm";
 import ParticipantsList from "../lists/ParticipantsList";
@@ -21,6 +23,13 @@ type IEventEnrollmentSubPageProps = WithTheme & {
 
 const EventEnrollmentSubPage = (props: IEventEnrollmentSubPageProps) => {
     const { eventItem, isLoggedIn, refetchEventItem, theme } = props;
+
+    const participantsList = eventItem[IEventItemKeys.eventParticipants].filter(
+        (user) => user.accessLevel < IUserValues[IUserKeys.accessLevel].editor
+    );
+    const courseInstructor = eventItem[IEventItemKeys.eventParticipants].filter(
+        (user) => user.accessLevel >= IUserValues[IUserKeys.accessLevel].editor
+    );
 
     return (
         <Card
@@ -82,7 +91,19 @@ const EventEnrollmentSubPage = (props: IEventEnrollmentSubPageProps) => {
                 />
 
                 <ParticipantsList
-                    participants={eventItem[IEventItemKeys.eventParticipants]!}
+                    participants={participantsList}
+                />
+
+                <div
+                    style={{
+                        height: theme.spacing(),
+                    }}
+                />
+
+                <ParticipantsList
+                    emptyMsg={Dict.event_participants_list_courseInstructors_empty}
+                    participants={courseInstructor}
+                    title={Dict.event_participants_list_courseInstructors}
                 />
             </CardContent>
         </Card>

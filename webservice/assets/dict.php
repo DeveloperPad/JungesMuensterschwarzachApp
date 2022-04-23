@@ -346,6 +346,8 @@
 "event_packingLists_manage" => "Packlisten verwalten",
 "event_participants_list" => "Teilnehmerliste",
 "event_participants_list_back" => "Zurück zur Teilnehmerliste",
+"event_participants_list_courseInstructors" => "Kursleiterliste",
+"event_participants_list_courseInstructors_empty" => "Keinen Kursleiter gefunden.",
 "event_participants_list_empty" => "Keinen Veranstaltungsteilnehmer gefunden.",
 "event_requiredAccessLevel" => "Freigabestufe",
 "event_requiredAccessLevel_not_exist" => "Die ausgewählte Freigabestufe existiert nicht.",
