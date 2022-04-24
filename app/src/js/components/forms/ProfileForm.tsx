@@ -251,7 +251,7 @@ const ProfileForm = (props: IProfileFormProps) => {
         []
     );
     const fetchAccountData = React.useCallback(
-        (notice: INotice | null = null, resetErrors: boolean = true): void => {
+        (resetErrors: boolean = true): void => {
             setRequest(
                 new FetchAccountDataRequest(
                     (response: IFetchAccountDataResponse) => {
@@ -298,7 +298,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     ...emptyFormError
                                 });
                             }
-                            setNotice(notice);
+                            setNotice(null);
                             fetchedForm.current = downloadedForm;
                         }
                         setRequest(null);
@@ -373,16 +373,11 @@ const ProfileForm = (props: IProfileFormProps) => {
                                 });
                                 showNotification(errorMsg);
                             }
+                        } else {
+                            showNotification(successMsg);
                         }
 
-                        setRequest(null);
                         fetchAccountData(
-                            successMsg
-                                ? {
-                                      message: successMsg,
-                                      type: Dict.label_warning,
-                                  }
-                                : null,
                             errorMsg ? false : true
                         );
                     },

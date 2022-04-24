@@ -60,8 +60,10 @@
 					$response->setSuccessMsg("account_transfer_initialized");
 				} else if ($key === "password") {
 					UserModule::$funcName($userId, $value, $value);
+					$response->setSuccessMsg("account_password_updated");
 				} else {
 					UserModule::$funcName($userId, $value);
+					$response->setSuccessMsg("account_{$key}_updated");
 				}
 			}
 		}

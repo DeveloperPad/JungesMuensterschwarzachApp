@@ -264,6 +264,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                             null
                         );
                         setNotice(null);
+                        showNotification(Dict.event_user_enrolled);
 
                         fetchEventEnrollment();
                     }
@@ -376,7 +377,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                             IEventEnrollmentKeys.eventEnrollmentComment,
                             null
                         );
-
+                        showNotification(Dict.event_user_disenrolled);
                         fetchEventEnrollment();
                     }
 

@@ -124,6 +124,7 @@ const ProfilePasswordChangeForm = (props: IProfilePasswordChangeFormProps) => {
                 form[IUserKeys.password],
                 (response: IResponse) => {
                     const errorMsg = response.errorMsg;
+                    const successMsg = response.successMsg;
 
                     if (errorMsg) {
                         if (
@@ -144,7 +145,7 @@ const ProfilePasswordChangeForm = (props: IProfilePasswordChangeFormProps) => {
                             showNotification(errorMsg);
                         }
                     } else {
-                        setInfoMsg(Dict.account_password_updated);
+                        setInfoMsg(Dict[successMsg] ?? successMsg);
                     }
 
                     setUpdateAccountDataRequest(null);
