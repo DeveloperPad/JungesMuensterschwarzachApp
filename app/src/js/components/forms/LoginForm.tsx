@@ -29,7 +29,7 @@ import { IAccountSessionResponse } from "../../networking/account_session/Accoun
 import { AccountSessionSignInRequest } from "../../networking/account_session/AccountSessionSignInRequest";
 import { CookieService } from "../../services/CookieService";
 import EMailAddressInput, {
-    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
+    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES,
 } from "../form_elements/EMailAddressInput";
 import ForwardButton from "../form_elements/ForwardButton";
 import PasswordInput, {
@@ -121,8 +121,7 @@ const LoginForm = (props: ILoginFormProps) => {
     );
     const validate = React.useCallback((): boolean => {
         return (
-            formError[IUserKeys.eMailAddress] !==
-                E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE &&
+            !E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(formError[IUserKeys.eMailAddress]) &&
             formError[IUserKeys.password] !== PASSWORD_INPUT_LOCAL_ERROR_MESSAGE
         );
     }, [formError]);

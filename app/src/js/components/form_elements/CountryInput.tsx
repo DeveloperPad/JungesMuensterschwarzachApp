@@ -12,19 +12,27 @@ interface ICountryInputProps {
     onBlur: (key: IUserKeys.country, value: string | null) => void;
     onError: (key: IUserKeys.country, value: string | null) => void;
     onUpdateValue: (key: IUserKeys.country, value: string) => void;
+    required?: boolean;
     value: string;
 }
 
 const CountryInput = (props: ICountryInputProps) => {
-    const LOCAL_ERROR_MESSAGE = Dict.account_country_invalid;
+    const LOCAL_ERROR_MESSAGES = React.useMemo(
+        () => [Dict.account_country_required, Dict.account_country_invalid],
+        []
+    );
 
-    const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
+    const { errorMessage, onBlur, onError, onUpdateValue, required, value } =
+        props;
 
     const onChange = React.useCallback(
         (event: any): void => {
+            if (errorMessage) {
+                onError(IUserKeys.country, null);
+            }
             onUpdateValue(IUserKeys.country, event.target.value);
         },
-        [onUpdateValue]
+        [errorMessage, onError, onUpdateValue]
     );
     const onLocalBlur = React.useCallback(
         (_: any): void => {
@@ -38,20 +46,24 @@ const CountryInput = (props: ICountryInputProps) => {
     );
 
     React.useEffect(() => {
-        const localErrorMessage =
-            !value ||
-            (value.length > 0 && value.length <= Formats.LENGTH.MAX.COUNTRY)
-                ? null
-                : LOCAL_ERROR_MESSAGE;
+        const valueLength = value.trim().length;
+
+        let localErrorMessage = null;
+        if (required && (!value || valueLength === 0)) {
+            localErrorMessage = Dict.account_country_required;
+        } else if (value && Formats.LENGTH.MAX.COUNTRY < valueLength) {
+            localErrorMessage = Dict.account_country_invalid;
+        }
 
         // do not overwrite server side error messages
         if (
             errorMessage !== localErrorMessage &&
-            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
+            (!errorMessage || LOCAL_ERROR_MESSAGES.includes(errorMessage))
         ) {
             onError(IUserKeys.country, localErrorMessage);
         }
-    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
 
     return (
         <TextField

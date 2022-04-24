@@ -1,6 +1,6 @@
 import log, * as logger from "loglevel";
 import * as React from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import {
     Accordion,
@@ -124,6 +124,7 @@ interface IFormError {
 }
 
 const ProfileForm = (props: IProfileFormProps) => {
+    const location = useLocation();
     const navigate = useNavigate();
     const { theme } = props;
 
@@ -178,6 +179,10 @@ const ProfileForm = (props: IProfileFormProps) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [request, setRequest] = useStateRequest();
 
+    const areEnrollmentDataRequired = React.useMemo(
+        () => location.pathname === AppUrls.PROFILE_ENROLLMENT_DATA,
+        [location.pathname]
+    );
     const expansionPanelDetailsStyle: React.CSSProperties = React.useMemo(
         () => ({
             flexDirection: "column",
@@ -250,66 +255,61 @@ const ProfileForm = (props: IProfileFormProps) => {
         },
         []
     );
-    const fetchAccountData = React.useCallback(
-        (): void => {
-            setRequest(
-                new FetchAccountDataRequest(
-                    (response: IFetchAccountDataResponse) => {
-                        const errorMsg = response.errorMsg;
-                        const user = response.user;
+    const fetchAccountData = React.useCallback((): void => {
+        setRequest(
+            new FetchAccountDataRequest(
+                (response: IFetchAccountDataResponse) => {
+                    const errorMsg = response.errorMsg;
+                    const user = response.user;
 
-                        if (errorMsg) {
-                            setNotice({
-                                message: errorMsg,
-                                type: Dict.error_type_server,
-                            });
-                        } else if (user) {
-                            const downloadedForm: IForm = {
-                                [IUserKeys.accessIdentifier]:
-                                    user.accessIdentifier || "",
-                                [IUserKeys.allowNewsletter]:
-                                    user.allowNewsletter || 0,
-                                [IUserKeys.allowPost]: user.allowPost || 0,
-                                [IUserKeys.birthdate]: user.birthdate
-                                    ? getDate(
-                                          user.birthdate,
-                                          Formats.DATE.DATETIME_DATABASE
-                                      )
-                                    : null,
-                                [IUserKeys.city]: user.city || "",
-                                [IUserKeys.country]: user.country || "",
-                                [IUserKeys.displayName]: user.displayName || "",
-                                [IUserKeys.eMailAddress]:
-                                    user.eMailAddress || "",
-                                [IUserKeys.eatingHabits]:
-                                    user.eatingHabits || "",
-                                [IUserKeys.firstName]: user.firstName || "",
-                                [IUserKeys.houseNumber]: user.houseNumber || "",
-                                [IUserKeys.supplementaryAddress]:
-                                    user.supplementaryAddress || "",
-                                [IUserKeys.lastName]: user.lastName || "",
-                                [IUserKeys.phoneNumber]: user.phoneNumber || "",
-                                [IUserKeys.streetName]: user.streetName || "",
-                                [IUserKeys.zipCode]: user.zipCode || "",
-                            };
-                            setForm(downloadedForm);
-                            setNotice(null);
-                            fetchedForm.current = downloadedForm;
-                        }
-                        setRequest(null);
-                    },
-                    () => {
+                    if (errorMsg) {
                         setNotice({
-                            message: Dict.error_message_try_later,
-                            type: Dict.error_type_network,
+                            message: errorMsg,
+                            type: Dict.error_type_server,
                         });
-                        setRequest(null);
+                    } else if (user) {
+                        const downloadedForm: IForm = {
+                            [IUserKeys.accessIdentifier]:
+                                user.accessIdentifier || "",
+                            [IUserKeys.allowNewsletter]:
+                                user.allowNewsletter || 0,
+                            [IUserKeys.allowPost]: user.allowPost || 0,
+                            [IUserKeys.birthdate]: user.birthdate
+                                ? getDate(
+                                      user.birthdate,
+                                      Formats.DATE.DATETIME_DATABASE
+                                  )
+                                : null,
+                            [IUserKeys.city]: user.city || "",
+                            [IUserKeys.country]: user.country || "",
+                            [IUserKeys.displayName]: user.displayName || "",
+                            [IUserKeys.eMailAddress]: user.eMailAddress || "",
+                            [IUserKeys.eatingHabits]: user.eatingHabits || "",
+                            [IUserKeys.firstName]: user.firstName || "",
+                            [IUserKeys.houseNumber]: user.houseNumber || "",
+                            [IUserKeys.supplementaryAddress]:
+                                user.supplementaryAddress || "",
+                            [IUserKeys.lastName]: user.lastName || "",
+                            [IUserKeys.phoneNumber]: user.phoneNumber || "",
+                            [IUserKeys.streetName]: user.streetName || "",
+                            [IUserKeys.zipCode]: user.zipCode || "",
+                        };
+                        setForm(downloadedForm);
+                        setNotice(null);
+                        fetchedForm.current = downloadedForm;
                     }
-                )
-            );
-        },
-        [setRequest]
-    );
+                    setRequest(null);
+                },
+                () => {
+                    setNotice({
+                        message: Dict.error_message_try_later,
+                        type: Dict.error_type_network,
+                    });
+                    setRequest(null);
+                }
+            )
+        );
+    }, [setRequest]);
     const updateAccountData = React.useCallback(
         (key: IFormKeys, value: IFormValues): void => {
             if (
@@ -356,30 +356,28 @@ const ProfileForm = (props: IProfileFormProps) => {
                             }
 
                             if (errorKey) {
-                                const newFormError = {
-                                    ...emptyFormError
-                                };
-                                newFormError[errorKey] =
-                                    Dict[errorMsg] ?? errorMsg;
-                                setFormError(newFormError);
+                                setFormError(formError => ({
+                                    ...formError,
+                                    [errorKey]: Dict[errorMsg] ?? errorMsg
+                                }));
                             } else {
                                 setFormError({
-                                    ...emptyFormError
+                                    ...emptyFormError,
                                 });
                                 showNotification(errorMsg);
                             }
                         } else {
-                            setForm(form => ({
+                            setForm((form) => ({
                                 ...form,
-                                [key]: value
+                                [key]: value,
                             }));
-                            setFormError(formError => ({
+                            setFormError((formError) => ({
                                 ...formError,
-                                [key]: null
+                                [key]: null,
                             }));
                             fetchedForm.current = {
                                 ...fetchedForm.current,
-                                [key]: value   
+                                [key]: value,
                             };
                             showNotification(successMsg);
                         }
@@ -524,6 +522,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     onError={updateFormError}
                                     onUpdateValue={updateForm}
                                     onBlur={updateAccountData}
+                                    required={areEnrollmentDataRequired}
                                     value={form[IUserKeys.eMailAddress]}
                                 />
                                 <Typography style={accountMarkerStyle}>
@@ -578,6 +577,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     onError={updateFormError}
                                     onUpdateValue={updateForm}
                                     onBlur={updateAccountData}
+                                    required={areEnrollmentDataRequired}
                                     value={form[IUserKeys.firstName]}
                                 />
                                 <Typography style={eventMarkerStyle}>
@@ -591,6 +591,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     onError={updateFormError}
                                     onUpdateValue={updateForm}
                                     onBlur={updateAccountData}
+                                    required={areEnrollmentDataRequired}
                                     value={form[IUserKeys.lastName]}
                                 />
                                 <Typography style={eventMarkerStyle}>
@@ -606,6 +607,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     onError={updateFormError}
                                     onUpdateValue={updateForm}
                                     onBlur={updateAccountData}
+                                    required={areEnrollmentDataRequired}
                                     value={form[IUserKeys.streetName]}
                                 />
                                 <Typography style={eventMarkerStyle}>
@@ -621,6 +623,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     onError={updateFormError}
                                     onUpdateValue={updateForm}
                                     onBlur={updateAccountData}
+                                    required={areEnrollmentDataRequired}
                                     value={form[IUserKeys.houseNumber]}
                                 />
                                 <Typography style={eventMarkerStyle}>
@@ -648,6 +651,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     onError={updateFormError}
                                     onUpdateValue={updateForm}
                                     onBlur={updateAccountData}
+                                    required={areEnrollmentDataRequired}
                                     value={form[IUserKeys.zipCode]}
                                 />
                                 <Typography style={eventMarkerStyle}>
@@ -661,6 +665,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     onError={updateFormError}
                                     onUpdateValue={updateForm}
                                     onBlur={updateAccountData}
+                                    required={areEnrollmentDataRequired}
                                     value={form[IUserKeys.city]}
                                 />
                                 <Typography style={eventMarkerStyle}>
@@ -674,6 +679,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     onError={updateFormError}
                                     onUpdateValue={updateForm}
                                     onBlur={updateAccountData}
+                                    required={areEnrollmentDataRequired}
                                     value={form[IUserKeys.country]}
                                 />
                                 <Typography style={eventMarkerStyle}>
@@ -706,6 +712,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     onError={updateFormError}
                                     onUpdateValue={updateForm}
                                     onBlur={updateAccountData}
+                                    required={areEnrollmentDataRequired}
                                     value={form[IUserKeys.eMailAddress]}
                                 />
                                 <Typography style={accountMarkerStyle}>
@@ -749,6 +756,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                                     onError={updateFormError}
                                     onUpdateValue={updateForm}
                                     onBlur={updateAccountData}
+                                    required={areEnrollmentDataRequired}
                                     value={form[IUserKeys.birthdate]}
                                 />
                                 <Typography style={eventMarkerStyle}>
@@ -806,6 +814,7 @@ const ProfileForm = (props: IProfileFormProps) => {
         ),
         [
             accountMarkerStyle,
+            areEnrollmentDataRequired,
             deleteAccountData,
             eventMarkerStyle,
             expansionPanelDetailsInnerStyle,

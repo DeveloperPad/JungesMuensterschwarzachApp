@@ -22,6 +22,7 @@ export enum AppUrls {
     NEWS_LIST = "/news",
     NEWS_ITEM = "/news/:id",
     PROFILE = "/profile",
+    PROFILE_ENROLLMENT_DATA = "/profile/enrollment_data",
     PROFILE_CHANGE_PASSWORD = "/profile/change_password",
     REGISTER = "/register"
 }

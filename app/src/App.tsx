@@ -309,6 +309,9 @@ const App = () => {
                         path={AppUrls.PROFILE_CHANGE_PASSWORD}
                         element={<ProfilePasswordChangePage />}
                     />
+                    <Route
+                        path={AppUrls.PROFILE_ENROLLMENT_DATA}
+                        element={<ProfilePage />} />
                     <Route path={AppUrls.PROFILE} element={<ProfilePage />} />
                     <Route
                         path={AppUrls.REGISTER}

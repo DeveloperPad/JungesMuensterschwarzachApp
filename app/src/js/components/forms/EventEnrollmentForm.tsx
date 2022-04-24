@@ -246,7 +246,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                             "event_user_enrollment_missing_account_data"
                         ) {
                             // TODO: replace with DictKeys from commons
-                            navigate(AppUrls.PROFILE);
+                            navigate(AppUrls.PROFILE_ENROLLMENT_DATA);
                             showNotification(errorMsg);
                         } else {
                             updateFormError(

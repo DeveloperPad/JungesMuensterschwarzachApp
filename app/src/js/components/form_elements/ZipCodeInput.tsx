@@ -12,21 +12,35 @@ interface IZipCodeInputProps {
     onError: (key: IUserKeys.zipCode, value: string | null) => void;
     onUpdateValue: (key: IUserKeys.zipCode, value: string) => void;
     onBlur: (key: IUserKeys.zipCode, value: string | null) => void;
+    required?: boolean;
     style?: React.CSSProperties;
     value: string;
 }
 
 const ZipCodeInput = (props: IZipCodeInputProps) => {
-    const LOCAL_ERROR_MESSAGE = Dict.account_zipCode_invalid;
+    const LOCAL_ERROR_MESSAGES = React.useMemo(
+        () => [Dict.account_zipCode_required, Dict.account_zipCode_invalid],
+        []
+    );
 
-    const { errorMessage, onBlur, onError, onUpdateValue, style, value } =
-        props;
+    const {
+        errorMessage,
+        onBlur,
+        onError,
+        onUpdateValue,
+        required,
+        style,
+        value,
+    } = props;
 
     const onChange = React.useCallback(
         (event: any): void => {
+            if (errorMessage) {
+                onError(IUserKeys.zipCode, null);
+            }
             onUpdateValue(IUserKeys.zipCode, event.target.value);
         },
-        [onUpdateValue]
+        [errorMessage, onError, onUpdateValue]
     );
     const onLocalBlur = React.useCallback(
         (_: any): void => {
@@ -40,20 +54,24 @@ const ZipCodeInput = (props: IZipCodeInputProps) => {
     );
 
     React.useEffect(() => {
-        const localErrorMessage =
-            !value ||
-            (value.length > 0 && value.length <= Formats.LENGTH.MAX.ZIP_CODE)
-                ? null
-                : LOCAL_ERROR_MESSAGE;
+        const valueLength = value.trim().length;
+
+        let localErrorMessage = null;
+        if (required && (!value || valueLength === 0)) {
+            localErrorMessage = Dict.account_zipCode_required;
+        } else if (value && Formats.LENGTH.MAX.ZIP_CODE < valueLength) {
+            localErrorMessage = Dict.account_zipCode_invalid;
+        }
 
         // do not overwrite server side error messages
         if (
             errorMessage !== localErrorMessage &&
-            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
+            (!errorMessage || LOCAL_ERROR_MESSAGES.includes(errorMessage))
         ) {
             onError(IUserKeys.zipCode, localErrorMessage);
         }
-    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
 
     return (
         <TextField

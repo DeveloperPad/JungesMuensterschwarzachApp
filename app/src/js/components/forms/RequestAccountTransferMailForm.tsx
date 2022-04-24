@@ -13,7 +13,7 @@ import { IUserKeys } from "../../networking/account_data/IUser";
 import { RequestAccountTransferMailRequest } from "../../networking/account_data/RequestAccountTransferMailRequest";
 import { IResponse } from "../../networking/Request";
 import EMailAddressInput, {
-    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
+    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES,
 } from "../form_elements/EMailAddressInput";
 import SubmitButton from "../form_elements/SubmitButton";
 import { useStateRequest } from "../utilities/CustomHooks";
@@ -88,8 +88,9 @@ const RequestAccountTransferMailForm = (
     );
     const sendRequest = React.useCallback((): void => {
         if (
-            formError[IUserKeys.eMailAddress] ===
-            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE
+            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(
+                formError[IUserKeys.eMailAddress]
+            )
         ) {
             return;
         }

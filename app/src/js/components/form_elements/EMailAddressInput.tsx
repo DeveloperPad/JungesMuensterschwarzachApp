@@ -17,14 +17,17 @@ interface IEMailAddressInputProps {
     onBlur?: (key: IUserKeys.eMailAddress, value: string) => void;
     onError: (key: IUserKeys.eMailAddress, value: string) => void;
     onUpdateValue: (key: IUserKeys.eMailAddress, value: string) => void;
+    required?: boolean;
     suppressErrorMsg?: boolean;
     style?: React.CSSProperties;
     themeType?: ThemeTypes;
     value: string;
 }
 
-export const E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE =
-    Dict.account_eMailAddress_invalid;
+export const E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES = [
+    Dict.account_eMailAddress_required,
+    Dict.account_eMailAddress_invalid,
+];
 
 const EMailAddressInput = (props: IEMailAddressInputProps) => {
     const {
@@ -33,6 +36,7 @@ const EMailAddressInput = (props: IEMailAddressInputProps) => {
         onBlur,
         onError,
         onUpdateValue,
+        required,
         suppressErrorMsg,
         style,
         themeType,
@@ -41,9 +45,12 @@ const EMailAddressInput = (props: IEMailAddressInputProps) => {
 
     const onChange = React.useCallback(
         (event: any): void => {
+            if (errorMessage) {
+                onError(IUserKeys.eMailAddress, null);
+            }
             onUpdateValue(IUserKeys.eMailAddress, event.target.value);
         },
-        [onUpdateValue]
+        [errorMessage, onError, onUpdateValue]
     );
     const onLocalBlur = React.useCallback(
         (_: any): void => {
@@ -55,18 +62,24 @@ const EMailAddressInput = (props: IEMailAddressInputProps) => {
     );
 
     React.useEffect(() => {
-        const localErrorMessage = Formats.REGEXPS.E_MAIL_ADDRESS.test(value)
-            ? null
-            : E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE;
+        let localErrorMessage = null;
+        if (required && (!value || value.trim().length === 0)) {
+            localErrorMessage = Dict.account_eMailAddress_required;
+        } else if (!Formats.REGEXPS.E_MAIL_ADDRESS.test(value)) {
+            localErrorMessage = Dict.account_eMailAddress_invalid;
+        }
 
         if (
             errorMessage !== localErrorMessage &&
             (!errorMessage ||
-                errorMessage === E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE)
+                E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(
+                    errorMessage
+                ))
         ) {
             onError(IUserKeys.eMailAddress, localErrorMessage);
         }
-    }, [errorMessage, onError, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
 
     return (
         <MuiThemeProvider theme={getTextFieldTheme(themeType)}>

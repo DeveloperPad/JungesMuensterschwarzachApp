@@ -13,7 +13,7 @@ import { IUserKeys } from "../../networking/account_data/IUser";
 import { RequestActivationMailRequest } from "../../networking/account_data/RequestActivationMailRequest";
 import { IResponse } from "../../networking/Request";
 import EMailAddressInput, {
-    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
+    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES,
 } from "../form_elements/EMailAddressInput";
 import SubmitButton from "../form_elements/SubmitButton";
 import { useStateRequest } from "../utilities/CustomHooks";
@@ -84,8 +84,7 @@ const RequestActivationMailForm = (props: IRequestActivationMailFormProps) => {
     );
     const sendRequest = React.useCallback((): void => {
         if (
-            formError[IUserKeys.eMailAddress] ===
-            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE
+            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(formError[IUserKeys.eMailAddress])
         ) {
             return;
         }

@@ -14,19 +14,27 @@ interface IBirthdateInputProps {
     onError: (key: IUserKeys.birthdate, value: string | null) => void;
     onUpdateValue: (key: IUserKeys.birthdate, value: Date | null) => void;
     onBlur: (key: IUserKeys.birthdate, value: string | null) => void;
+    required?: boolean;
     value: Date | null;
 }
 
 const BirthdateInput = (props: IBirthdateInputProps) => {
-    const LOCAL_ERROR_MESSAGE = Dict.account_birthdate_invalid;
+    const LOCAL_ERROR_MESSAGES = React.useMemo(
+        () => [Dict.account_birthdate_required, Dict.account_birthdate_invalid],
+        []
+    );
 
-    const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
+    const { errorMessage, onBlur, onError, onUpdateValue, required, value } =
+        props;
 
     const onChange = React.useCallback(
         (date: any): void => {
+            if (errorMessage) {
+                onError(IUserKeys.birthdate, null);
+            }
             onUpdateValue(IUserKeys.birthdate, date);
         },
-        [onUpdateValue]
+        [errorMessage, onError, onUpdateValue]
     );
     const onLocalBlur = React.useCallback(
         (_: any): void => {
@@ -39,19 +47,22 @@ const BirthdateInput = (props: IBirthdateInputProps) => {
     );
 
     React.useEffect(() => {
-        const localErrorMessage =
-            value === null || moment().isAfter(moment(value))
-                ? null
-                : LOCAL_ERROR_MESSAGE;
+        let localErrorMessage = null;
+        if (required && !value) {
+            localErrorMessage = Dict.account_birthdate_required;
+        } else if (value && moment(value).isAfter(moment())) {
+            localErrorMessage = Dict.account_birthdate_invalid;
+        }
 
         // do not overwrite server side error messages
         if (
             errorMessage !== localErrorMessage &&
-            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
+            (!errorMessage || LOCAL_ERROR_MESSAGES.includes(errorMessage))
         ) {
             onError(IUserKeys.birthdate, localErrorMessage);
         }
-    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
 
     return (
         <DatePicker

@@ -1,0 +1,9 @@
+UPDATE `strings` SET `en` = 'The first name is required for event enrollments.', `de` = 'Der Vorname wird für Veranstaltungsanmeldungen benötigt.' WHERE `strings`.`identifier` = 'account_firstName_required';
+UPDATE `strings` SET `en` = 'The last name is required for event enrollments.', `de` = 'Der Nachname wird für Veranstaltungsanmeldungen benötigt.' WHERE `strings`.`identifier` = 'account_lastName_required';
+UPDATE `strings` SET `en` = 'The street name is required for event enrollments.', `de` = 'Die Straße wird für Veranstaltungsanmeldungen benötigt.' WHERE `strings`.`identifier` = 'account_streetName_required';
+UPDATE `strings` SET `en` = 'The house number is required for event enrollments.', `de` = 'Die Hausnummer wird für Veranstaltungsanmeldungen benötigt.' WHERE `strings`.`identifier` = 'account_houseNumber_required';
+UPDATE `strings` SET `en` = 'The zip code is required for event enrollments.', `de` = 'Die Postleitzahl wird für Veranstaltungsanmeldungen benötigt.' WHERE `strings`.`identifier` = 'account_zipCode_required';
+UPDATE `strings` SET `en` = 'The city is required for event enrollments.', `de` = 'Der Wohnort wird für Veranstaltungsanmeldungen benötigt.' WHERE `strings`.`identifier` = 'account_city_required';
+UPDATE `strings` SET `en` = 'The country is required for event enrollments.', `de` = 'Das Land wird für Veranstaltungsanmeldungen benötigt.' WHERE `strings`.`identifier` = 'account_country_required';
+INSERT INTO `strings` (`identifier`, `en`, `de`) VALUES ('account_eMailAddress_required', 'The e-mail address is required for having an account and event enrollments.', 'Die E-Mail-Adresse wird für das Besitzen eines Accounts und Veranstaltungsanmeldungen benötigt.');
+UPDATE `strings` SET `en` = 'The birthdate is required for event enrollments.', `de` = 'Das Geburtsdatum wird für Veranstaltungsanmeldungen benötigt.' WHERE `strings`.`identifier` = 'account_birthdate_required';

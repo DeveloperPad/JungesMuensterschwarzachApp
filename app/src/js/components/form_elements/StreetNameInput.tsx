@@ -12,21 +12,37 @@ interface IStreetNameInputProps {
     onBlur: (key: IUserKeys.streetName, value: string | null) => void;
     onError: (key: IUserKeys.streetName, value: string | null) => void;
     onUpdateValue: (key: IUserKeys.streetName, value: string) => void;
+    required?: boolean;
     style?: React.CSSProperties;
     value: string;
 }
 
 const StreetNameInput = (props: IStreetNameInputProps) => {
-    const LOCAL_ERROR_MESSAGE = Dict.account_streetName_invalid;
-
-    const { errorMessage, onBlur, onError, onUpdateValue, style, value } =
-        props;
+    const LOCAL_ERROR_MESSAGES = React.useMemo(
+        () => [
+            Dict.account_streetName_required,
+            Dict.account_streetName_invalid,
+        ],
+        []
+    );
+    const {
+        errorMessage,
+        onBlur,
+        onError,
+        onUpdateValue,
+        required,
+        style,
+        value,
+    } = props;
 
     const onChange = React.useCallback(
         (event: any): void => {
+            if (errorMessage) {
+                onError(IUserKeys.streetName, null);
+            }
             onUpdateValue(IUserKeys.streetName, event.target.value);
         },
-        [onUpdateValue]
+        [errorMessage, onError, onUpdateValue]
     );
     const onLocalBlur = React.useCallback(
         (_: any): void => {
@@ -40,20 +56,24 @@ const StreetNameInput = (props: IStreetNameInputProps) => {
     );
 
     React.useEffect(() => {
-        const localErrorMessage =
-            !value ||
-            (value.length > 0 && value.length <= Formats.LENGTH.MAX.STREET_NAME)
-                ? null
-                : LOCAL_ERROR_MESSAGE;
+        const valueLength = value.trim().length;
+
+        let localErrorMessage = null;
+        if (required && (!value || valueLength === 0)) {
+            localErrorMessage = Dict.account_streetName_required;
+        } else if (value && Formats.LENGTH.MAX.STREET_NAME < valueLength) {
+            localErrorMessage = Dict.account_streetName_invalid;
+        }
 
         // do not overwrite server side error messages
         if (
             errorMessage !== localErrorMessage &&
-            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
+            (!errorMessage || LOCAL_ERROR_MESSAGES.includes(errorMessage))
         ) {
             onError(IUserKeys.streetName, localErrorMessage);
         }
-    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
 
     return (
         <TextField

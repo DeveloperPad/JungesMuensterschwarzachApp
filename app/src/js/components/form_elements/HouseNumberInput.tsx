@@ -12,19 +12,29 @@ interface IHouseNumberInputProps {
     onError: (key: IUserKeys.houseNumber, value: string | null) => void;
     onUpdateValue: (key: IUserKeys.houseNumber, value: string) => void;
     onBlur: (key: IUserKeys.houseNumber, value: string | null) => void;
+    required?: boolean;
     value: string;
 }
 
 const HouseNumberInput = (props: IHouseNumberInputProps) => {
-    const LOCAL_ERROR_MESSAGE = Dict.account_houseNumber_invalid;
-
-    const { errorMessage, onBlur, onError, onUpdateValue, value } = props;
+    const LOCAL_ERROR_MESSAGES = React.useMemo(
+        () => [
+            Dict.account_houseNumber_required,
+            Dict.account_houseNumber_invalid,
+        ],
+        []
+    );
+    const { errorMessage, onBlur, onError, onUpdateValue, required, value } =
+        props;
 
     const onChange = React.useCallback(
         (event: any): void => {
+            if (errorMessage) {
+                onError(IUserKeys.houseNumber, null);
+            }
             onUpdateValue(IUserKeys.houseNumber, event.target.value);
         },
-        [onUpdateValue]
+        [errorMessage, onError, onUpdateValue]
     );
     const onLocalBlur = React.useCallback(
         (_: any): void => {
@@ -38,21 +48,24 @@ const HouseNumberInput = (props: IHouseNumberInputProps) => {
     );
 
     React.useEffect(() => {
-        const localErrorMessage =
-            !value ||
-            (value.length > 0 &&
-                value.length <= Formats.LENGTH.MAX.HOUSE_NUMBER)
-                ? null
-                : LOCAL_ERROR_MESSAGE;
+        const valueLength = value.trim().length;
+
+        let localErrorMessage = null;
+        if (required && (!value || valueLength === 0)) {
+            localErrorMessage = Dict.account_houseNumber_required;
+        } else if (value && Formats.LENGTH.MAX.HOUSE_NUMBER < valueLength) {
+            localErrorMessage = Dict.account_houseNumber_invalid;
+        }
 
         // do not overwrite server side error messages
         if (
             errorMessage !== localErrorMessage &&
-            (!errorMessage || errorMessage === LOCAL_ERROR_MESSAGE)
+            (!errorMessage || LOCAL_ERROR_MESSAGES.includes(errorMessage))
         ) {
             onError(IUserKeys.houseNumber, localErrorMessage);
         }
-    }, [LOCAL_ERROR_MESSAGE, errorMessage, onError, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
 
     return (
         <TextField

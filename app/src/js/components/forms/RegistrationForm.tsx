@@ -18,7 +18,7 @@ import DisplayNameInput, {
     DISPLAY_NAME_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/DisplayNameInput";
 import EMailAddressInput, {
-    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE,
+    E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES,
 } from "../form_elements/EMailAddressInput";
 import LegalInformationConsentCheckbox, {
     ILegalInformationConsentCheckBoxKeys,
@@ -118,8 +118,9 @@ const RegistrationForm = (props: IRegistrationFormProps) => {
         if (
             formError[IUserKeys.displayName] ===
                 DISPLAY_NAME_INPUT_LOCAL_ERROR_MESSAGE ||
-            formError[IUserKeys.eMailAddress] ===
-                E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGE ||
+            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(
+                formError[IUserKeys.eMailAddress]
+            ) ||
             formError[IUserKeys.passwordRepetition] ===
                 PASSWORD_INPUT_LOCAL_ERROR_MESSAGE ||
             formError[IUserKeys.password] ===
