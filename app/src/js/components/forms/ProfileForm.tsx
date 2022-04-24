@@ -251,7 +251,7 @@ const ProfileForm = (props: IProfileFormProps) => {
         []
     );
     const fetchAccountData = React.useCallback(
-        (resetErrors: boolean = true): void => {
+        (): void => {
             setRequest(
                 new FetchAccountDataRequest(
                     (response: IFetchAccountDataResponse) => {
@@ -293,11 +293,6 @@ const ProfileForm = (props: IProfileFormProps) => {
                                 [IUserKeys.zipCode]: user.zipCode || "",
                             };
                             setForm(downloadedForm);
-                            if (resetErrors) {
-                                setFormError({
-                                    ...emptyFormError
-                                });
-                            }
                             setNotice(null);
                             fetchedForm.current = downloadedForm;
                         }
@@ -313,7 +308,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                 )
             );
         },
-        [emptyFormError, setRequest]
+        [setRequest]
     );
     const updateAccountData = React.useCallback(
         (key: IFormKeys, value: IFormValues): void => {
@@ -374,12 +369,20 @@ const ProfileForm = (props: IProfileFormProps) => {
                                 showNotification(errorMsg);
                             }
                         } else {
+                            setForm(form => ({
+                                ...form,
+                                [key]: value
+                            }));
+                            setFormError(formError => ({
+                                ...formError,
+                                [key]: null
+                            }));
+                            fetchedForm.current = {
+                                ...fetchedForm.current,
+                                [key]: value   
+                            };
                             showNotification(successMsg);
                         }
-
-                        fetchAccountData(
-                            errorMsg ? false : true
-                        );
                     },
                     () => {
                         setNotice({
@@ -391,7 +394,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                 )
             );
         },
-        [emptyFormError, fetchAccountData, form, formError, setRequest]
+        [emptyFormError, form, formError, setRequest]
     );
     const deleteAccountData = React.useCallback((): void => {
         setShowDeletionConfirmationDialog(false);
