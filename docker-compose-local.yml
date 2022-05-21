@@ -35,6 +35,8 @@ services:
   jma-webservice:
     volumes:
       - ./webservice:/var/www/html
+    profiles:
+      - donotstart
   jma-cron:
     volumes:
       - ./webservice:/var/www/html
