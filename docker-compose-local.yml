@@ -40,6 +40,8 @@ services:
   jma-cron:
     volumes:
       - ./webservice:/var/www/html
+    profiles:
+      - donotstart
   jma-api:
     container_name: jma-api
     image: jungesmuensterschwarzach/jma-api:${JMA_BUILD_TYPE}

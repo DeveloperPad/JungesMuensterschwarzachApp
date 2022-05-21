@@ -1,0 +1,1 @@
+UPDATE account_data SET eMailAddress=LOWER(TRIM(eMailAddress));

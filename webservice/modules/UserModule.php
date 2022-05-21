@@ -392,7 +392,7 @@
 		public static function updateSupplementaryAddress($userId, $supplementaryAddress) {
 			self::validateSupplementaryAddress($supplementaryAddress);
 			
-			$supplementaryAddress = $supplementaryAddress === "" ? null : trim($supplementaryAddress);
+			$supplementaryAddress = empty($supplementaryAddress) === true ? null : trim($supplementaryAddress);
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"UPDATE account_data SET supplementaryAddress=?, modificationDate=NOW() WHERE userId=?"
 			);
@@ -453,7 +453,7 @@
 		public static function updatePhoneNumber($userId, $phoneNumber) {			
 			self::validatePhoneNumber($phoneNumber);
 			
-			$phoneNumber = $phoneNumber === "" ? null : trim($phoneNumber);
+			$phoneNumber = empty($phoneNumber) === true ? null : trim($phoneNumber);
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"UPDATE account_data SET phoneNumber=?, modificationDate=NOW() WHERE userId=?"
 			);
@@ -487,7 +487,7 @@
 		public static function updateEatingHabits($userId, $eatingHabits) {
 			self::validateEatingHabits($eatingHabits);
 			
-			$eatingHabits = $eatingHabits === "" ? null : trim($eatingHabits);
+			$eatingHabits = empty($eatingHabits) === true ? null : trim($eatingHabits);
 			$stmt = DatabaseModule::getInstance()->prepare(
 				"UPDATE account_data SET eatingHabits=?, modificationDate=NOW() WHERE userId=?"
 			);
@@ -621,7 +621,7 @@
 		}
 		
 		private static function validateFirstName($firstName) {
-			$firstName = trim($firstName);
+			$firstName = empty($firstName) === true ? null : trim($firstName);
 			
 			if (empty($firstName) === true) {
 				throw new Exception("account_firstName_required");
@@ -631,7 +631,7 @@
 		}
 		
 		private static function validateLastName($lastName) {
-			$lastName = trim($lastName);
+			$lastName = empty($lastName) === true ? null : trim($lastName);
 			
 			if (empty($lastName) === true) {
 				throw new Exception("account_lastName_required");
@@ -667,7 +667,7 @@
 		}
 
 		private static function validateStreetName($streetName) {
-			$streetName = trim($streetName);
+			$streetName = empty($streetName) === true ? null : trim($streetName);
 
             if (empty($streetName) === true) {
 				throw new Exception("account_streetName_required");
@@ -677,7 +677,7 @@
 		}
 
 		private static function validateHouseNumber($houseNumber) {
-			$houseNumber = trim($houseNumber);
+			$houseNumber = empty($houseNumber) === true ? null : trim($houseNumber);
 			
 			if (empty($houseNumber) === true) {
 				throw new Exception("account_houseNumber_required");
@@ -687,15 +687,15 @@
 		}
 
 		private static function validateSupplementaryAddress($supplementaryAddress) {
-			$supplementaryAddress = trim($supplementaryAddress);
+			$supplementaryAddress = empty($supplementaryAddress) === true ? null : trim($supplementaryAddress);
 			
-			if (strlen($supplementaryAddress) > SUPPLEMENTARY_ADDRESS_LENGTH_MAX) {
+			if ($supplementaryAddress !== null && strlen($supplementaryAddress) > SUPPLEMENTARY_ADDRESS_LENGTH_MAX) {
 				throw new Exception("account_supplementaryAddress_invalid");
 			}
 		}
 
 		private static function validateZipCode($zipCode) {
-			$zipCode = trim($zipCode);
+			$zipCode = empty($zipCode) === true ? null : trim($zipCode);
 
             if (empty($zipCode) === true) {
 				throw new Exception("account_zipCode_required");
@@ -705,7 +705,7 @@
 		}
 
 		private static function validateCity($city) {
-			$city = trim($city);
+			$city = empty($city) === true ? null : trim($city);
 
 			if (empty($city) === true) {
 				throw new Exception("account_city_required");
@@ -715,7 +715,7 @@
 		}
 
 		private static function validateCountry($country) {
-			$country = trim($country);
+			$country = empty($country) === true ? null : trim($country);
 
 			if (empty($country) === true) {
 				throw new Exception("account_country_required");
@@ -725,7 +725,9 @@
 		}
 
 		private static function validatePhoneNumber($phoneNumber) {
-			if (strlen($phoneNumber) > PHONENUMBER_LENGTH_MAX) {
+			$phoneNumber = empty($phoneNumber) === true ? null : trim($phoneNumber);
+
+			if ($phoneNumber !== null && strlen($phoneNumber) > PHONENUMBER_LENGTH_MAX) {
 				throw new Exception("account_phoneNumber_invalid");
 			}
 		}
@@ -740,7 +742,9 @@
 		}
 
 		private static function validateEatingHabits($eatingHabits) {
-			if (strlen($eatingHabits) > EATINGHABITS_LENGTH_MAX) {
+			$eatingHabits = empty($eatingHabits) === true ? null : trim($eatingHabits);
+
+			if ($eatingHabits !== null && strlen($eatingHabits) > EATINGHABITS_LENGTH_MAX) {
 				throw new Exception("account_eatingHabits_invalid");
 			}
 		}

@@ -54,11 +54,14 @@ const EMailAddressInput = (props: IEMailAddressInputProps) => {
     );
     const onLocalBlur = React.useCallback(
         (_: any): void => {
+            const normalizedValue = value.trim().toLowerCase();
+
+            onUpdateValue(IUserKeys.eMailAddress, normalizedValue);
             if (onBlur) {
-                onBlur(IUserKeys.eMailAddress, value);
+                onBlur(IUserKeys.eMailAddress, normalizedValue);
             }
         },
-        [onBlur, value]
+        [onBlur, onUpdateValue, value]
     );
 
     React.useEffect(() => {

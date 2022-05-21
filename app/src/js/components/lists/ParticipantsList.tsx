@@ -25,7 +25,7 @@ const ParticipantsList = (props: IParticipantsListProps) => {
                 <TableCell>{emptyMsg ?? Dict.event_participants_list_empty}</TableCell>
             </TableRow>
         );
-    }, []);
+    }, [emptyMsg]);
     const participantsRows = React.useMemo((): React.ReactNode => {
         return participants.map((participant: IUser) => {
             return (

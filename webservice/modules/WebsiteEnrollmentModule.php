@@ -182,6 +182,7 @@
 				MAIL_FOLDER_ENROLLMENTS_FAILED => true
 			);
 	
+			/** @var string $mailboxName */
 			foreach ($mailboxNames as $mailboxName) {
 				foreach ($foldersToCreate as $folder => $toCreate) {
 					if (strpos($mailboxName, $folder) !== false) {
@@ -279,6 +280,9 @@
 				switch ($key) {
 					case array_keys($keyDict)[0]:
 						$savedValue = EventModule::getNextEventByTitle($value);
+						break;
+					case array_keys($keyDict)[9]:
+						$savedValue = strtolower($value);
 						break;
 					case array_keys($keyDict)[11]:
 						$birthdate = new DateTime($value, new DateTimeZone(SERVER_TIMEZONE));
