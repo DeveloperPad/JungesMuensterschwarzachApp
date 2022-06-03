@@ -455,7 +455,7 @@
 				"SELECT ad.userId, ee.eventEnrollmentComment, ee.enrollmentDate, ee.checkInDate, ee.eventEnrollmentPublicMediaUsageConsent 
 				 FROM account_data ad, event_enrollments ee 
 				 WHERE ee.eventId=? AND ad.userId=ee.userId  
-				 ORDER BY ee.enrollmentDate"
+				 ORDER BY ee.checkInDate ASC, ee.enrollmentDate ASC"
 			);
 			$stmt->bind_param("i", $event["eventId"]);
 
