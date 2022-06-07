@@ -14,6 +14,7 @@ export enum AppUrls {
     HELP_REQUEST_ACTIVATION_MAIL = "/help/request_activation_mail",
     HELP_RESET_PASSWORD = "/help/reset_password",
     HOME = "/",
+    INDEX = "/index.html",
     INSTALLATION = "/installation",
     INSTALLATION_DETAILS = "/installation/*",
     LEGAL_INFORMATION = "/legal_information",

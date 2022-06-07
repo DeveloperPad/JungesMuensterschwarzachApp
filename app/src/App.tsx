@@ -318,6 +318,7 @@ const App = () => {
                         element={<RegistrationPage />}
                     />
                     <Route path={AppUrls.HOME} element={<HomePage />} />
+                    <Route path={AppUrls.INDEX} element={<HomePage />} />
                     <Route path="*" element={<PageNotFound />} />
                 </Routes>
             </div>
