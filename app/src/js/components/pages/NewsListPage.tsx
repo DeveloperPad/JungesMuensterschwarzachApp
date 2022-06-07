@@ -45,6 +45,15 @@ const NewsListPage = (props: INewsListPageProps) => {
     }, []);
 
     React.useEffect(() => {
+        updateNewsList([
+            {
+                newsId: -1,
+                postingDate: new Date(),
+                summary: Dict.label_wait,
+                title: Dict.label_loading,
+            },
+        ]);
+
         CookieService.get<number>(IUserKeys.accessLevel)
             .then((accessLevel) => {
                 if (accessLevel === null) {
