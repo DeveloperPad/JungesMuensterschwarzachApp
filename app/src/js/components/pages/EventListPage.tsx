@@ -26,7 +26,7 @@ import { CookieService } from "../../services/CookieService";
 import EventListError from "../list_items/EventListError";
 import EventListItem from "../list_items/EventListItem";
 import Background from "../utilities/Background";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 
 type IEventListPageProps = WithTheme;
 
@@ -41,51 +41,48 @@ const EventListPage = (props: IEventListPageProps) => {
             [IEventItemKeys.eventTopic]: Dict.label_wait,
         });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [fetchRequest, setFetchRequest] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
 
     React.useEffect(() => {
         CookieService.get<number>(IUserKeys.accessLevel)
             .then((accessLevel) => {
                 if (accessLevel === null) {
                     navigate(AppUrls.LOGIN);
+                } else {
+                    request(
+                        new FetchEventListDataRequest(
+                            (response: IFetchEventListDataResponse) => {
+                                const errorMsg = response.errorMsg;
+
+                                if (errorMsg) {
+                                    setEventList([]);
+                                    setEventListError({
+                                        eventStart: new Date(),
+                                        eventTitle: Dict.error_type_server,
+                                        eventTopic: Dict[errorMsg] ?? errorMsg,
+                                    });
+                                } else {
+                                    setEventList(response.eventList);
+                                    setEventListError(null);
+                                }
+                            },
+                            () => {
+                                setEventList([]);
+                                setEventListError({
+                                    [IEventItemKeys.eventStart]: new Date(),
+                                    [IEventItemKeys.eventTitle]:
+                                        Dict.error_type_network,
+                                    [IEventItemKeys.eventTopic]:
+                                        Dict.error_message_try_later,
+                                });
+                            }
+                        )
+                    );
                 }
             })
             .catch((error) => {
                 navigate(AppUrls.LOGIN);
             });
-
-        setFetchRequest(
-            new FetchEventListDataRequest(
-                (response: IFetchEventListDataResponse) => {
-                    const errorMsg = response.errorMsg;
-
-                    if (errorMsg) {
-                        setEventList([]);
-                        setEventListError({
-                            eventStart: new Date(),
-                            eventTitle: Dict.error_type_server,
-                            eventTopic: Dict[errorMsg] ?? errorMsg,
-                        });
-                    } else {
-                        setEventList(response.eventList);
-                        setEventListError(null);
-                    }
-
-                    setFetchRequest(null);
-                },
-                () => {
-                    setEventList([]);
-                    setEventListError({
-                        [IEventItemKeys.eventStart]: new Date(),
-                        [IEventItemKeys.eventTitle]: Dict.error_type_network,
-                        [IEventItemKeys.eventTopic]:
-                            Dict.error_message_try_later,
-                    });
-
-                    setFetchRequest(null);
-                }
-            )
-        );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

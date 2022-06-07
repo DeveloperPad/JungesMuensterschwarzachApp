@@ -28,7 +28,7 @@ import PasswordInput, {
     PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/PasswordInput";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -84,7 +84,7 @@ const RegistrationForm = (props: IRegistrationFormProps) => {
     });
     const [successMsg, setSuccessMsg] = React.useState<string>();
     const suppressErrorMsgs = React.useRef<boolean>(true);
-    const [signUpRequest, setSignUpRequest] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
 
     const upperInputStyle: React.CSSProperties = React.useMemo(
         () => ({
@@ -155,7 +155,7 @@ const RegistrationForm = (props: IRegistrationFormProps) => {
             [IUserKeys.password]: null,
             [IUserKeys.passwordRepetition]: null,
         });
-        setSignUpRequest(
+        request(
             new SignUpRequest(
                 form[IUserKeys.displayName],
                 form[IUserKeys.eMailAddress],
@@ -199,16 +199,13 @@ const RegistrationForm = (props: IRegistrationFormProps) => {
                     } else if (successMsg) {
                         setSuccessMsg(Dict[successMsg] ?? successMsg);
                     }
-
-                    setSignUpRequest(null);
                 },
                 (error: any) => {
                     showNotification(Dict.error_message_timeout);
-                    setSignUpRequest(null);
                 }
             )
         );
-    }, [form, setSignUpRequest, validate]);
+    }, [form, request, validate]);
 
     const showRequestGrid = React.useCallback((): React.ReactElement<any> => {
         return (
@@ -287,7 +284,7 @@ const RegistrationForm = (props: IRegistrationFormProps) => {
                 />
 
                 <SubmitButton
-                    disabled={!!signUpRequest}
+                    disabled={isRequestRunning}
                     label={Dict.account_sign_up}
                     onClick={signUp}
                     style={upperInputStyle}
@@ -297,9 +294,9 @@ const RegistrationForm = (props: IRegistrationFormProps) => {
     }, [
         form,
         formError,
+        isRequestRunning,
         navigate,
         signUp,
-        signUpRequest,
         updateForm,
         updateFormError,
         upperInputStyle,

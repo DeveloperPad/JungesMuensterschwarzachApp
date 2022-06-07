@@ -15,7 +15,7 @@ import { NewsletterRedemptionRequest } from "../../networking/newsletter/Newslet
 import { IResponse } from "../../networking/Request";
 import SubmitButton from "../form_elements/SubmitButton";
 import TokenInput, { ITokenInputKeys } from "../form_elements/TokenInput";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -51,7 +51,7 @@ const NewsletterRedemptionForm = (props: INewsletterRedemptionFormProps) => {
     const [formError, setFormError] = React.useState<IFormError>({
         [ITokenInputKeys.tokenCode]: null,
     });
-    const [redemptionRequest, setRedemptionRequest] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
 
     const typographyStyle: React.CSSProperties = React.useMemo(
         () => ({
@@ -88,7 +88,7 @@ const NewsletterRedemptionForm = (props: INewsletterRedemptionFormProps) => {
         []
     );
     const sendRequest = React.useCallback((): void => {
-        setRedemptionRequest(
+        request(
             new NewsletterRedemptionRequest(
                 form[ITokenInputKeys.tokenCode],
                 (response: IResponse) => {
@@ -107,16 +107,13 @@ const NewsletterRedemptionForm = (props: INewsletterRedemptionFormProps) => {
                     } else if (successMsg) {
                         setSuccessMsg(Dict[successMsg] ?? successMsg);
                     }
-
-                    setRedemptionRequest(null);
                 },
                 (error: any) => {
                     showNotification(Dict.error_message_timeout);
-                    setRedemptionRequest(null);
                 }
             )
         );
-    }, [form, setRedemptionRequest, updateFormError]);
+    }, [form, request, updateFormError]);
 
     React.useEffect(() => {
         if (
@@ -143,7 +140,7 @@ const NewsletterRedemptionForm = (props: INewsletterRedemptionFormProps) => {
                 />
 
                 <SubmitButton
-                    disabled={!!redemptionRequest}
+                    disabled={isRequestRunning}
                     onClick={sendRequest}
                     style={marginTopStyle}
                 />
@@ -152,8 +149,8 @@ const NewsletterRedemptionForm = (props: INewsletterRedemptionFormProps) => {
     }, [
         form,
         formError,
+        isRequestRunning,
         marginTopStyle,
-        redemptionRequest,
         sendRequest,
         typographyStyle,
         updateForm,

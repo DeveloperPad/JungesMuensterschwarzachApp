@@ -19,7 +19,7 @@ import { INewsItemResponse } from "../../networking/news/NewsItemRequest";
 import NewsRequest from "../../networking/news/NewsRequest";
 import Background from "../utilities/Background";
 import Badge from "../utilities/Badge";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import ImageCarousel from "../utilities/ImageCarousel";
 
 type INewsItemPageProps = WithTheme;
@@ -28,7 +28,7 @@ const NewsItemPage = (props: INewsItemPageProps) => {
     const location = useLocation();
     const { theme } = props;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [newsRequest, setNewsRequest] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
 
     const newsId = React.useMemo(
         () =>
@@ -94,39 +94,40 @@ const NewsItemPage = (props: INewsItemPageProps) => {
                 title: Dict.error_type_client,
             });
         } else {
-            setNewsRequest(new NewsRequest(
-                {
-                    newsId,
-                },
-                (response: INewsItemResponse) => {
-                    if (response.errorMsg) {
-                        const errorMsg = response.errorMsg;
+            request(
+                new NewsRequest(
+                    {
+                        newsId,
+                    },
+                    (response: INewsItemResponse) => {
+                        if (response.errorMsg) {
+                            const errorMsg = response.errorMsg;
 
+                            setNewsItem({
+                                newsId: -1,
+                                postingDate: new Date(),
+                                summary: Dict.hasOwnProperty(errorMsg)
+                                    ? Dict[errorMsg]
+                                    : errorMsg,
+                                title: Dict.error_type_server,
+                            });
+                        } else {
+                            setNewsItem(response.news);
+                        }
+                    },
+                    (error: string) => {
                         setNewsItem({
                             newsId: -1,
                             postingDate: new Date(),
-                            summary: Dict.hasOwnProperty(errorMsg)
-                                ? Dict[errorMsg]
-                                : errorMsg,
-                            title: Dict.error_type_server,
+                            summary: Dict.error_message_try_later,
+                            title: Dict.error_type_network,
                         });
-                    } else {
-                        setNewsItem(response.news);
                     }
-                    setNewsRequest(null);
-                },
-                (error: string) => {
-                    setNewsItem({
-                        newsId: -1,
-                        postingDate: new Date(),
-                        summary: Dict.error_message_try_later,
-                        title: Dict.error_type_network,
-                    });
-                    setNewsRequest(null);
-                }
-            ));
+                )
+            );
         }
-    }, [newsId, setNewsRequest]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [newsId]);
 
     const authorDetails = React.useMemo((): React.ReactNode => {
         if (newsItem.author) {

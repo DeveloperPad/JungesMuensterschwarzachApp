@@ -29,7 +29,7 @@ import LegalInformationConsentCheckbox, {
     ILegalInformationConsentCheckBoxKeys,
 } from "../form_elements/LegalInformationConsentCheckbox";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -66,7 +66,7 @@ const NewsletterSubscriptionForm = (
         [ILegalInformationConsentCheckBoxKeys.LegalInformationConsent]: null,
     });
     const [successMsg, setSuccessMsg] = React.useState<string>();
-    const [subscriptionRequest, setSubscriptionRequest] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
     const suppressErrorMsgs = React.useRef<boolean>(true);
 
     const marginTopStyle: React.CSSProperties = React.useMemo(
@@ -125,14 +125,24 @@ const NewsletterSubscriptionForm = (
         },
         []
     );
+    const disableSubmitButton = React.useMemo((): boolean => {
+        return (
+            isRequestRunning ||
+            form[
+                ILegalInformationConsentCheckBoxKeys.LegalInformationConsent
+            ] === false
+        );
+    }, [form, isRequestRunning]);
     const sendRequest = React.useCallback((): void => {
         if (
-            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(formError[IUserKeys.eMailAddress])
+            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(
+                formError[IUserKeys.eMailAddress]
+            )
         ) {
             return;
         }
 
-        setSubscriptionRequest(
+        request(
             new NewsletterSubscriptionRequest(
                 form[IUserKeys.eMailAddress],
                 (response: IResponse) => {
@@ -151,16 +161,13 @@ const NewsletterSubscriptionForm = (
                     } else if (successMsg) {
                         setSuccessMsg(Dict[successMsg] ?? successMsg);
                     }
-
-                    setSubscriptionRequest(null);
                 },
                 (error: any) => {
                     showNotification(Dict.error_message_timeout);
-                    setSubscriptionRequest(null);
                 }
             )
         );
-    }, [form, formError, setSubscriptionRequest, updateFormError]);
+    }, [form, formError, request, updateFormError]);
 
     const requestGrid = React.useMemo((): React.ReactElement<any> => {
         return (
@@ -208,13 +215,7 @@ const NewsletterSubscriptionForm = (
                 />
 
                 <SubmitButton
-                    disabled={
-                        !!subscriptionRequest ||
-                        form[
-                            ILegalInformationConsentCheckBoxKeys
-                                .LegalInformationConsent
-                        ] === false
-                    }
+                    disabled={disableSubmitButton}
                     label={Dict.account_sign_in}
                     onClick={sendRequest}
                     style={marginTopStyle}
@@ -249,12 +250,12 @@ const NewsletterSubscriptionForm = (
         cardContentStyle,
         cardHeaderStyle,
         cardTypographyStyle,
+        disableSubmitButton,
         form,
         formError,
         marginTopStyle,
         navigate,
         sendRequest,
-        subscriptionRequest,
         typographyStyle,
         updateForm,
         updateFormError,

@@ -44,7 +44,7 @@ import { IResponse } from "../../networking/Request";
 import { CookieService } from "../../services/CookieService";
 import EventEnrollmentCommentInput from "../form_elements/EventEnrollmentCommentInput";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import { showNotification } from "../utilities/Notifier";
 import PublicMediaUsageConsentCheckbox from "../form_elements/PublicMediaUsageConsentCheckbox";
@@ -99,7 +99,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
         ...emptyFormError,
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [request, setRequest] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
     const fetchedForm = React.useRef<IForm>();
 
     const contentIndentationStyle: React.CSSProperties = React.useMemo(
@@ -144,7 +144,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
             return;
         }
 
-        setRequest(
+        request(
             new FetchEventEnrollmentDataRequest(
                 eventItem[IEventItemKeys.eventId],
                 (response: IFetchEventEnrollmentDataResponse) => {
@@ -205,26 +205,23 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                         setIsCheckedIn(checkedIn);
                         setNotice(null);
                     }
-
-                    setRequest(null);
                 },
                 () => {
                     setNotice({
                         message: Dict.error_message_try_later,
                         type: Dict.error_type_network,
                     });
-                    setRequest(null);
                 }
             )
         );
         refetchEventItem();
-    }, [emptyFormError, eventItem, isLoggedIn, refetchEventItem, setRequest]);
+    }, [emptyFormError, eventItem, isLoggedIn, refetchEventItem, request]);
     const enroll = React.useCallback((): void => {
         if (!isLoggedIn || isEnrolled) {
             return;
         }
 
-        setRequest(
+        request(
             new EnrollEventDataRequest(
                 eventItem[IEventItemKeys.eventId],
                 form[IEventEnrollmentKeys.eventEnrollmentComment],
@@ -257,7 +254,6 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                         }
 
                         setNotice(null);
-                        setRequest(null);
                     } else {
                         updateFormError(
                             IEventEnrollmentKeys.eventEnrollmentComment,
@@ -274,7 +270,6 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                         message: Dict.error_message_try_later,
                         type: Dict.error_type_network,
                     });
-                    setRequest(null);
                 }
             )
         );
@@ -286,7 +281,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
         isEnrolled,
         isLoggedIn,
         navigate,
-        setRequest,
+        request,
         updateFormError,
     ]);
     const updateEventEnrollmentComment = React.useCallback(
@@ -304,7 +299,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                 return;
             }
 
-            setRequest(
+            request(
                 new UpdateEventEnrollmentCommentDataRequest(
                     eventItem[IEventItemKeys.eventId],
                     value,
@@ -332,33 +327,24 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                         }
 
                         setNotice(null);
-                        setRequest(null);
                     },
                     () => {
                         setNotice({
                             message: Dict.error_message_try_later,
                             type: Dict.error_type_network,
                         });
-                        setRequest(null);
                     }
                 )
             );
         },
-        [
-            eventItem,
-            formError,
-            isEnrolled,
-            isLoggedIn,
-            setRequest,
-            updateFormError,
-        ]
+        [eventItem, formError, isEnrolled, isLoggedIn, request, updateFormError]
     );
     const disenroll = React.useCallback((): void => {
         if (!isLoggedIn || !isEnrolled) {
             return;
         }
 
-        setRequest(
+        request(
             new DisenrollEventDataRequest(
                 eventItem[IEventItemKeys.eventId],
                 (response: IResponse) => {
@@ -370,8 +356,6 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                             null
                         );
                         showNotification(errorMsg);
-
-                        setRequest(null);
                     } else {
                         updateFormError(
                             IEventEnrollmentKeys.eventEnrollmentComment,
@@ -388,7 +372,6 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                         message: Dict.error_message_try_later,
                         type: Dict.error_type_network,
                     });
-                    setRequest(null);
                 }
             )
         );
@@ -397,7 +380,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
         fetchEventEnrollment,
         isEnrolled,
         isLoggedIn,
-        setRequest,
+        request,
         updateFormError,
     ]);
     const checkIn = React.useCallback((): void => {
@@ -405,7 +388,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
             return;
         }
 
-        setRequest(
+        request(
             new CheckInEventDataRequest(
                 eventItem[IEventItemKeys.eventId],
                 form[
@@ -434,7 +417,6 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                         }
 
                         setNotice(null);
-                        setRequest(null);
                     } else {
                         updateFormError(
                             IEventEnrollmentKeys.eventEnrollmentPublicMediaUsageConsent,
@@ -451,7 +433,6 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                         message: Dict.error_message_try_later,
                         type: Dict.error_type_network,
                     });
-                    setRequest(null);
                 }
             )
         );
@@ -462,7 +443,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
         isCheckedIn,
         isEnrolled,
         isLoggedIn,
-        setRequest,
+        request,
         updateFormError,
     ]);
     const updateEventEnrollmentPublicMediaUsageConsent = React.useCallback(
@@ -481,7 +462,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                 return;
             }
 
-            setRequest(
+            request(
                 new UpdateEventEnrollmentPublicMediaUsageConsentDataRequest(
                     eventItem[IEventItemKeys.eventId],
                     value,
@@ -503,8 +484,6 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                                 updateFormError(key, null);
                                 showNotification(errorMsg);
                             }
-
-                            setRequest(null);
                         } else {
                             updateFormError(key, null);
                             showNotification(successMsg);
@@ -518,7 +497,6 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                             message: Dict.error_message_try_later,
                             type: Dict.error_type_network,
                         });
-                        setRequest(null);
                     }
                 )
             );
@@ -530,7 +508,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
             isCheckedIn,
             isEnrolled,
             isLoggedIn,
-            setRequest,
+            request,
             updateFormError,
         ]
     );

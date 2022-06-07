@@ -16,7 +16,7 @@ import EMailAddressInput, {
     E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES,
 } from "../form_elements/EMailAddressInput";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -42,8 +42,7 @@ const RequestPasswordResetForm = (props: IRequestPasswordResetFormProps) => {
         [IUserKeys.eMailAddress]: null,
     });
     const [successMsg, setSuccessMsg] = React.useState<string>();
-    const [requestPasswordResetRequest, setRequestPasswordResetRequest] =
-        useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
     const suppressErrorMsgs = React.useRef<boolean>(true);
 
     const accountPasswortResetTypographyStyle: React.CSSProperties =
@@ -84,12 +83,14 @@ const RequestPasswordResetForm = (props: IRequestPasswordResetFormProps) => {
     );
     const sendRequest = React.useCallback((): void => {
         if (
-            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(formError[IUserKeys.eMailAddress])
+            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(
+                formError[IUserKeys.eMailAddress]
+            )
         ) {
             return;
         }
 
-        setRequestPasswordResetRequest(
+        request(
             new RequestPasswordResetRequest(
                 form[IUserKeys.eMailAddress],
                 (response: IResponse) => {
@@ -108,16 +109,13 @@ const RequestPasswordResetForm = (props: IRequestPasswordResetFormProps) => {
                     } else if (successMsg) {
                         setSuccessMsg(Dict[successMsg] ?? successMsg);
                     }
-
-                    setRequestPasswordResetRequest(null);
                 },
                 (error: any) => {
                     showNotification(Dict.error_message_timeout);
-                    setRequestPasswordResetRequest(null);
                 }
             )
         );
-    }, [form, formError, setRequestPasswordResetRequest, updateFormError]);
+    }, [form, formError, request, updateFormError]);
 
     const showRequestGrid = (): React.ReactElement<any> => {
         return (
@@ -139,7 +137,7 @@ const RequestPasswordResetForm = (props: IRequestPasswordResetFormProps) => {
                 />
 
                 <SubmitButton
-                    disabled={!!requestPasswordResetRequest}
+                    disabled={isRequestRunning}
                     onClick={sendRequest}
                     style={marginTopStyle}
                 />

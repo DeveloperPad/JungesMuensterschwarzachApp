@@ -27,7 +27,7 @@ import EventImagesSubPage from "../subpages/EventImagesSubPage";
 import EventInfoSubPage from "../subpages/EventInfoSubPage";
 import EventLocationSubPage from "../subpages/EventLocationSubPage";
 import Background from "../utilities/Background";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import TwoWayMap from "../utilities/TwoWayMap";
 
 type IEventItemPageProps = WithTheme & {
@@ -45,7 +45,7 @@ const EventItemPage = (props: IEventItemPageProps) => {
         [IEventItemKeys.eventTopic]: Dict.label_wait,
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [eventRequest, setEventRequest] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
 
     const tabMap = React.useMemo(
         () =>
@@ -74,7 +74,7 @@ const EventItemPage = (props: IEventItemPageProps) => {
         [eventId, navigate, tabMap]
     );
     const fetchEventItem = React.useCallback((): void => {
-        setEventRequest(
+        request(
             new FetchEventItemDataRequest(
                 eventId,
                 (response: IFetchEventItemDataResponse) => {
@@ -108,8 +108,6 @@ const EventItemPage = (props: IEventItemPageProps) => {
                                   }
                         );
                     }
-
-                    setEventRequest(null);
                 },
                 () => {
                     setEventItem(null);
@@ -119,11 +117,11 @@ const EventItemPage = (props: IEventItemPageProps) => {
                         [IEventItemKeys.eventTopic]:
                             Dict.error_message_try_later,
                     });
-                    setEventRequest(null);
                 }
             )
         );
-    }, [eventId, setEventRequest]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [eventId]);
 
     React.useEffect(() => {
         if (Number.isNaN(eventId)) {

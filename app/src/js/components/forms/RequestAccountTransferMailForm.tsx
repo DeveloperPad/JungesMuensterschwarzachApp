@@ -16,7 +16,7 @@ import EMailAddressInput, {
     E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES,
 } from "../form_elements/EMailAddressInput";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -44,10 +44,7 @@ const RequestAccountTransferMailForm = (
         [IUserKeys.eMailAddress]: null,
     });
     const [successMsg, setSuccessMsg] = React.useState<string>();
-    const [
-        requestAccountTransferMailRequest,
-        setRequestAccountTransferMailRequest,
-    ] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
     const suppressErrorMsgs = React.useRef<boolean>(true);
 
     const accountTransferMailTypographyStyle: React.CSSProperties =
@@ -95,7 +92,7 @@ const RequestAccountTransferMailForm = (
             return;
         }
 
-        setRequestAccountTransferMailRequest(
+        request(
             new RequestAccountTransferMailRequest(
                 form[IUserKeys.eMailAddress],
                 (response: IResponse) => {
@@ -114,20 +111,13 @@ const RequestAccountTransferMailForm = (
                     } else if (successMsg) {
                         setSuccessMsg(Dict[successMsg] ?? successMsg);
                     }
-                    setRequestAccountTransferMailRequest(null);
                 },
                 (error: any) => {
                     showNotification(Dict.error_message_timeout);
-                    setRequestAccountTransferMailRequest(null);
                 }
             )
         );
-    }, [
-        form,
-        formError,
-        setRequestAccountTransferMailRequest,
-        updateFormError,
-    ]);
+    }, [form, formError, request, updateFormError]);
 
     const requestGrid = React.useMemo((): React.ReactElement<any> => {
         return (
@@ -149,7 +139,7 @@ const RequestAccountTransferMailForm = (
                 />
 
                 <SubmitButton
-                    disabled={!!requestAccountTransferMailRequest}
+                    disabled={isRequestRunning}
                     onClick={sendRequest}
                     style={marginTopStyle}
                 />
@@ -159,8 +149,8 @@ const RequestAccountTransferMailForm = (
         accountTransferMailTypographyStyle,
         form,
         formError,
+        isRequestRunning,
         marginTopStyle,
-        requestAccountTransferMailRequest,
         sendRequest,
         updateForm,
         updateFormError,

@@ -36,7 +36,7 @@ import PasswordInput, {
     PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/PasswordInput";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -72,7 +72,7 @@ const LoginForm = (props: ILoginFormProps) => {
     });
     const [showGuestSignInDialog, setShowGuestSignInDialog] =
         React.useState<boolean>(false);
-    const [signInRequest, setSignInRequest] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
     const suppressErrorMsgs = React.useRef<boolean>(true);
     const navigate = useNavigate();
 
@@ -121,7 +121,9 @@ const LoginForm = (props: ILoginFormProps) => {
     );
     const validate = React.useCallback((): boolean => {
         return (
-            !E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(formError[IUserKeys.eMailAddress]) &&
+            !E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(
+                formError[IUserKeys.eMailAddress]
+            ) &&
             formError[IUserKeys.password] !== PASSWORD_INPUT_LOCAL_ERROR_MESSAGE
         );
     }, [formError]);
@@ -134,7 +136,7 @@ const LoginForm = (props: ILoginFormProps) => {
             [IUserKeys.eMailAddress]: null,
             [IUserKeys.password]: null,
         });
-        setSignInRequest(
+        request(
             new AccountSessionSignInRequest(
                 form[IUserKeys.eMailAddress],
                 form[IUserKeys.password],
@@ -170,16 +172,13 @@ const LoginForm = (props: ILoginFormProps) => {
                                 navigate(AppUrls.HOME);
                             });
                     }
-
-                    setSignInRequest(null);
                 },
                 (error: any) => {
                     showNotification(Dict.error_message_timeout);
-                    setSignInRequest(null);
                 }
             )
         );
-    }, [form, navigate, setIsLoggedIn, setSignInRequest, validate]);
+    }, [form, navigate, request, setIsLoggedIn, validate]);
     const signInAsGuest = React.useCallback((): void => {
         Promise.all([
             CookieService.set(
@@ -241,7 +240,7 @@ const LoginForm = (props: ILoginFormProps) => {
                         </Typography>
 
                         <SubmitButton
-                            disabled={!!signInRequest}
+                            disabled={isRequestRunning}
                             label={Dict.account_sign_in}
                             onClick={signIn}
                             style={topMarginStyle}

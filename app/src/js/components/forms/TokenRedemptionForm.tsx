@@ -18,7 +18,7 @@ import TokenInput, { ITokenInputKeys } from "../form_elements/TokenInput";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 
 type ITokenRedemptionFormProps = WithTheme;
 
@@ -50,8 +50,7 @@ const TokenRedemptionForm = (props: ITokenRedemptionFormProps) => {
         [ITokenInputKeys.tokenCode]: null,
     });
     const [successMsg, setSuccessMsg] = React.useState<string>();
-    const [tokenRedemptionRequest, setTokenRedemptionRequest] =
-        useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
 
     const redeemTokenTypographyStyle: React.CSSProperties = React.useMemo(
         () => ({
@@ -88,7 +87,7 @@ const TokenRedemptionForm = (props: ITokenRedemptionFormProps) => {
         []
     );
     const sendRequest = React.useCallback((): void => {
-        setTokenRedemptionRequest(
+        request(
             new TokenRedemptionRequest(
                 form[ITokenInputKeys.tokenCode],
                 (response: IResponse) => {
@@ -119,16 +118,13 @@ const TokenRedemptionForm = (props: ITokenRedemptionFormProps) => {
                             setSuccessMsg(Dict[successMsg] ?? successMsg);
                         }
                     }
-
-                    setTokenRedemptionRequest(null);
                 },
                 (error: any) => {
                     showNotification(Dict.error_message_timeout);
-                    setTokenRedemptionRequest(null);
                 }
             )
         );
-    }, [form, navigate, setTokenRedemptionRequest, updateFormError]);
+    }, [form, navigate, request, updateFormError]);
 
     React.useEffect(() => {
         if (
@@ -155,7 +151,7 @@ const TokenRedemptionForm = (props: ITokenRedemptionFormProps) => {
                 />
 
                 <SubmitButton
-                    disabled={!!tokenRedemptionRequest}
+                    disabled={isRequestRunning}
                     onClick={sendRequest}
                     style={marginTopStyle}
                 />
@@ -164,10 +160,10 @@ const TokenRedemptionForm = (props: ITokenRedemptionFormProps) => {
     }, [
         form,
         formError,
+        isRequestRunning,
         marginTopStyle,
         redeemTokenTypographyStyle,
         sendRequest,
-        tokenRedemptionRequest,
         updateForm,
     ]);
     const showResponseGrid = React.useCallback((): React.ReactElement<any> => {

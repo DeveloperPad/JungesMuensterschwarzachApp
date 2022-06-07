@@ -60,7 +60,7 @@ import PhoneNumberInput from "../form_elements/PhoneNumberInput";
 import StreetNameInput from "../form_elements/StreetNameInput";
 import SupplementaryAddressInput from "../form_elements/SupplementaryAddressInput";
 import ZipCodeInput from "../form_elements/ZipCodeInput";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import { showNotification } from "../utilities/Notifier";
 
@@ -177,7 +177,7 @@ const ProfileForm = (props: IProfileFormProps) => {
         React.useState<boolean>(false);
     const fetchedForm = React.useRef<IForm>();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [request, setRequest] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
 
     const areEnrollmentDataRequired = React.useMemo(
         () => location.pathname === AppUrls.PROFILE_ENROLLMENT_DATA,
@@ -256,7 +256,7 @@ const ProfileForm = (props: IProfileFormProps) => {
         []
     );
     const fetchAccountData = React.useCallback((): void => {
-        setRequest(
+        request(
             new FetchAccountDataRequest(
                 (response: IFetchAccountDataResponse) => {
                     const errorMsg = response.errorMsg;
@@ -298,18 +298,16 @@ const ProfileForm = (props: IProfileFormProps) => {
                         setNotice(null);
                         fetchedForm.current = downloadedForm;
                     }
-                    setRequest(null);
                 },
                 () => {
                     setNotice({
                         message: Dict.error_message_try_later,
                         type: Dict.error_type_network,
                     });
-                    setRequest(null);
                 }
             )
         );
-    }, [setRequest]);
+    }, [request]);
     const updateAccountData = React.useCallback(
         (key: IFormKeys, value: IFormValues): void => {
             if (
@@ -337,7 +335,7 @@ const ProfileForm = (props: IProfileFormProps) => {
                     "'"
             );
 
-            setRequest(
+            request(
                 new UpdateAccountDataRequest(
                     key,
                     newValue,
@@ -387,16 +385,15 @@ const ProfileForm = (props: IProfileFormProps) => {
                             message: Dict.error_message_try_later,
                             type: Dict.error_type_network,
                         });
-                        setRequest(null);
                     }
                 )
             );
         },
-        [emptyFormError, form, formError, setRequest]
+        [emptyFormError, form, formError, request]
     );
     const deleteAccountData = React.useCallback((): void => {
         setShowDeletionConfirmationDialog(false);
-        setRequest(
+        request(
             new DeleteAccountDataRequest(
                 (response: IResponse) => {
                     const errorMsg = response.errorMsg;
@@ -413,15 +410,13 @@ const ProfileForm = (props: IProfileFormProps) => {
                             type: Dict.label_warning,
                         });
                     }
-                    setRequest(null);
                 },
                 () => {
                     setNotice(null);
-                    setRequest(null);
                 }
             )
         );
-    }, [setRequest]);
+    }, [request]);
 
     React.useEffect(() => {
         CookieService.get<number>(IUserKeys.userId)

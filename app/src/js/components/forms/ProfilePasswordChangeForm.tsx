@@ -16,7 +16,7 @@ import PasswordInput, {
     PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/PasswordInput";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -49,8 +49,7 @@ const ProfilePasswordChangeForm = (props: IProfilePasswordChangeFormProps) => {
         [IUserKeys.passwordRepetition]: null,
     });
     const [infoMsg, setInfoMsg] = React.useState<string>();
-    const [updateAccountDataRequest, setUpdateAccountDataRequest] =
-        useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
     const suppressErrorMsgs = React.useRef<boolean>(true);
 
     const topMarginStyle: React.CSSProperties = React.useMemo(
@@ -118,7 +117,7 @@ const ProfilePasswordChangeForm = (props: IProfilePasswordChangeFormProps) => {
             return;
         }
 
-        setUpdateAccountDataRequest(
+        request(
             new UpdateAccountDataRequest(
                 IUserKeys.password,
                 form[IUserKeys.password],
@@ -147,16 +146,13 @@ const ProfilePasswordChangeForm = (props: IProfilePasswordChangeFormProps) => {
                     } else {
                         setInfoMsg(Dict[successMsg] ?? successMsg);
                     }
-
-                    setUpdateAccountDataRequest(null);
                 },
                 () => {
                     showNotification(Dict.error_message_timeout);
-                    setUpdateAccountDataRequest(null);
                 }
             )
         );
-    }, [form, setUpdateAccountDataRequest, validate]);
+    }, [form, request, validate]);
 
     const requestGrid = React.useMemo((): React.ReactElement<any> => {
         return (
@@ -186,7 +182,7 @@ const ProfilePasswordChangeForm = (props: IProfilePasswordChangeFormProps) => {
                 />
 
                 <SubmitButton
-                    disabled={!!updateAccountDataRequest}
+                    disabled={isRequestRunning}
                     onClick={sendRequest}
                     style={topMarginStyle}
                 />
@@ -195,10 +191,10 @@ const ProfilePasswordChangeForm = (props: IProfilePasswordChangeFormProps) => {
     }, [
         form,
         formError,
+        isRequestRunning,
         newPasswortTypographyStyle,
         sendRequest,
         topMarginStyle,
-        updateAccountDataRequest,
         updateForm,
         updateFormError,
     ]);

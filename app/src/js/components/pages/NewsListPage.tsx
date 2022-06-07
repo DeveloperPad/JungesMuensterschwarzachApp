@@ -14,7 +14,7 @@ import { CookieService } from "../../services/CookieService";
 import NewsListItem from "../list_items/NewsListItem";
 import Background from "../utilities/Background";
 import Pagination from "../utilities/Pagination";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 
 type INewsListPageProps = WithTheme;
 
@@ -25,7 +25,7 @@ const NewsListPage = (props: INewsListPageProps) => {
     const [currentPage, setCurrentPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(1);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [newsRequest, setNewsRequest] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
 
     const onChangePage = React.useCallback(
         (newPage: number): void => {
@@ -49,46 +49,43 @@ const NewsListPage = (props: INewsListPageProps) => {
             .then((accessLevel) => {
                 if (accessLevel === null) {
                     navigate(AppUrls.LOGIN);
+                } else {
+                    request(
+                        new NewsRequest(
+                            {},
+                            (response: INewsListResponse) => {
+                                if (response.errorMsg) {
+                                    const errorMsg = response.errorMsg;
+
+                                    updateNewsList([
+                                        {
+                                            newsId: -1,
+                                            postingDate: new Date(),
+                                            summary: Dict[errorMsg] ?? errorMsg,
+                                            title: Dict.error_type_server,
+                                        },
+                                    ]);
+                                } else {
+                                    updateNewsList(response.news);
+                                }
+                            },
+                            (error: string) => {
+                                updateNewsList([
+                                    {
+                                        newsId: -1,
+                                        postingDate: new Date(),
+                                        summary: Dict.error_message_try_later,
+                                        title: Dict.error_type_network,
+                                    },
+                                ]);
+                            }
+                        )
+                    );
                 }
             })
             .catch((error) => {
                 navigate(AppUrls.LOGIN);
             });
-
-        setNewsRequest(
-            new NewsRequest(
-                {},
-                (response: INewsListResponse) => {
-                    if (response.errorMsg) {
-                        const errorMsg = response.errorMsg;
-
-                        updateNewsList([
-                            {
-                                newsId: -1,
-                                postingDate: new Date(),
-                                summary: Dict[errorMsg] ?? errorMsg,
-                                title: Dict.error_type_server,
-                            },
-                        ]);
-                    } else {
-                        updateNewsList(response.news);
-                    }
-
-                    setNewsRequest(null);
-                },
-                (error: string) => {
-                    updateNewsList([
-                        {
-                            newsId: -1,
-                            postingDate: new Date(),
-                            summary: Dict.error_message_try_later,
-                            title: Dict.error_type_network,
-                        },
-                    ]);
-                    setNewsRequest(null);
-                }
-            )
-        );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

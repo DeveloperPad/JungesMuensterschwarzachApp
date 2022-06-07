@@ -18,7 +18,7 @@ import PasswordInput, {
     PASSWORD_INPUT_LOCAL_ERROR_MESSAGE,
 } from "../form_elements/PasswordInput";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -52,10 +52,7 @@ const TokenRedemptionPasswordResetPage = (
         [IUserKeys.passwordRepetition]: null,
     });
     const [successMsg, setSuccessMsg] = React.useState<string>();
-    const [
-        tokenRedemptionPasswordResetRequest,
-        setTokenRedemptionPasswordResetRequest,
-    ] = useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
     const suppressErrorMsgs = React.useRef<boolean>(true);
 
     const accountNewPasswortTypographyStyle: React.CSSProperties =
@@ -79,7 +76,7 @@ const TokenRedemptionPasswordResetPage = (
         (key: IFormKeys, value: string | boolean): void => {
             setForm((form: IForm) => ({
                 ...form,
-                [key]: value
+                [key]: value,
             }));
             suppressErrorMsgs.current = false;
         },
@@ -89,7 +86,7 @@ const TokenRedemptionPasswordResetPage = (
         (key: IFormKeys, value: string | null): void => {
             setFormError((formError: IFormError) => ({
                 ...formError,
-                [key]: value
+                [key]: value,
             }));
         },
         []
@@ -118,7 +115,7 @@ const TokenRedemptionPasswordResetPage = (
             return;
         }
 
-        setTokenRedemptionPasswordResetRequest(
+        request(
             new TokenRedemptionPasswordResetRequest(
                 tokenCode,
                 form[IUserKeys.password],
@@ -148,23 +145,13 @@ const TokenRedemptionPasswordResetPage = (
                     } else if (successMsg) {
                         setSuccessMsg(Dict[successMsg] ?? successMsg);
                     }
-
-                    setTokenRedemptionPasswordResetRequest(null);
                 },
                 (error: any) => {
                     showNotification(Dict.error_message_timeout);
-                    setTokenRedemptionPasswordResetRequest(null);
                 }
             )
         );
-    }, [
-        form,
-        formError,
-        navigate,
-        setTokenRedemptionPasswordResetRequest,
-        tokenCode,
-        updateFormError,
-    ]);
+    }, [form, formError, navigate, request, tokenCode, updateFormError]);
 
     const showRequestGrid = React.useCallback((): React.ReactElement<any> => {
         return (
@@ -197,7 +184,7 @@ const TokenRedemptionPasswordResetPage = (
                 />
 
                 <SubmitButton
-                    disabled={!!tokenRedemptionPasswordResetRequest}
+                    disabled={isRequestRunning}
                     onClick={sendRequest}
                     style={marginTopStyle}
                 />
@@ -207,9 +194,9 @@ const TokenRedemptionPasswordResetPage = (
         accountNewPasswortTypographyStyle,
         form,
         formError,
+        isRequestRunning,
         marginTopStyle,
         sendRequest,
-        tokenRedemptionPasswordResetRequest,
         updateForm,
         updateFormError,
     ]);

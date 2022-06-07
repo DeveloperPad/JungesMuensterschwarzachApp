@@ -16,7 +16,7 @@ import EMailAddressInput, {
     E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES,
 } from "../form_elements/EMailAddressInput";
 import SubmitButton from "../form_elements/SubmitButton";
-import { useStateRequest } from "../utilities/CustomHooks";
+import { useRequestQueue } from "../utilities/CustomHooks";
 import Grid from "../utilities/Grid";
 import GridItem from "../utilities/GridItem";
 import { showNotification } from "../utilities/Notifier";
@@ -42,8 +42,7 @@ const RequestActivationMailForm = (props: IRequestActivationMailFormProps) => {
         [IUserKeys.eMailAddress]: null,
     });
     const [successMsg, setSuccessMsg] = React.useState<string>();
-    const [requestActivationMailRequest, setRequestActivationMailRequest] =
-        useStateRequest();
+    const [request, isRequestRunning] = useRequestQueue();
     const suppressErrorMsgs = React.useRef<boolean>(true);
 
     const marginTopStyle: React.CSSProperties = React.useMemo(
@@ -84,12 +83,14 @@ const RequestActivationMailForm = (props: IRequestActivationMailFormProps) => {
     );
     const sendRequest = React.useCallback((): void => {
         if (
-            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(formError[IUserKeys.eMailAddress])
+            E_MAIL_ADDRESS_INPUT_LOCAL_ERROR_MESSAGES.includes(
+                formError[IUserKeys.eMailAddress]
+            )
         ) {
             return;
         }
 
-        setRequestActivationMailRequest(
+        request(
             new RequestActivationMailRequest(
                 form[IUserKeys.eMailAddress],
                 (response: IResponse) => {
@@ -108,16 +109,13 @@ const RequestActivationMailForm = (props: IRequestActivationMailFormProps) => {
                     } else if (successMsg) {
                         setSuccessMsg(Dict[successMsg] ?? successMsg);
                     }
-
-                    setRequestActivationMailRequest(null);
                 },
                 (error: any) => {
                     showNotification(Dict.error_message_timeout);
-                    setRequestActivationMailRequest(null);
                 }
             )
         );
-    }, [form, formError, setRequestActivationMailRequest, updateFormError]);
+    }, [form, formError, request, updateFormError]);
 
     const requestGrid = React.useMemo((): React.ReactElement<any> => {
         return (
@@ -139,7 +137,7 @@ const RequestActivationMailForm = (props: IRequestActivationMailFormProps) => {
                 />
 
                 <SubmitButton
-                    disabled={!!requestActivationMailRequest}
+                    disabled={isRequestRunning}
                     onClick={sendRequest}
                     style={marginTopStyle}
                 />
@@ -149,8 +147,8 @@ const RequestActivationMailForm = (props: IRequestActivationMailFormProps) => {
         accountActivationMailTypographyStyle,
         form,
         formError,
+        isRequestRunning,
         marginTopStyle,
-        requestActivationMailRequest,
         sendRequest,
         updateForm,
         updateFormError,
