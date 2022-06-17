@@ -3,9 +3,6 @@ services:
   jma-database-backup-updater:
     container_name: jma-database-backup-updater
     image: jungesmuensterschwarzach/jma-database-backup-updater:latest
-    build:
-      context: .
-      dockerfile: Dockerfile.database_backup_updater
     environment:
       JMA_BUILD_TYPE: ${JMA_BUILD_TYPE}
     restart: on-failure
@@ -18,9 +15,6 @@ services:
   jma-app:
     container_name: jma-app
     image: jungesmuensterschwarzach/jma-app:${JMA_BUILD_TYPE}
-    build:
-      context: .
-      dockerfile: Dockerfile.app.${JMA_BUILD_TYPE}
     restart: always
     networks:
       jenkins:
@@ -28,9 +22,6 @@ services:
   jma-webservice:
     container_name: jma-webservice
     image: jungesmuensterschwarzach/jma-webservice:${JMA_BUILD_TYPE}
-    build:
-      context: .
-      dockerfile: Dockerfile.webservice
     restart: always
     volumes:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
@@ -41,9 +32,6 @@ services:
   jma-cron:
     container_name: jma-cron
     image: jungesmuensterschwarzach/jma-cron:${JMA_BUILD_TYPE}
-    build:
-      context: .
-      dockerfile: Dockerfile.cron
     restart: always
     volumes:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
