@@ -35,8 +35,6 @@ services:
   jma-webservice:
     volumes:
       - ./webservice:/var/www/html
-    profiles:
-      - donotstart
   jma-cron:
     volumes:
       - ./webservice:/var/www/html
@@ -48,6 +46,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
+    profiles:
+      - donotstart
     restart: always
     volumes:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
