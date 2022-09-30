@@ -593,7 +593,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
                 <div style={lowerSeparatorStyle} />
 
                 <SubmitButton
-                    disabled={request !== null}
+                    disabled={isRequestRunning}
                     label={
                         isEnrolled ? Dict.event_disenroll : Dict.event_enroll
                     }
@@ -622,7 +622,7 @@ const EventEnrollmentForm = (props: IEventEnrollmentFormProps) => {
         isEnrolled,
         isLoggedIn,
         lowerSeparatorStyle,
-        request,
+        isRequestRunning,
         updateEventEnrollmentComment,
         updateForm,
         updateFormError,
