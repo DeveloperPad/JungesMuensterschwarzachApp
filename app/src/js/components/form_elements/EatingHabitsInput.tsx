@@ -62,11 +62,11 @@ const EatingHabitsInput = (props: IEatingHabitsInputProps) => {
             }}
             label={Dict.account_eatingHabits}
             margin="dense"
+            minRows={Formats.ROWS.STANDARD.EATING_HABITS}
             multiline={true}
             name={IUserKeys.eatingHabits}
             onBlur={onLocalBlur}
             onChange={onChange}
-            rows={Formats.ROWS.STANDARD.EATING_HABITS}
             style={grid1Style}
             value={value}
             variant="outlined"

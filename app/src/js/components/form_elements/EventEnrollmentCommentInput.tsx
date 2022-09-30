@@ -73,11 +73,11 @@ const EventEnrollmentCommentInput = (
             }}
             label={Dict.event_eventEnrollmentComment}
             margin="dense"
+            minRows={Formats.ROWS.STANDARD.EVENT_ENROLLMENT_COMMENT}
             multiline={true}
             name={IEventItemKeys.eventEnrollmentComment}
             onBlur={onLocalBlur}
             onChange={onChange}
-            rows={Formats.ROWS.STANDARD.EVENT_ENROLLMENT_COMMENT}
             style={style}
             value={value}
             variant="outlined"
