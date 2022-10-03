@@ -1,13 +1,13 @@
 import * as React from "react";
 
-import { MuiThemeProvider, TextField } from "@material-ui/core";
-
-import { Dict } from "../../constants/dict";
+import { StyledEngineProvider, TextField, ThemeProvider } from "@mui/material";
 import {
+    ThemeTypes,
     getTextFieldTheme,
     textFieldInputProps,
-    ThemeTypes,
 } from "../../constants/theme";
+
+import { Dict } from "../../constants/dict";
 import { IUserKeys } from "../../networking/account_data/IUser";
 
 interface IPasswordInputProps {
@@ -75,27 +75,29 @@ const PasswordInput = (props: IPasswordInputProps) => {
     }, [errorMessage, name, onError, value]);
 
     return (
-        <MuiThemeProvider theme={getTextFieldTheme(themeType)}>
-            <TextField
-                error={errorMessage != null && !suppressErrorMsg}
-                fullWidth={true}
-                helperText={suppressErrorMsg ? null : errorMessage}
-                inputProps={textFieldInputProps}
-                label={
-                    name && name === IUserKeys.passwordRepetition
-                        ? Dict.account_passwordRepetition
-                        : Dict.account_password
-                }
-                margin="dense"
-                name={name ? name : IUserKeys.password}
-                onChange={onChange}
-                onKeyPress={onKeyPress}
-                style={style}
-                type="password"
-                value={value}
-                variant="outlined"
-            />
-        </MuiThemeProvider>
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={getTextFieldTheme(themeType)}>
+                <TextField
+                    error={errorMessage != null && !suppressErrorMsg}
+                    fullWidth={true}
+                    helperText={suppressErrorMsg ? null : errorMessage}
+                    inputProps={textFieldInputProps}
+                    label={
+                        name && name === IUserKeys.passwordRepetition
+                            ? Dict.account_passwordRepetition
+                            : Dict.account_password
+                    }
+                    margin="dense"
+                    name={name ? name : IUserKeys.password}
+                    onChange={onChange}
+                    onKeyPress={onKeyPress}
+                    style={style}
+                    type="password"
+                    value={value}
+                    variant="outlined"
+                />
+            </ThemeProvider>
+        </StyledEngineProvider>
     );
 };
 

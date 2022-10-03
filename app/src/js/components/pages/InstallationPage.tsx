@@ -3,7 +3,7 @@ import * as React from 'react';
 import {
     Accordion, AccordionDetails, AccordionSummary, Card, CardContent, CardHeader, Typography,
     withTheme, WithTheme
-} from '@material-ui/core';
+} from '@mui/material';
 
 import { Dict } from '../../constants/dict';
 import { OperatingSystems } from '../../constants/operating-systems';

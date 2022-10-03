@@ -1,7 +1,8 @@
-import { InputBaseComponentProps } from '@material-ui/core/InputBase';
-import { createTheme, Theme } from '@material-ui/core/styles';
-import React from 'react';
 import { IUserKeys, IUserValues } from '../networking/account_data/IUser';
+import { Theme, adaptV4Theme, createTheme } from '@mui/material/styles';
+
+import { InputBaseComponentProps } from '@mui/material/InputBase';
+import React from 'react';
 
 /* general */
 
@@ -43,7 +44,7 @@ export default function getTheme(): Theme {
     return theme;
 }
 
-const theme: Theme = createTheme({
+const theme: Theme = createTheme(adaptV4Theme({
     overrides: {
         MuiButton: {
             containedPrimary: {
@@ -70,11 +71,11 @@ const theme: Theme = createTheme({
                 whiteSpace: "pre-wrap"
             }
         },
-        MuiExpansionPanelSummary: {
-            root: {
-                backgroundColor: "rgba(225, 225, 225, 1)"
-            }
-        },
+        // MuiExpansionPanelSummary: {
+        //     root: {
+        //         backgroundColor: "rgba(225, 225, 225, 1)"
+        //     }
+        // },
         MuiMenuItem: {
             root: {
                 "&:hover:not(.jma-no-background-color)": {
@@ -112,7 +113,7 @@ const theme: Theme = createTheme({
             main: CustomTheme.COLOR_SECONDARY
         }
     }
-});
+}));
 
 /* text field theme */
 
@@ -124,7 +125,7 @@ export function getTextFieldTheme(style: ThemeTypes | undefined): Theme {
     }
 }
 
-const textFieldLightTheme: Theme = createTheme({
+const textFieldLightTheme: Theme = createTheme(adaptV4Theme({
     overrides: {
         MuiFormLabel: {
             root: {
@@ -145,7 +146,7 @@ const textFieldLightTheme: Theme = createTheme({
             }
         }
     }
-});
+}));
 
 export const textFieldInputProps: InputBaseComponentProps = {
     style: {

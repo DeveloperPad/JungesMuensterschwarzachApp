@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
-import { IconButton, Tooltip } from '@material-ui/core';
-import { Person } from '@material-ui/icons';
+import { IconButton, Tooltip } from '@mui/material';
+import { Person } from '@mui/icons-material';
 
 import { Dict } from '../../../constants/dict';
 import { AppUrls } from '../../../constants/specific-urls';
@@ -37,7 +37,7 @@ const ProfileIconButton = (props: IProfileIconButtonProps) => {
 
     return (
         <Tooltip title={Dict.navigation_profile}>
-            <IconButton onClick={navigate.bind(this, AppUrls.PROFILE)}>
+            <IconButton onClick={navigate.bind(this, AppUrls.PROFILE)} size="large">
                 <Person />
             </IconButton>
         </Tooltip>

@@ -3,7 +3,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import * as React from "react";
 import ReactMapGL from "react-map-gl";
 
-import { withTheme, WithTheme } from "@material-ui/core";
+import { withTheme, WithTheme } from "@mui/material";
 import { ConfigService } from "../../services/ConfigService";
 
 type IMapProps = WithTheme & {

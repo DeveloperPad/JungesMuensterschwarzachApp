@@ -1,15 +1,14 @@
-import * as React from "react";
+import * as React from 'react';
+import Formats from '../../constants/formats';
+import { Dict } from '../../constants/dict';
+import { IUserKeys } from '../../networking/account_data/IUser';
+import { StyledEngineProvider, TextField, ThemeProvider } from '@mui/material';
 
-import { MuiThemeProvider, TextField } from "@material-ui/core";
-
-import { Dict } from "../../constants/dict";
-import Formats from "../../constants/formats";
 import {
     getTextFieldTheme,
     textFieldInputProps,
     ThemeTypes,
 } from "../../constants/theme";
-import { IUserKeys } from "../../networking/account_data/IUser";
 
 interface IEMailAddressInputProps {
     disabled?: boolean;
@@ -85,24 +84,26 @@ const EMailAddressInput = (props: IEMailAddressInputProps) => {
     }, [value]);
 
     return (
-        <MuiThemeProvider theme={getTextFieldTheme(themeType)}>
-            <TextField
-                disabled={disabled}
-                error={errorMessage !== null && !suppressErrorMsg}
-                fullWidth={true}
-                helperText={suppressErrorMsg ? null : errorMessage}
-                inputProps={textFieldInputProps}
-                label={Dict.account_eMailAddress}
-                margin="dense"
-                name={IUserKeys.eMailAddress}
-                onBlur={onLocalBlur}
-                onChange={onChange}
-                style={style}
-                type="text"
-                value={value}
-                variant="outlined"
-            />
-        </MuiThemeProvider>
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={getTextFieldTheme(themeType)}>
+                <TextField
+                    disabled={disabled}
+                    error={errorMessage !== null && !suppressErrorMsg}
+                    fullWidth={true}
+                    helperText={suppressErrorMsg ? null : errorMessage}
+                    inputProps={textFieldInputProps}
+                    label={Dict.account_eMailAddress}
+                    margin="dense"
+                    name={IUserKeys.eMailAddress}
+                    onBlur={onLocalBlur}
+                    onChange={onChange}
+                    style={style}
+                    type="text"
+                    value={value}
+                    variant="outlined"
+                />
+            </ThemeProvider>
+        </StyledEngineProvider>
     );
 };
 

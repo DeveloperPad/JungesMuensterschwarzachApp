@@ -8,12 +8,12 @@ import {
     CardContent,
     CardHeader,
     Typography,
-    withTheme,
     WithTheme,
-} from "@material-ui/core";
+    withTheme
+} from "@mui/material";
 
-import { Dict } from "../../constants/dict";
 import Background from "../utilities/Background";
+import { Dict } from "../../constants/dict";
 
 type IChangelogPageProps = WithTheme;
 

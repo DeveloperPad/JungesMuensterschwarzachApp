@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useNavigate } from "react-router";
 
-import { Toolbar, Tooltip, Typography } from "@material-ui/core";
-import MuiAppBar from "@material-ui/core/AppBar";
+import { Toolbar, Tooltip, Typography } from "@mui/material";
+import MuiAppBar from "@mui/material/AppBar";
 
 import { Dict } from "../../../constants/dict";
 import { AppUrls } from "../../../constants/specific-urls";

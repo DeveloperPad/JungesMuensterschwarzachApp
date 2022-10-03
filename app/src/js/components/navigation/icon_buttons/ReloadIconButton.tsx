@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import { IconButton, Tooltip } from "@material-ui/core";
-import { Refresh } from "@material-ui/icons";
+import { IconButton, Tooltip } from "@mui/material";
+import { Refresh } from "@mui/icons-material";
 
 import { Dict } from "../../../constants/dict";
 
@@ -12,7 +12,7 @@ const ReloadIconButton = () => {
 
     return (
         <Tooltip title={Dict.navigation_reload}>
-            <IconButton onClick={reload}>
+            <IconButton onClick={reload} size="large">
                 <Refresh />
             </IconButton>
         </Tooltip>

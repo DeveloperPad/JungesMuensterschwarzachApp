@@ -10,8 +10,8 @@ import {
     Typography,
     withTheme,
     WithTheme,
-} from "@material-ui/core";
-import { TypographyProps } from "@material-ui/core/Typography";
+} from "@mui/material";
+import { TypographyProps } from "@mui/material/Typography";
 
 import { Dict } from "../../constants/dict";
 import { CustomTheme } from "../../constants/theme";

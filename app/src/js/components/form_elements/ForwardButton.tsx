@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Button, Icon, withTheme, WithTheme } from "@material-ui/core";
+import { Button, Icon, withTheme, WithTheme } from "@mui/material";
 
 import { AppUrls } from "../../constants/specific-urls";
 import { useNavigate } from "react-router";

@@ -4,7 +4,7 @@ import {
     Typography,
     withTheme,
     WithTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 import * as React from "react";
 import { Dict } from "../../constants/dict";
 import Formats from "../../constants/formats";

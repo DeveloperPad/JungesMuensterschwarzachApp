@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Card, CardContent, CardHeader, WithTheme, withTheme } from "@material-ui/core";
+import { Card, CardContent, CardHeader, WithTheme, withTheme } from "@mui/material";
 
 import Background from "../utilities/Background";
 import { useLocation } from "react-router";

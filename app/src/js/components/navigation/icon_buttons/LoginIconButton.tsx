@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useNavigate } from "react-router";
 
-import { IconButton, Tooltip } from "@material-ui/core";
-import { Input } from "@material-ui/icons";
+import { IconButton, Tooltip } from "@mui/material";
+import { Input } from "@mui/icons-material";
 
 import { Dict } from "../../../constants/dict";
 import { AppUrls } from "../../../constants/specific-urls";
@@ -34,7 +34,7 @@ const LoginIconButton = (props: ILoginIconButtonProps) => {
 
     return (
         <Tooltip title={Dict.navigation_app_sign_in}>
-            <IconButton onClick={navigate.bind(this, AppUrls.LOGIN)}>
+            <IconButton onClick={navigate.bind(this, AppUrls.LOGIN)} size="large">
                 <Input />
             </IconButton>
         </Tooltip>

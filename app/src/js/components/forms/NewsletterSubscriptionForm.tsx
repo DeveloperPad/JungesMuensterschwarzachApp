@@ -8,7 +8,7 @@ import {
     Typography,
     withTheme,
     WithTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { Dict } from "../../constants/dict";
 import { AppUrls } from "../../constants/specific-urls";

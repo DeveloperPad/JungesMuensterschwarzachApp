@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router";
 
-import { MenuItem, Tooltip } from "@material-ui/core";
+import { MenuItem, Tooltip } from "@mui/material";
 
 import BlackLogo from "../../../../assets/images/logo_black.png";
 import { Dict } from "../../../constants/dict";

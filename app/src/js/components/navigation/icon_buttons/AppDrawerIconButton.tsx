@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import { IconButton, Tooltip } from "@material-ui/core";
-import { Menu } from "@material-ui/icons";
+import { IconButton, Tooltip } from "@mui/material";
+import { Menu } from "@mui/icons-material";
 
 import { Dict } from "../../../constants/dict";
 
@@ -14,7 +14,7 @@ const AppDrawerIconButton = (props: IAppDrawerIconButtonProps) => {
 
     return (
         <Tooltip title={Dict.navigation_main}>
-            <IconButton onClick={toggleAppDrawerVisibility}>
+            <IconButton onClick={toggleAppDrawerVisibility} size="large">
                 <Menu />
             </IconButton>
         </Tooltip>

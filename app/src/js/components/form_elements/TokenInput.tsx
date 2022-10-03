@@ -1,13 +1,13 @@
 import * as React from "react";
 
-import { MuiThemeProvider, TextField } from "@material-ui/core";
-
-import { Dict } from "../../constants/dict";
+import { StyledEngineProvider, TextField, ThemeProvider } from "@mui/material";
 import {
+    ThemeTypes,
     getTextFieldTheme,
     textFieldInputProps,
-    ThemeTypes,
 } from "../../constants/theme";
+
+import { Dict } from "../../constants/dict";
 
 export enum ITokenInputKeys {
     tokenCode = "tokenCode",
@@ -31,21 +31,23 @@ const TokenInput = (props: ITokenInputProps) => {
     );
 
     return (
-        <MuiThemeProvider theme={getTextFieldTheme(themeType)}>
-            <TextField
-                error={errorMessage != null}
-                fullWidth={true}
-                helperText={errorMessage}
-                inputProps={textFieldInputProps}
-                label={Dict.token_code}
-                margin="dense"
-                name={ITokenInputKeys.tokenCode}
-                onChange={onChange}
-                type="text"
-                value={value}
-                variant="outlined"
-            />
-        </MuiThemeProvider>
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={getTextFieldTheme(themeType)}>
+                <TextField
+                    error={errorMessage != null}
+                    fullWidth={true}
+                    helperText={errorMessage}
+                    inputProps={textFieldInputProps}
+                    label={Dict.token_code}
+                    margin="dense"
+                    name={ITokenInputKeys.tokenCode}
+                    onChange={onChange}
+                    type="text"
+                    value={value}
+                    variant="outlined"
+                />
+            </ThemeProvider>
+        </StyledEngineProvider>
     );
 };
 export default TokenInput;

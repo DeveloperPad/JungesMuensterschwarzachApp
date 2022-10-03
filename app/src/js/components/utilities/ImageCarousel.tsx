@@ -3,7 +3,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import * as React from "react";
 import { Carousel } from "react-responsive-carousel";
 
-import { withTheme, WithTheme } from "@material-ui/core";
+import { withTheme, WithTheme } from "@mui/material";
 
 import { Dict } from "../../constants/dict";
 import IImage from "../../networking/images/IImage";

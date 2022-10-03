@@ -5,7 +5,7 @@ import {
     Typography,
     withTheme,
     WithTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 import * as React from "react";
 import { useNavigate } from "react-router";
 import { Dict } from "../../constants/dict";

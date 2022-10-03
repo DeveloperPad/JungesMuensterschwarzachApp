@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Menu, MenuItem } from '@material-ui/core';
+import { Menu, MenuItem } from '@mui/material';
 
 import { Dict } from '../../../constants/dict';
 import { AppUrls } from '../../../constants/specific-urls';

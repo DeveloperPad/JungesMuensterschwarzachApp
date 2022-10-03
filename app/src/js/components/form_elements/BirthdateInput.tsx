@@ -1,13 +1,13 @@
-import moment from "moment";
-import * as React from "react";
+import * as React from 'react';
 
-import { DatePicker } from "@material-ui/pickers";
+import { grid1Style, textFieldInputProps } from '../../constants/theme';
 
-import { Dict } from "../../constants/dict";
-import Formats from "../../constants/formats";
-import { formatDate } from "../../constants/global-functions";
-import { grid1Style, textFieldInputProps } from "../../constants/theme";
-import { IUserKeys } from "../../networking/account_data/IUser";
+import DatePicker from '@mui/lab/DatePicker';
+import { Dict } from '../../constants/dict';
+import Formats from '../../constants/formats';
+import { IUserKeys } from '../../networking/account_data/IUser';
+import { formatDate } from '../../constants/global-functions';
+import moment from 'moment';
 
 interface IBirthdateInputProps {
     errorMessage: string | null;

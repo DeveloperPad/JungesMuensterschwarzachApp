@@ -1,20 +1,20 @@
 import 'moment/locale/de';
 
-import * as log from 'loglevel';
-import moment from 'moment';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
+import * as log from 'loglevel';
 
-import DateMomentUtils from '@date-io/moment';
-import { MuiThemeProvider } from '@material-ui/core';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { StyledEngineProvider, ThemeProvider } from '@mui/material';
 
+import AdapterMoment from '@mui/lab/AdapterMoment';
 import App from './App';
-import Formats from './js/constants/formats';
-import getTheme from './js/constants/theme';
-import { ServiceWorkerRegistrationService } from './js/services/ServiceWorkerRegistrationService';
+import { BrowserRouter } from 'react-router-dom';
 import { DeprecationService } from './js/services/DeprecationService';
+import Formats from './js/constants/formats';
+import { LocalizationProvider } from '@mui/lab';
+import { ServiceWorkerRegistrationService } from './js/services/ServiceWorkerRegistrationService';
+import getTheme from './js/constants/theme';
+import moment from 'moment';
 
 if (process.env.NODE_ENV === "production") {
   log.setLevel(log.levels.DEBUG);
@@ -25,13 +25,15 @@ if (process.env.NODE_ENV === "production") {
 moment.locale(Formats.DATE.LOCALE);
 
 ReactDOM.render(
-  <MuiThemeProvider theme={getTheme()}>
-    <MuiPickersUtilsProvider utils={DateMomentUtils} locale={Formats.DATE.LOCALE}>
-      <BrowserRouter basename={process.env.PUBLIC_URL}>
-        <App />
-      </BrowserRouter>
-    </MuiPickersUtilsProvider>
-  </MuiThemeProvider>,
+  <StyledEngineProvider injectFirst>
+    <ThemeProvider theme={getTheme()}>
+      <LocalizationProvider dataAdapter={AdapterMoment} locale={Formats.DATE.LOCALE}>
+        <BrowserRouter basename={process.env.PUBLIC_URL}>
+          <App />
+        </BrowserRouter>
+      </LocalizationProvider>
+    </ThemeProvider>
+  </StyledEngineProvider>,
   document.getElementById("root") as HTMLElement
 );
 

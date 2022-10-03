@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { SwipeableDrawer } from "@material-ui/core";
+import { SwipeableDrawer } from "@mui/material";
 
 import BackgroundImage from "../../../../assets/images/blurred_bg.png";
 import BlackLogoMenuItem from "../../navigation/menu_items/BlackLogoMenuItem";

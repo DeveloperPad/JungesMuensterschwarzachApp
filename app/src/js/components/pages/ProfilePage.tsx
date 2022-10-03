@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router";
 
-import { withTheme, WithTheme } from "@material-ui/core";
+import { withTheme, WithTheme } from "@mui/material";
 
 import { AppUrls } from "../../constants/specific-urls";
 import { IUserKeys, IUserValues } from "../../networking/account_data/IUser";

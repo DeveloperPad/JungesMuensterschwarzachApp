@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import { IconButton, Tooltip } from "@material-ui/core";
-import { MoreVert } from "@material-ui/icons";
+import { IconButton, Tooltip } from "@mui/material";
+import { MoreVert } from "@mui/icons-material";
 
 import { Dict } from "../../../constants/dict";
 
@@ -17,7 +17,7 @@ const AppMenuIconButton = (props: IAppMenuIconButtonProps) => {
             <IconButton
                 className="jma-app-menu-anchor"
                 onClick={toggleAppMenuVisibility}
-            >
+                size="large">
                 <MoreVert />
             </IconButton>
         </Tooltip>

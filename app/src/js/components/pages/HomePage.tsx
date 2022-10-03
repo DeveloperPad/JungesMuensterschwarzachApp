@@ -6,7 +6,7 @@ import {
     Typography,
     withTheme,
     WithTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import ChangelogIcon from "../../../assets/images/changelog.png";
 import ContactIcon from "../../../assets/images/contact.png";

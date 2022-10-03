@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { WithTheme, withTheme } from "@material-ui/core";
+import { WithTheme, withTheme } from "@mui/material";
 
 import BackgroundImage from "../../../assets/images/blurred_bg.png";
 import {

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { BottomNavigation, WithTheme, withTheme } from "@material-ui/core";
+import { BottomNavigation, WithTheme, withTheme } from "@mui/material";
 
 type IAppBottomNavigationProps = WithTheme & {
     activeTabId: number;

@@ -1,15 +1,14 @@
-import * as React from "react";
+import * as React from 'react';
+import Formats from '../../constants/formats';
+import { Dict } from '../../constants/dict';
+import { IUserKeys } from '../../networking/account_data/IUser';
+import { StyledEngineProvider, TextField, ThemeProvider } from '@mui/material';
 
-import { MuiThemeProvider, TextField } from "@material-ui/core";
-
-import { Dict } from "../../constants/dict";
-import Formats from "../../constants/formats";
 import {
     getTextFieldTheme,
     textFieldInputProps,
     ThemeTypes,
 } from "../../constants/theme";
-import { IUserKeys } from "../../networking/account_data/IUser";
 
 interface IDisplayNameInputProps {
     errorMessage: string | null;
@@ -76,26 +75,28 @@ const DisplayNameInput = (props: IDisplayNameInputProps) => {
     }, [errorMessage, onError, value]);
 
     return (
-        <MuiThemeProvider theme={getTextFieldTheme(themeType)}>
-            <TextField
-                error={errorMessage != null && !suppressErrorMsg}
-                fullWidth={true}
-                helperText={suppressErrorMsg ? null : errorMessage}
-                inputProps={{
-                    ...textFieldInputProps,
-                    maxLength: Formats.LENGTH.MAX.DISPLAY_NAME,
-                }}
-                label={Dict.account_displayName}
-                margin="dense"
-                name={IUserKeys.displayName}
-                onBlur={onLocalBlur}
-                onChange={onChange}
-                style={style}
-                type="text"
-                value={value}
-                variant="outlined"
-            />
-        </MuiThemeProvider>
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={getTextFieldTheme(themeType)}>
+                <TextField
+                    error={errorMessage != null && !suppressErrorMsg}
+                    fullWidth={true}
+                    helperText={suppressErrorMsg ? null : errorMessage}
+                    inputProps={{
+                        ...textFieldInputProps,
+                        maxLength: Formats.LENGTH.MAX.DISPLAY_NAME,
+                    }}
+                    label={Dict.account_displayName}
+                    margin="dense"
+                    name={IUserKeys.displayName}
+                    onBlur={onLocalBlur}
+                    onChange={onChange}
+                    style={style}
+                    type="text"
+                    value={value}
+                    variant="outlined"
+                />
+            </ThemeProvider>
+        </StyledEngineProvider>
     );
 };
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import Snackbar from '@material-ui/core/Snackbar';
-import SnackbarContent from '@material-ui/core/SnackbarContent';
+import Snackbar from '@mui/material/Snackbar';
+import SnackbarContent from '@mui/material/SnackbarContent';
 
 import { Dict } from '../../constants/dict';
 

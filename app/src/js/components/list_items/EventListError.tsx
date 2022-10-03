@@ -7,7 +7,7 @@ import {
     Typography,
     withTheme,
     WithTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import StandardThumbnail from "../../../assets/images/logo_colored.png";
 import Formats from "../../constants/formats";

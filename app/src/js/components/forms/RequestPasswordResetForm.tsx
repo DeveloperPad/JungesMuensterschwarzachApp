@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Typography, withTheme, WithTheme } from "@material-ui/core";
+import { Typography, withTheme, WithTheme } from "@mui/material";
 
 import { Dict } from "../../constants/dict";
 import {

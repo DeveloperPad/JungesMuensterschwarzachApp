@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Checkbox, Typography } from "@material-ui/core";
+import { Checkbox, Typography } from "@mui/material";
 
 import { Dict } from "../../constants/dict";
 import { grid1Style } from "../../constants/theme";

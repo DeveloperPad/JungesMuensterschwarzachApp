@@ -5,7 +5,7 @@ import {
     AccordionDetails,
     AccordionSummary,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { Browsers } from "../../constants/browsers";
 import { Dict } from "../../constants/dict";

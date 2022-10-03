@@ -2,7 +2,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 import * as React from "react";
 
-import { Chip } from "@material-ui/core";
+import { Chip } from "@mui/material";
 
 import { IUserKeys, IUserValues } from "../../networking/account_data/IUser";
 import { getAccessLevelBadgeStyle } from "../../constants/theme";

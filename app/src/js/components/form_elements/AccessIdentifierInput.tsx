@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 
 import { Dict } from "../../constants/dict";
 import { textFieldInputProps } from "../../constants/theme";

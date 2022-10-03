@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { withTheme, WithTheme } from "@material-ui/core";
+import { withTheme, WithTheme } from "@mui/material";
 
 import { AppUrls } from "../../constants/specific-urls";
 import { grid5Style, grid7Style } from "../../constants/theme";

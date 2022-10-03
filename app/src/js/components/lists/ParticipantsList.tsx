@@ -5,7 +5,7 @@ import {
     TableContainer,
     TableRow,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import * as React from "react";
 import { Dict } from "../../constants/dict";
 import IUser, { IUserKeys } from "../../networking/account_data/IUser";

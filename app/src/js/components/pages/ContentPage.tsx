@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { withTheme, WithTheme } from "@material-ui/core";
+import { withTheme, WithTheme } from "@mui/material";
 
 import { getContentHeight } from "../../constants/global-functions";
 import { useLocation } from "react-router";

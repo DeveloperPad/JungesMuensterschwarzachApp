@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Marker, MarkerProps } from "react-map-gl";
 
-import { WithTheme, withTheme } from "@material-ui/core";
+import { WithTheme, withTheme } from "@mui/material";
 
 type MapMarkerProps = WithTheme &
     MarkerProps & {

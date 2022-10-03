@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
-import { Card, CardContent, CardMedia, Typography, withTheme, WithTheme } from '@material-ui/core';
+import { Card, CardContent, CardMedia, Typography, withTheme, WithTheme } from '@mui/material';
 
 import { Browsers } from '../../constants/browsers';
 import { Dict } from '../../constants/dict';
