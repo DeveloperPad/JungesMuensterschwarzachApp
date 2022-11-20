@@ -1,0 +1,1 @@
+UPDATE `strings` SET `de` = 'Viele Grüße<br>Junges Münsterschwarzach Team' WHERE `strings`.`identifier` = 'mail_regards';
