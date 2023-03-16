@@ -2,7 +2,7 @@ version: '3'
 services:
   jma-database-backup-updater:
     container_name: jma-database-backup-updater
-    image: jungesmuensterschwarzach/jma-database-backup-updater:latest
+    image: jenkinsluckev/jma-database-backup-updater:latest
     environment:
       JMA_BUILD_TYPE: ${JMA_BUILD_TYPE}
     restart: on-failure
@@ -14,14 +14,14 @@ services:
       - jenkins
   jma-app:
     container_name: jma-app
-    image: jungesmuensterschwarzach/jma-app:${JMA_BUILD_TYPE}
+    image: jenkinsluckev/jma-app:${JMA_BUILD_TYPE}
     restart: always
     networks:
       jenkins:
         ipv4_address: 172.16.1.240
   jma-webservice:
     container_name: jma-webservice
-    image: jungesmuensterschwarzach/jma-webservice:${JMA_BUILD_TYPE}
+    image: jenkinsluckev/jma-webservice:${JMA_BUILD_TYPE}
     restart: always
     volumes:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
@@ -31,7 +31,7 @@ services:
         ipv4_address: 172.16.1.241
   jma-cron:
     container_name: jma-cron
-    image: jungesmuensterschwarzach/jma-cron:${JMA_BUILD_TYPE}
+    image: jenkinsluckev/jma-cron:${JMA_BUILD_TYPE}
     restart: always
     volumes:
       - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma

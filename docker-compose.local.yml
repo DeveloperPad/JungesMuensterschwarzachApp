@@ -2,7 +2,7 @@ version: '3'
 services:
   proxy:
     container_name: proxy
-    image: jungesmuensterschwarzach/jma-proxy:local
+    image: jenkinsluckev/jma-proxy:local
     build:
       context: .
       dockerfile: Dockerfile.proxy
@@ -42,7 +42,7 @@ services:
       - donotstart
   jma-api:
     container_name: jma-api
-    image: jungesmuensterschwarzach/jma-api:${JMA_BUILD_TYPE}
+    image: jenkinsluckev/jma-api:${JMA_BUILD_TYPE}
     build:
       context: .
       dockerfile: Dockerfile.api
