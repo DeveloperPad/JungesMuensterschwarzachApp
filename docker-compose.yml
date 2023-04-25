@@ -7,9 +7,9 @@ services:
       JMA_BUILD_TYPE: ${JMA_BUILD_TYPE}
     restart: on-failure
     volumes:
-      - ${JMA_IMAGES}:/workspace/storedImages
+      - jma-imgs:/workspace/storedImages
+      - jma-secrets-${JMA_BUILD_TYPE}:/var/data/secrets/jma
       - ./tools/database_update_scripts:/workspace/database_update_scripts
-      - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
     networks:
       - jenkins
   jma-app:
@@ -24,8 +24,8 @@ services:
     image: jenkinsluckev/jma-webservice:${JMA_BUILD_TYPE}
     restart: always
     volumes:
-      - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
-      - ${JMA_IMAGES}:/var/www/html/storedImages
+      - jma-imgs:/var/www/html/storedImages
+      - jma-secrets-${JMA_BUILD_TYPE}:/var/data/secrets/jma
     networks:
       jenkins:
         ipv4_address: 172.16.1.241
@@ -34,9 +34,16 @@ services:
     image: jenkinsluckev/jma-cron:${JMA_BUILD_TYPE}
     restart: always
     volumes:
-      - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
+      - jma-secrets-${JMA_BUILD_TYPE}:/var/data/secrets/jma
     networks:
       - jenkins
+volumes:
+  jma-imgs:
+    external: true
+  jma-secrets-dev:
+    external: true
+  jma-secrets-prod:
+    external: true
 networks:
   jenkins:
     external: true

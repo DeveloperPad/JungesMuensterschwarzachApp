@@ -22,8 +22,8 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ${JMA_DATABASE}:/var/lib/mysql
-      - ${MYSQL_SECRETS}:/var/data/mysql/secrets
+      - jma-database-data:/var/lib/mysql
+      - jma-database-secrets:/var/data/mysql/secrets
     networks:
       - jenkins
   jma-app:
@@ -50,28 +50,20 @@ services:
       - donotstart
     restart: always
     volumes:
-      - ${JMA_SECRETS}/${JMA_BUILD_TYPE}:/var/data/secrets/jma
+      - jma-secrets-${JMA_BUILD_TYPE}:/var/data/secrets/jma
     networks:
       jenkins:
         ipv4_address: 172.16.1.242
-  jma-phpmyadmin:
-    container_name: jma-phpmyadmin
-    image: phpmyadmin:latest
-    environment:
-      PMA_HOST: database
-      PMA_ABSOLUTE_URI: ${JMA_BASE_URL}/phpmyadmin
-      MYSQL_ROOT_PASSWORD_FILE: /var/data/mysql/secrets/root_pass
-      MEMORY_LIMIT: 1024M
-      UPLOAD_LIMIT: 1024M
-    restart: always
-    volumes:
-      - ${MYSQL_SECRETS}:/var/data/mysql/secrets
-    networks:
-      jenkins:
-        ipv4_address: 172.16.1.30
   jma-database-backup-updater:
     profiles:
       - donotstart
+volumes:
+  jma-secrets-local:
+    external: true
+  jma-database-data:
+    external: true
+  jma-database-secrets:
+    external: true
 networks:
   jenkins:
     external: true
