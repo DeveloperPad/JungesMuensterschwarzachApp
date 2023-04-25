@@ -14,6 +14,7 @@
 
 	class MailModule {
 
+		// MIGRATED
 		public static function sendSignUpRequestMail($eMailAddress, $displayName, $code, $withEnrollment) {
 			$url = self::getAccountTokenUrl($code);
 			$title = $GLOBALS["dict"]["mail_request_activation_title"];
@@ -30,6 +31,7 @@
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
+		// MIGRATED
 		public static function sendNewsletterRequestMail($eMailAddress, $code) {
 			$url = self::getNewsletterTokenUrl($code);
 			$title = $GLOBALS["dict"]["mail_request_newsletter_title"];
@@ -40,6 +42,7 @@
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
+		// MIGRATED
 		public static function sendNewsletterMail($eMailAddress, $title, $content, $code, $attachments, $replyToUser) {
 			$cancelLink = 
 				$code !== null ?
@@ -63,6 +66,7 @@
 			self::sendMail($eMailAddress, $title, $message, $attachments, $replyToUser);
 		}
 
+		// MIGRATED
 		public static function sendEventEnrollmentRequestMail(
 				$eMailAddress, $displayName, $code, $eventTitle) {
 			$url = self::getAccountTokenUrl($code);
@@ -257,7 +261,7 @@
 		}
 
 
-
+		// MIGRATED
 		public static function sendMail($recipientAddress, $title, $message, $attachments = [], $replyToUser = null) {
 			self::validateAttachments($attachments);
 			
@@ -310,6 +314,7 @@
 			}
 		}
 
+		// MIGRATED
 		private static function getAccountTokenUrl($code) {
 			return 
 				GlobalFunctions::getRequestProtocol() . "://" 
@@ -317,6 +322,7 @@
 				. rawurlencode($code);
 		}
 
+		// MIGRATED
 		private static function getNewsletterTokenUrl($code) {
 			return
 				GlobalFunctions::getRequestProtocol() . "://"
@@ -324,12 +330,14 @@
 				. rawurlencode($code);
 		}
 
+		// MIGRATED
 		private static function getProfileUrl() {
 			return
 				GlobalFunctions::getRequestProtocol() . "://"
 				. $_SERVER["HTTP_HOST"] . MAIL_PROFILE_URL;
 		}
 
+		// MIGRATED
 		private static function getEventParticipantsUrl($eventId) {
 			return 
 				GlobalFunctions::getRequestProtocol() . "://" 
@@ -337,6 +345,7 @@
 				. $eventId;
 		}
 
+		// NOT MIGRATED (SKIPPED)
 		private static function validateAttachments($attachments) {
 			foreach ($attachments as $attachment) {
 				if ($attachment["size"] > MAIL_ATTACHMENT_SIZE_MAX) {
