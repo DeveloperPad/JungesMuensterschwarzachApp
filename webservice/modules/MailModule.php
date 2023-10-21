@@ -178,12 +178,6 @@
 						. $GLOBALS["dict"]["mail_event_enrollment_notification_self_message_paragraph_1"]
 						. "<strong>" . $event["eventTitle"] . "</strong>"
 						. $GLOBALS["dict"]["mail_event_enrollment_notification_self_message_paragraph_2"]
-						. "<span style='color: #ff0000;'><strong>Hinweis</strong></span>: "
-						. "Während der Zeit des Pfingstkurses ist die Zugstrecke zwischen Würzburg Hbf und "
-						. "Nürnberg Hbf, auf der der Kitzinger Bahnhof liegt, wegen Bauarbeiten gesperrt.<br/>"
-						. "<strong>Wir bieten unseren Shuttle deshalb alternativ von und zum Würzburger Hbf an.</strong><br/>"
-						. "Weitere Informationen zur Sperrung unter: "
-						. "<a href='https://www.bahn.de/service/ueber-uns/inside-bahn/news/grossbaustellen#6'>https://www.bahn.de/service/ueber-uns/inside-bahn/news/grossbaustellen#6</a><br/><br/>"
 						. $GLOBALS["dict"]["mail_regards"];
 					self::sendMail($enrolledUser["eMailAddress"], $title, $message);
 				} catch (Exception $exc) {
