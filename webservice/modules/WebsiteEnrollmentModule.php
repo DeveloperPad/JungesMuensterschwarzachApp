@@ -241,7 +241,7 @@
 				"Mail" => "eMailAddress",
 				"Telefon" => "phoneNumber",
 				"Geburtstag" => "birthdate",
-				"Bitte sag' uns, ob du vegetarisch isst oder Allergien hast." => "eatingHabits",
+				"zutreffen" => "eatingHabits", // tmp fix for malformed eating habits line
 				"Möchtest du uns noch etwas sagen?" => "eventEnrollmentComment"
 			);
 			$content = str_replace("\r\n", "\n", trim($enrollmentContent));
@@ -252,7 +252,9 @@
 			$savedValue = "";
 			foreach ($lines as $line) {
 				$line = trim(str_replace("&nbsp;", " ", $line));
-				if ($line === "") {
+				if ($line === "" ||
+					$line === 'Bitte sag uns, ob eine der folgenden Essgewohnheiten auf dich'  // tmp fix for malformed eating habits line
+				) {
 					continue;
 				}
 
@@ -287,6 +289,9 @@
 					case array_keys($keyDict)[11]:
 						$birthdate = new DateTime($value, new DateTimeZone(SERVER_TIMEZONE));
 						$savedValue = $birthdate->format(DATE_FORMAT_USER_DATE);
+						break;
+					case array_keys($keyDict)[12]:
+						$savedValue = substr($value, 2); // tmp fix for malformed eating habits line
 						break;
 					default:
 						$savedValue = $value;
