@@ -27,7 +27,7 @@
 				$message .= $GLOBALS["dict"]["mail_request_activation_message_paragraph_enrollment"];
 			}
 			$message .= $GLOBALS["dict"]["mail_request_activation_message_paragraph_2"]
-				. $GLOBALS["dict"]["mail_regards"];
+				. self::get_signature();
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
@@ -38,7 +38,7 @@
 			$message = $GLOBALS["dict"]["mail_request_newsletter_message_paragraph_1"]
 				. "<a href=\"$url\">$url</a>"
 				. $GLOBALS["dict"]["mail_request_newsletter_message_paragraph_2"]
-				. $GLOBALS["dict"]["mail_regards"];
+				. self::get_signature();
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
@@ -79,7 +79,7 @@
 				. $GLOBALS["dict"]["mail_request_event_enrollment_message_paragraph_2"]
 				. "<a href=\"$url\">$url</a>"
 				. $GLOBALS["dict"]["mail_request_event_enrollment_message_paragraph_3"]
-				. $GLOBALS["dict"]["mail_regards"];
+				. self::get_signature();
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
@@ -92,7 +92,7 @@
 				. $GLOBALS["dict"]["mail_request_password_reset_message_paragraph_1"]
 				. "<a href=\"$url\">$url</a>"
 				. $GLOBALS["dict"]["mail_request_password_reset_message_paragraph_2"]
-				. $GLOBALS["dict"]["mail_regards"];
+				. self::get_signature();
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
@@ -107,7 +107,7 @@
 				. $GLOBALS["dict"]["mail_request_eMailAddress_update_old_message_paragraph_2"]
 				. "<a href=\"$url\">$url</a>"
 				. $GLOBALS["dict"]["mail_request_eMailAddress_update_old_message_paragraph_3"]
-				. $GLOBALS["dict"]["mail_regards"];
+				. self::get_signature();
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
@@ -120,7 +120,7 @@
 				. $GLOBALS["dict"]["mail_request_eMailAddress_update_new_message_paragraph_1"]
 				. "<a href=\"$url\">$url</a>"
 				. $GLOBALS["dict"]["mail_request_eMailAddress_update_new_message_paragraph_2"]
-				. $GLOBALS["dict"]["mail_regards"];
+				. self::get_signature();
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
@@ -134,7 +134,7 @@
 				. $GLOBALS["dict"]["mail_request_account_deletion_message_paragraph_1"]
 				. "<a href=\"$url\">$url</a>"
 				. $GLOBALS["dict"]["mail_request_account_deletion_message_paragraph_2"]
-				. $GLOBALS["dict"]["mail_regards"];
+				. self::get_signature();
 			self::sendMail($eMailAddress, $title, $message);
 		}
 
@@ -154,7 +154,7 @@
 							. $GLOBALS["dict"]["mail_event_enrollment_notification_failure_message_paragraph"]
 							. $GLOBALS["dict"]["label_failure"] . " " . $error . "<br/><br/>"
 							. json_encode($trace) . "<br/><br/>"
-							. $GLOBALS["dict"]["mail_regards"];
+							. self::get_signature();
 						self::sendMail($user["eMailAddress"], $title, $message);
 					} catch (Exception $exc) {
 						error_log($exc->getMessage());
@@ -178,7 +178,7 @@
 						. $GLOBALS["dict"]["mail_event_enrollment_notification_self_message_paragraph_1"]
 						. "<strong>" . $event["eventTitle"] . "</strong>"
 						. $GLOBALS["dict"]["mail_event_enrollment_notification_self_message_paragraph_2"]
-						. $GLOBALS["dict"]["mail_regards"];
+						. self::get_signature();
 					self::sendMail($enrolledUser["eMailAddress"], $title, $message);
 				} catch (Exception $exc) {
 					error_log($exc->getMessage());
@@ -203,7 +203,7 @@
 							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_3"]
 							. "<a href=\"" . self::getEventParticipantsUrl($eventId) . "\">" . $GLOBALS["dict"]["event_participants_list"] . "</a>"
 							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_4"]
-							. $GLOBALS["dict"]["mail_regards"];
+							. self::get_signature();
 						self::sendMail($user["eMailAddress"], $title, $message);
 					} catch (Exception $exc) {
 						error_log($exc->getMessage());
@@ -227,7 +227,7 @@
 						. $GLOBALS["dict"]["mail_event_disenrollment_notification_self_message_paragraph_1"]
 						. "<strong>" . $event["eventTitle"] . "</strong>"
 						. $GLOBALS["dict"]["mail_event_disenrollment_notification_self_message_paragraph_2"]
-						. $GLOBALS["dict"]["mail_regards"];
+						. self::get_signature();
 					self::sendMail($disenrolledUser["eMailAddress"], $title, $message);
 				} catch (Exception $exc) {
 					error_log($exc->getMessage());
@@ -249,7 +249,7 @@
 							. $GLOBALS["dict"]["mail_event_disenrollment_notification_other_message_paragraph_1"]
 							. "<strong>" . htmlspecialchars($event["eventTitle"]) . "</strong>"
 							. $GLOBALS["dict"]["mail_event_disenrollment_notification_other_message_paragraph_2"]
-							. $GLOBALS["dict"]["mail_regards"];
+							. self::get_signature();
 						self::sendMail($user["eMailAddress"], $title, $message);
 					} catch (Exception $exc) {
 						error_log($exc->getMessage());
@@ -352,6 +352,10 @@
 					throw new Exception("mail_attachment_invalid");
 				}
 			}
+		}
+
+		private static function get_signature() {
+			return file_get_contents(dirname(__DIR__).'/assets/signature.html');
 		}
 		
 	}
