@@ -241,7 +241,7 @@
 				"Mail" => "eMailAddress",
 				"Telefon" => "phoneNumber",
 				"Geburtstag" => "birthdate",
-				"zutreffen" => "eatingHabits", // tmp fix for malformed eating habits line
+				"Bitte sag uns, ob eine der folgenden Essgewohnheiten auf dich zutreffen" => "eatingHabits", // tmp fix for malformed eating habits line
 				"Möchtest du uns noch etwas sagen?" => "eventEnrollmentComment"
 			);
 			$content = str_replace("\r\n", "\n", trim($enrollmentContent));
@@ -252,9 +252,7 @@
 			$savedValue = "";
 			foreach ($lines as $line) {
 				$line = trim(str_replace("&nbsp;", " ", $line));
-				if ($line === "" ||
-					$line === 'Bitte sag uns, ob eine der folgenden Essgewohnheiten auf dich'  // tmp fix for malformed eating habits line
-				) {
+				if ($line === "") {
 					continue;
 				}
 
