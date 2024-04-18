@@ -169,6 +169,7 @@
 			try {
 				$enrolledUser = UserModule::loadUser($userId, ACCESS_LEVEL_DEVELOPER);
 				$event = EventModule::loadEvent($eventId, ACCESS_LEVEL_DEVELOPER);
+				$eventEnrollment = EventModule::loadEventEnrollment($eventId, $userId, ACCESS_LEVEL_DEVELOPER);
 
 				try {
 					$title = $GLOBALS["dict"]["mail_event_enrollment_notification_self_title"];
@@ -202,8 +203,13 @@
 							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_2"]
 							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_3"]
 							. "<a href=\"" . self::getEventParticipantsUrl($eventId) . "\">" . $GLOBALS["dict"]["event_participants_list"] . "</a>"
-							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_4"]
-							. self::get_signature();
+							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_4"];
+
+						if (!empty($eventEnrollment['eventEnrollmentComment'])) {
+							$message .= $GLOBALS["dict"]["event_eventEnrollmentComment"] . ': ' . $eventEnrollment['eventEnrollmentComment'] . '<br/><br/>';
+						}
+
+						$message .= self::get_signature();
 						self::sendMail($user["eMailAddress"], $title, $message);
 					} catch (Exception $exc) {
 						error_log($exc->getMessage());
