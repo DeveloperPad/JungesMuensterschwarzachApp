@@ -206,7 +206,8 @@
 							. $GLOBALS["dict"]["mail_event_enrollment_notification_other_message_paragraph_4"];
 
 						if (!empty($eventEnrollment['eventEnrollmentComment'])) {
-							$message .= $GLOBALS["dict"]["event_eventEnrollmentComment"] . ': ' . $eventEnrollment['eventEnrollmentComment'] . '<br/><br/>';
+							$message .= '<strong>' . $GLOBALS["dict"]["event_eventEnrollmentComment"] . '</strong>:<br/>'
+								. nl2br(htmlspecialchars($eventEnrollment['eventEnrollmentComment'])) . '<br/><br/>';
 						}
 
 						$message .= self::get_signature();
