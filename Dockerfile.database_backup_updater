@@ -6,7 +6,7 @@ RUN jar cvfm DatabaseBackupUpdater.jar deployment/manifest.database_backup_updat
 
 FROM openjdk:17-jdk-alpine as final
 WORKDIR /workspace
-RUN apk add --no-cache mysql-client git openssh
+RUN apk add --no-cache mysql-client git openssh mariadb-connector-c-dev
 COPY --from=build /var/data/AutomationTools/DatabaseBackupUpdater.jar DatabaseBackupUpdater.jar
 COPY --from=build /var/data/AutomationTools/libs ./libs
 COPY ./tools/AutomationTools/deployment/.ssh /root/.ssh
