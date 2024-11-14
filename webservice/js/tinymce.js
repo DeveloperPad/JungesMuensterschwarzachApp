@@ -13,7 +13,7 @@ tinymce.init({
             $(editor.getElement()).trigger('change');
         });
     },
-    plugins: 'preview paste importcss searchreplace autolink autoresize autosave save code visualblocks visualchars fullscreen image link media template table charmap hr nonbreaking anchor toc insertdatetime advlist lists imagetools textpattern noneditable help charmap quickbars emoticons',
+    plugins: 'preview importcss searchreplace autolink autoresize autosave save code visualblocks visualchars fullscreen image link media table charmap nonbreaking anchor insertdatetime advlist lists help charmap quickbars emoticons',
     imagetools_cors_hosts: ['picsum.photos'],
     menubar: 'edit view insert format tools table help',
     toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | preview save print | insertfile image media link anchor',
