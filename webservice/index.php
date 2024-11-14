@@ -45,8 +45,8 @@
 						<li>
 							<strong>Live-System</strong>
 							<ul>
-								<li><a href="https://app.junges-muensterschwarzach.de" target="_blank">App</a></li>
-								<li><a href="https://app.junges-muensterschwarzach.de/app-backend/index.php" target="_blank">Admin-Bereich</a></li>
+								<li><a href="https://junges-muensterschwarzach.roth-familie.eu" target="_blank">App</a></li>
+								<li><a href="https://junges-muensterschwarzach.roth-familie.eu/app-backend/index.php" target="_blank">Admin-Bereich</a></li>
 							</ul>
 						</li>
 						<li>

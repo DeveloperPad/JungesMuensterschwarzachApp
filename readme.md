@@ -11,7 +11,7 @@
     <br />
     <a href="https://www.luckev.info/app">Development Version</a>
     ·
-    <a href="https://app.junges-muensterschwarzach.de">Production Version</a>
+    <a href="https://junges-muensterschwarzach.roth-familie.eu">Production Version</a>
     ·
     <a href="https://github.com/JungesMuensterschwarzach/App/issues">Report Bug</a>
     ·

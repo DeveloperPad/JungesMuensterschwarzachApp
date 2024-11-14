@@ -559,7 +559,7 @@ E-Mail: prokura@abtei-muensterschwarzach.de",
 "legal_notice_consent_required": "Du musst das Impressum akzeptieren.", 
 "legal_notice_effective": "Stand vom 27.03.2021", 
 "legal_notice_heading": "Impressum", 
-"legal_notice_paragraph": "Für die vorliegende App „Junges Münsterschwarzach“ und dem zugehörigen Web-Service, erreichbar unter https://app.junges-muensterschwarzach.de, nachfolgend „Plattform“ genannt, sind folgende Einrichtung bzw. Personen verantwortlich im Sinne der einschlägigen gesetzlichen Bestimmungen:", 
+"legal_notice_paragraph": "Für die vorliegende App „Junges Münsterschwarzach“ und dem zugehörigen Web-Service, erreichbar unter https://junges-muensterschwarzach.roth-familie.eu, nachfolgend „Plattform“ genannt, sind folgende Einrichtung bzw. Personen verantwortlich im Sinne der einschlägigen gesetzlichen Bestimmungen:", 
 "legal_notice_responsible_content_heading": "Inhaltlich verantwortlich", 
 "legal_notice_responsible_content_paragraph": "Pater Maximilian Grund - Abtei Münsterschwarzach\
 Schweinfurter Straße 40\
