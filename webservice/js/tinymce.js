@@ -3,7 +3,9 @@ tinymce.init({
     selector: '.wysiwyg-editor',
     init_instance_callback: function (editor) {
         var freeTiny = document.querySelector('.tox .tox-notification--in');
-        freeTiny.style.display = 'none';
+        if (freeTiny) {
+            freeTiny.style.display = 'none';
+        }
     },
     setup: function(editor) {
         editor.on('change', function() {
@@ -14,7 +16,6 @@ tinymce.init({
         });
     },
     plugins: 'preview importcss searchreplace autolink autoresize autosave save code visualblocks visualchars fullscreen image link media table charmap nonbreaking anchor insertdatetime advlist lists help charmap quickbars emoticons',
-    imagetools_cors_hosts: ['picsum.photos'],
     menubar: 'edit view insert format tools table help',
     toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | preview save print | insertfile image media link anchor',
     toolbar_sticky: true,
