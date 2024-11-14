@@ -13,7 +13,7 @@
 <!-- Font Awesome -->
 <link rel="stylesheet" href="<?php echo(ROOT_PUBLIC);?>/css/fontawesome-all.css">
 <!-- TinyMCE -->
-<script src="https://cdn.tiny.cloud/1/5oubppvg07odr9hbh5n0okb17j4nhutqxlj59soxxgxiqm8p/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/65ipbwhtrsacjlbexxhxmk8nij63i8mmg61k1m9t6k9c3d0j/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 <script src="<?php echo(ROOT_PUBLIC);?>/js/tinymce.js"></script>
 <!-- Mapbox -->
 <script src='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js'></script>
